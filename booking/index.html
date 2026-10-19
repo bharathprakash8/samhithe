@@ -261,10 +261,10 @@
     <div class="row"><a class="btn btn-clay" id="doneMeet" href="#" target="_blank" rel="noopener" hidden>Open Google Meet link</a><a class="btn btn-line" href="../">Back to Samhithe</a></div>
   </section>
   <section class="card state" id="unavailable" hidden>
-    <h2>Let's find a time together</h2>
-    <p>Choose a time on Nidhi's calendar, or send her a message and she'll confirm a slot with you within 24 hours.</p>
+    <h2>Book your session</h2>
+    <p>Pick a time, pay ₹1,000 by UPI and upload your payment screenshot. Your Google Meet link arrives by email. Prefer to talk first? Message Nidhi on WhatsApp.</p>
     <div class="row">
-      <a class="btn btn-clay" id="calLink" href="#">See available times</a>
+      <a class="btn btn-clay" id="calLink" href="#">Choose a time and book</a>
       <a class="btn btn-line" href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%27d%20like%20to%20book%20a%20parent%20consultation." target="_blank" rel="noopener">WhatsApp Nidhi</a>
     </div>
   </section>
@@ -281,10 +281,10 @@
    BOOKING_API: the booking Apps Script web-app URL (ends in /exec). See apps-script/booking/SETUP.md.
    QR_IMAGE:    your UPI QR code image, saved next to this page (booking/upi-qr.png).
                 If that file is missing, a QR is generated from the UPI ID set in the Apps Script.
-   FALLBACK_CALENDAR: shown only while BOOKING_API is empty or unreachable. */
+   FALLBACK_BOOKING: the original booking app, used while BOOKING_API is empty or unreachable. */
 var BOOKING_API = "";
 var QR_IMAGE = "upi-qr.png";
-var FALLBACK_CALENDAR = "https://calendar.app.google/pmmywdd9het1e4zq5";
+var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsriCppy1CRXQFbzfpKvutLoDqy3QjYbRmD_MDv4oWNtZq0_BJABJmI/exec";
 
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -302,7 +302,7 @@ var FALLBACK_CALENDAR = "https://calendar.app.google/pmmywdd9het1e4zq5";
   })).forEach(function (a) { var o = document.createElement("option"); o.value = a[0]; o.textContent = a[1]; ageSel.appendChild(o); });
 
   function show(id) { ["flow", "sending", "done", "unavailable"].forEach(function (k) { $(k).hidden = k !== id; }); }
-  function unavailable() { $("calLink").href = FALLBACK_CALENDAR; show("unavailable"); }
+  function unavailable() { $("calLink").href = FALLBACK_BOOKING; show("unavailable"); }
 
   /* ── Slots ── */
   function loadSlots(keepDate) {
