@@ -4,37 +4,130 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Book a Session | Samhithe – Child and Family Wellness</title>
-<meta name="description" content="Book a 60-minute online parent consultation with child psychologist Nidhi Rao. ₹1,000 per session, with a Google Meet link sent by email." />
+<meta name="description" content="Book a 60-minute online parent consultation with child psychologist Nidhi Rao. Choose a time, pay ₹1,000 by UPI, and get your Google Meet link by email." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../blog/blog.css" />
 <style>
-.book-head{padding:clamp(36px,5vw,56px) 0 22px}
+.book-head{padding:clamp(34px,5vw,54px) 0 26px}
 .book-head h1{font-size:clamp(34px,4.6vw,52px)}
 .book-head .lead{margin-top:12px}
 .facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
 .facts span{background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:14px;font-weight:500;color:var(--ink-2)}
-.frame-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 10px 40px -24px rgba(43,38,34,.35)}
-.frame-card iframe{display:block;width:100%;height:min(1100px,calc(100vh - 120px));min-height:720px;border:0;background:#fff}
-.help{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:18px 0 56px;color:var(--ink-2);font-size:15px}
-.help a{color:var(--clay);font-weight:600;text-decoration:underline;text-underline-offset:3px}
-/* unused */.fallback{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(28px,5vw,48px);text-align:center}
-.fallback h2{font-size:clamp(26px,3vw,34px);margin-bottom:10px}
-.fallback p{color:var(--ink-2);max-width:520px;margin:0 auto 24px}
-.fallback .row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+
+.layout>*{min-width:0}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start;padding-bottom:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(22px,3.6vw,34px);box-shadow:0 10px 40px -26px rgba(43,38,34,.35)}
+.card+.card{margin-top:20px}
+.step-h{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.step-h .n{width:32px;height:32px;border-radius:50%;background:var(--clay-soft);color:var(--clay-d);font-weight:700;display:grid;place-items:center;font-size:14px;flex:none}
+.step-h h2{font-size:clamp(22px,2.4vw,27px);line-height:1.2}
+.card.locked{opacity:.55;pointer-events:none}
+.sub{color:var(--ink-2);font-size:15px;margin:-8px 0 16px}
+
+/* dates */
+.dates{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;scrollbar-width:thin}
+.date{flex:none;scroll-snap-align:start;width:78px;border:1.5px solid var(--line);border-radius:16px;background:var(--paper);padding:10px 6px;text-align:center;transition:border-color .15s,background .15s;color:var(--ink)}
+.date b{display:block;font-family:var(--serif);font-weight:400;font-size:27px;line-height:1.1;margin:2px 0}
+.date small{display:block;font-size:12px;color:var(--ink-2);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.date em{display:block;font-style:normal;font-size:11.5px;color:var(--leaf);font-weight:600;margin-top:3px}
+.date:hover:not(:disabled){border-color:var(--clay)}
+.date.on{border-color:var(--clay);background:var(--clay);color:#fff}
+.date.on small,.date.on em{color:#fff}
+.date:disabled{opacity:.42;cursor:not-allowed}
+.date:disabled em{color:var(--ink-2)}
+.day-label{font-weight:600;margin:14px 0 10px}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.time{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:11px 8px;font-weight:600;font-size:15px;transition:border-color .15s,background .15s;color:var(--ink)}
+.time:hover{border-color:var(--clay)}
+.time.on{background:var(--clay);border-color:var(--clay);color:#fff}
+.empty{color:var(--ink-2);font-size:15px;padding:6px 0}
+
+/* form */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-size:14px;font-weight:600}
+.field label i{font-style:normal;color:var(--clay)}
+.field label span{font-weight:400;color:var(--ink-2)}
+.field input,.field textarea,.field select{font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--paper);color:var(--ink);width:100%}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--clay);background:#fff}
+.field textarea{min-height:84px;resize:vertical}
+.field .hint{font-size:13px;color:var(--ink-2)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* payment */
+.pay{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start}
+.qr{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;text-align:center}
+.qr img{width:100%;height:auto;border-radius:8px;display:block;margin:0 auto}
+.qr #qrGen{display:flex;justify-content:center}
+.qr #qrGen img,.qr #qrGen canvas{max-width:100%;height:auto}
+.qr small{display:block;margin-top:8px;font-size:12.5px;color:var(--ink-2)}
+.amount{font-family:var(--serif);font-size:38px;line-height:1;margin-bottom:6px}
+.upi-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:9px 10px 9px 14px;margin:12px 0 16px;font-size:15px}
+.upi-row code{font-family:inherit;font-weight:700;word-break:break-all}
+.copy{margin-left:auto;border:1.5px solid var(--ink);border-radius:999px;background:#fff;padding:5px 14px;font-size:13px;font-weight:600;color:var(--ink)}
+.apps{display:flex;flex-wrap:wrap;gap:10px}
+.app{display:inline-flex;align-items:center;gap:9px;border:1.5px solid var(--line);border-radius:999px;padding:10px 18px 10px 12px;font-weight:600;font-size:15px;background:#fff}
+.app:hover{border-color:var(--ink)}
+.app .dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700}
+.desk-note{font-size:14px;color:var(--ink-2);margin-top:4px}
+.upload{margin-top:22px;border:2px dashed var(--line);border-radius:16px;padding:20px;text-align:center;background:var(--paper);transition:border-color .15s,background .15s;cursor:pointer;display:block}
+.upload:hover,.upload.drag{border-color:var(--clay);background:#fff}
+.upload b{display:block;font-size:16px}
+.upload span{font-size:14px;color:var(--ink-2)}
+.upload input{display:none}
+.preview{display:flex;align-items:center;gap:14px;text-align:left}
+.preview img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.preview .pdf{width:64px;height:64px;border-radius:10px;background:var(--clay-soft);display:grid;place-items:center;font-weight:700;color:var(--clay-d);flex:none}
+.preview .meta{flex:1;min-width:0}
+.preview .meta b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ok-tick{color:var(--leaf);font-weight:700;font-size:14px}
+
+/* summary */
+.summary{position:sticky;top:96px}
+.summary h3{font-size:22px;margin-bottom:14px}
+.sum-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.sum-row span{color:var(--ink-2)}
+.sum-row b{text-align:right}
+.sum-total{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0 18px;font-weight:700}
+.sum-total b{font-family:var(--serif);font-weight:400;font-size:28px}
+.submit{width:100%;justify-content:center;padding:16px 24px;font-size:16px}
+.submit:disabled{background:#d9c9bd;cursor:not-allowed;transform:none}
+.checklist{list-style:none;margin-top:14px;font-size:14px;color:var(--ink-2);display:grid;gap:5px}
+.checklist li::before{content:"○";margin-right:8px;color:#cdbcae}
+.checklist li.done{color:var(--ink)}
+.checklist li.done::before{content:"✓";color:var(--leaf);font-weight:700}
+.err{background:#FBE9E1;border:1px solid #F0C3AE;color:#8A3413;border-radius:12px;padding:11px 14px;font-size:14.5px;margin-top:12px}
+.secure{font-size:12.5px;color:var(--ink-2);margin-top:12px;text-align:center}
+
+/* states */
+.state{text-align:center;padding:clamp(34px,6vw,60px) clamp(20px,4vw,40px)}
+.state h2{font-size:clamp(28px,3.4vw,40px);margin-bottom:10px}
+.state p{color:var(--ink-2);max-width:540px;margin:0 auto 22px}
+.state .row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.big-tick{width:72px;height:72px;border-radius:50%;background:var(--leaf-soft);color:var(--leaf);display:grid;place-items:center;margin:0 auto 18px}
+.spinner{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--clay);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skel{height:84px;border-radius:16px;background:linear-gradient(90deg,var(--paper-2),var(--paper-3),var(--paper-2));background-size:200% 100%;animation:sh 1.3s infinite}
+@keyframes sh{to{background-position:-200% 0}}
 .btn-line{border-color:var(--ink);color:var(--ink)}
 .btn-line:hover{background:var(--ink);color:var(--paper)}
-.choose{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(26px,4.5vw,44px);box-shadow:0 10px 40px -24px rgba(43,38,34,.35)}
-.steps{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:30px}
-.steps li{counter-increment:s;display:flex;flex-direction:column;gap:4px;padding-top:46px;position:relative}
-.steps li::before{content:counter(s);position:absolute;top:0;left:0;width:34px;height:34px;border-radius:50%;background:var(--clay-soft);color:var(--clay-d);font-weight:700;display:grid;place-items:center;font-size:15px}
-.steps b{font-size:17px}
-.steps span{color:var(--ink-2);font-size:15px}
-.btn-big{padding:17px 32px;font-size:16.5px}
-.note{margin-top:14px;font-size:13.5px;color:var(--ink-2)}
-@media(max-width:720px){.steps{grid-template-columns:1fr;gap:18px}.steps li{padding:0 0 0 48px;min-height:34px}.btn-big{width:100%;justify-content:center}}
+.help{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:18px;padding-bottom:48px;color:var(--ink-2);font-size:14.5px}
+.help a{color:var(--clay);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 [hidden]{display:none !important}
+
+@media(max-width:960px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .summary{position:static}
+}
+@media(max-width:640px){
+  .grid2{grid-template-columns:1fr}
+  .pay{grid-template-columns:1fr}
+  .qr{max-width:230px;margin:0 auto;width:100%}
+  .date{width:70px}
+}
 </style>
 </head>
 <body>
@@ -67,53 +160,355 @@
 </header>
 
 <main class="wrap">
-  <section class="book-head">
+  <section class="book-head" id="head">
     <span class="eyebrow">Book a session</span>
     <h1>Parent Consultation with <em class="i">Nidhi</em></h1>
     <p class="lead">A calm, focused hour online to understand what's happening with your child, and leave with a few practical next steps.</p>
-    <div class="facts"><span>60 minutes</span><span>Online · Google Meet</span><span>₹1,000 per session</span></div>
+    <div class="facts"><span>60 minutes</span><span>Online · Google Meet</span><span>₹1,000 by UPI</span></div>
   </section>
 
-  <div class="frame-card" id="frameCard" hidden>
-    <iframe id="bookingFrame" title="Choose a time for your session with Nidhi" loading="eager"></iframe>
+  <!-- Booking flow -->
+  <div class="layout" id="flow">
+    <form id="form" novalidate>
+      <!-- Step 1 -->
+      <section class="card" id="s1">
+        <div class="step-h"><span class="n">1</span><h2>Choose a date and time</h2></div>
+        <div id="slotsLoading"><div class="skel"></div></div>
+        <div id="slotsArea" hidden>
+          <div class="dates" id="dates" aria-label="Available dates"></div>
+          <p class="day-label" id="dayLabel"></p>
+          <div class="times" id="times" aria-label="Available times"></div>
+        </div>
+        <div class="err" id="slotsErr" hidden></div>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="card locked" id="s2">
+        <div class="step-h"><span class="n">2</span><h2>About you and your child</h2></div>
+        <div class="grid2">
+          <div class="field"><label for="parentName">Parent's name <i>*</i></label><input id="parentName" autocomplete="name" required maxlength="80" /></div>
+          <div class="field"><label for="childName">Child's name <i>*</i></label><input id="childName" required maxlength="80" /></div>
+          <div class="field"><label for="childAge">Child's age <i>*</i></label>
+            <select id="childAge" required><option value="">Select age</option></select>
+          </div>
+          <div class="field"><label for="phone">Phone / WhatsApp <i>*</i></label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="98765 43210" maxlength="16" /></div>
+          <div class="field full"><label for="email">Email <i>*</i></label><input id="email" type="email" autocomplete="email" required maxlength="120" /><span class="hint">Your Google Meet link and confirmation are sent here.</span></div>
+          <div class="field full"><label for="notes">What would you like support with? <span>(optional)</span></label><textarea id="notes" maxlength="1000" placeholder="A few lines are enough, e.g. tantrums at bedtime, school refusal, screen time…"></textarea></div>
+        </div>
+        <div class="hp" aria-hidden="true"><label>Website <input id="website" tabindex="-1" autocomplete="off" /></label></div>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="card locked" id="s3">
+        <div class="step-h"><span class="n">3</span><h2>Pay ₹<span class="js-amt">1,000</span> by UPI</h2></div>
+        <p class="sub">Pay first, then upload the payment screenshot below. Your slot is confirmed when you submit.</p>
+        <div class="pay">
+          <div class="qr" id="qrBox">
+            <img id="qrImg" alt="Samhithe UPI QR code" hidden />
+            <div id="qrGen"></div>
+            <small>Scan with any UPI app</small>
+          </div>
+          <div>
+            <div class="amount">₹<span class="js-amt">1,000</span></div>
+            <div class="upi-row" id="upiRow" hidden><span>UPI ID:</span> <code id="upiId"></code><button type="button" class="copy" id="copyUpi">Copy</button></div>
+            <div class="apps" id="apps" hidden>
+              <a class="app" data-app="phonepe" href="#"><span class="dot" style="background:#5F259F">Pe</span>PhonePe</a>
+              <a class="app" data-app="gpay" href="#"><span class="dot" style="background:#1A73E8">G</span>Google Pay</a>
+              <a class="app" data-app="upi" href="#"><span class="dot" style="background:#4D7A2E">₹</span>Other UPI app</a>
+            </div>
+            <p class="desk-note" id="deskNote" hidden>On a computer? Scan the QR code with PhonePe, Google Pay, Paytm or any UPI app on your phone.</p>
+            <div class="field" style="margin-top:18px"><label for="payerUpi">UPI ID you paid from <span>(optional, helps Nidhi match your payment)</span></label><input id="payerUpi" placeholder="yourname@okhdfcbank" maxlength="80" autocomplete="off" /></div>
+          </div>
+        </div>
+
+        <label class="upload" id="drop" for="shot">
+          <input type="file" id="shot" accept="image/*,application/pdf" />
+          <div id="dropEmpty"><b>Upload payment screenshot <i style="color:var(--clay);font-style:normal">*</i></b><span>Tap to choose an image or PDF of your successful payment</span></div>
+          <div class="preview" id="dropFull" hidden>
+            <img id="shotThumb" alt="" /><div class="pdf" id="shotPdf" hidden>PDF</div>
+            <div class="meta"><b id="shotName"></b><div class="ok-tick">✓ Screenshot added</div></div>
+            <span class="copy">Change</span>
+          </div>
+        </label>
+      </section>
+    </form>
+
+    <!-- Summary -->
+    <aside class="card summary" id="summary">
+      <h3>Your booking</h3>
+      <div class="sum-row"><span>Session</span><b>Parent consultation</b></div>
+      <div class="sum-row"><span>When</span><b id="sumWhen">Choose a time</b></div>
+      <div class="sum-row"><span>Child</span><b id="sumChild">—</b></div>
+      <div class="sum-row"><span>Where</span><b>Google Meet</b></div>
+      <div class="sum-total"><span>Total</span><b>₹<span class="js-amt">1,000</span></b></div>
+      <button type="submit" form="form" class="btn btn-clay submit" id="submit" disabled>Confirm booking</button>
+      <ul class="checklist" id="checklist">
+        <li data-k="slot">Date and time chosen</li>
+        <li data-k="details">Your details filled in</li>
+        <li data-k="shot">Payment screenshot uploaded</li>
+      </ul>
+      <div class="err" id="submitErr" hidden></div>
+      <p class="secure">Your details stay private with Nidhi.</p>
+    </aside>
   </div>
 
-  <div class="choose" id="choose">
-    <ol class="steps">
-      <li><b>Choose a time</b><span>See Nidhi's open slots and pick the one that suits you.</span></li>
-      <li><b>Add your details</b><span>Your name, email and phone, plus anything you'd like Nidhi to know.</span></li>
-      <li><b>Get your Meet link</b><span>A confirmation with the Google Meet link arrives by email.</span></li>
-    </ol>
-    <a class="btn btn-clay btn-big" id="bookBtn" href="#">See available times <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <p class="note">Booking opens Google Calendar's secure scheduling page for “Session with Nidhi”.</p>
-  </div>
+  <!-- Sending / done / unavailable -->
+  <section class="card state" id="sending" hidden><div class="spinner"></div><h2>Booking your session…</h2><p>Uploading your screenshot and reserving your slot. This takes a few seconds.</p></section>
+  <section class="card state" id="done" hidden>
+    <div class="big-tick"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h2>You're booked!</h2>
+    <p id="doneText"></p>
+    <div class="row"><a class="btn btn-clay" id="doneMeet" href="#" target="_blank" rel="noopener" hidden>Open Google Meet link</a><a class="btn btn-line" href="../">Back to Samhithe</a></div>
+  </section>
+  <section class="card state" id="unavailable" hidden>
+    <h2>Let's find a time together</h2>
+    <p>Choose a time on Nidhi's calendar, or send her a message and she'll confirm a slot with you within 24 hours.</p>
+    <div class="row">
+      <a class="btn btn-clay" id="calLink" href="#">See available times</a>
+      <a class="btn btn-line" href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%27d%20like%20to%20book%20a%20parent%20consultation." target="_blank" rel="noopener">WhatsApp Nidhi</a>
+    </div>
+  </section>
 
   <div class="help">
-    <span>Prefer to talk first? <a href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%27d%20like%20to%20book%20a%20parent%20consultation." target="_blank" rel="noopener">WhatsApp Nidhi</a></span>
+    <span>Need help booking? <a href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%20need%20help%20booking%20a%20session." target="_blank" rel="noopener">WhatsApp Nidhi</a></span>
     <span>Questions? <a href="mailto:nidhi@samhithe.in">nidhi@samhithe.in</a></span>
   </div>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 /* ── Settings ───────────────────────────────────────────────────────────────
-   BOOKING_LINK: the "Session with Nidhi" booking page from Google Calendar.
-   BOOKING_EMBED_URL (optional): to show the calendar right on this page, open the
-   booking page in Google Calendar → Share → Website embed → Inline, and paste only
-   the src="…" address here (it ends in ?gv=true). Empty = show the button instead. */
-var BOOKING_LINK = "https://calendar.app.google/pmmywdd9het1e4zq5";
-var BOOKING_EMBED_URL = "";
+   BOOKING_API: the booking Apps Script web-app URL (ends in /exec). See apps-script/booking/SETUP.md.
+   QR_IMAGE:    your UPI QR code image, saved next to this page (booking/upi-qr.png).
+                If that file is missing, a QR is generated from the UPI ID set in the Apps Script.
+   FALLBACK_CALENDAR: shown only while BOOKING_API is empty or unreachable. */
+var BOOKING_API = "";
+var QR_IMAGE = "upi-qr.png";
+var FALLBACK_CALENDAR = "https://calendar.app.google/pmmywdd9het1e4zq5";
 
 (function () {
-  document.getElementById("bookBtn").href = BOOKING_LINK;
-  if (/^https:\/\/calendar\.google\.com\/calendar\/appointments\/schedules\/[\w-]+\?gv=true/.test(BOOKING_EMBED_URL)) {
-    document.getElementById("bookingFrame").src = BOOKING_EMBED_URL;
-    document.getElementById("frameCard").hidden = false;
-    document.getElementById("choose").hidden = true;
-  }
-  document.getElementById("burger").onclick = function () {
-    var o = document.getElementById("mnav").classList.toggle("open");
-    this.setAttribute("aria-expanded", o);
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { data: null, date: null, slot: null, shot: null, sending: false };
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var demo = /[?&]demo=1/.test(location.search);
+
+  $("burger").onclick = function () {
+    var o = $("mnav").classList.toggle("open"); this.setAttribute("aria-expanded", o);
   };
+  var ageSel = $("childAge");
+  [["Under 1", "Under 1 year"]].concat(Array.from({ length: 18 }, function (_, i) {
+    return [String(i + 1), (i + 1) + (i === 0 ? " year" : " years")];
+  })).forEach(function (a) { var o = document.createElement("option"); o.value = a[0]; o.textContent = a[1]; ageSel.appendChild(o); });
+
+  function show(id) { ["flow", "sending", "done", "unavailable"].forEach(function (k) { $(k).hidden = k !== id; }); }
+  function unavailable() { $("calLink").href = FALLBACK_CALENDAR; show("unavailable"); }
+
+  /* ── Slots ── */
+  function loadSlots(keepDate) {
+    $("slotsLoading").hidden = false; $("slotsArea").hidden = true; $("slotsErr").hidden = true;
+    var p = demo ? Promise.resolve(demoData()) :
+      fetch(BOOKING_API + "?action=slots", { cache: "no-store" }).then(function (r) { return r.json(); });
+    return p.then(function (d) {
+      if (!d || !d.ok) throw new Error((d && d.message) || "Could not load times");
+      S.data = d; renderPayment(); renderDates(keepDate);
+    }).catch(function () {
+      if (!S.data) { unavailable(); return; }
+      $("slotsLoading").hidden = true; $("slotsErr").hidden = false;
+      $("slotsErr").textContent = "Couldn't refresh available times. Please reload the page.";
+    });
+  }
+
+  function renderDates(keepDate) {
+    var box = $("dates"); box.innerHTML = "";
+    var first = null;
+    S.data.days.forEach(function (d) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "date"; b.disabled = !d.slots.length; b.dataset.date = d.date;
+      b.setAttribute("aria-label", d.long + (d.slots.length ? ", " + d.slots.length + " times" : ", fully booked"));
+      b.innerHTML = "<small>" + d.weekday + "</small><b>" + d.day + "</b><small>" + d.month + "</small><em>" +
+        (d.slots.length ? d.slots.length + (d.slots.length === 1 ? " slot" : " slots") : "Full") + "</em>";
+      b.onclick = function () { pickDate(d.date); };
+      box.appendChild(b);
+      if (!first && d.slots.length) first = d.date;
+    });
+    $("slotsLoading").hidden = true; $("slotsArea").hidden = false;
+    if (!first) {
+      $("dayLabel").textContent = "";
+      $("times").innerHTML = '<p class="empty">No open times in the next few weeks. Please WhatsApp Nidhi and she\'ll find a slot for you.</p>';
+      return;
+    }
+    var keep = keepDate && S.data.days.some(function (d) { return d.date === keepDate && d.slots.length; });
+    pickDate(keep ? keepDate : first, true);
+  }
+
+  function pickDate(date, silent) {
+    S.date = date;
+    if (S.slot && S.slot.date !== date) S.slot = null;
+    [].forEach.call($("dates").children, function (b) { b.classList.toggle("on", b.dataset.date === date); });
+    var d = S.data.days.filter(function (x) { return x.date === date; })[0];
+    $("dayLabel").textContent = d.long;
+    var t = $("times"); t.innerHTML = "";
+    d.slots.forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "time" + (S.slot && S.slot.start === s.start ? " on" : ""); b.textContent = s.label;
+      b.onclick = function () {
+        S.slot = { start: s.start, label: s.label, date: d.date, long: d.long };
+        [].forEach.call(t.children, function (x) { x.classList.remove("on"); }); b.classList.add("on");
+        update();
+        if (window.innerWidth < 960) setTimeout(function () { $("s2").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
+      };
+      t.appendChild(b);
+    });
+    if (!silent) { var on = $("dates").querySelector(".on"); if (on) on.scrollIntoView({ inline: "nearest", block: "nearest" }); }
+    update();
+  }
+
+  /* ── Payment ── */
+  function renderPayment() {
+    var d = S.data, price = Number(d.price || 1000), amt = price.toLocaleString("en-IN");
+    [].forEach.call(document.querySelectorAll(".js-amt"), function (el) { el.textContent = amt; });
+    var id = (d.upi && d.upi.id) || "", name = (d.upi && d.upi.name) || "Samhithe";
+    var q = "pa=" + encodeURIComponent(id) + "&pn=" + encodeURIComponent(name) + "&am=" + price.toFixed(2) +
+      "&cu=INR&tn=" + encodeURIComponent("Samhithe parent consultation");
+    if (id) { $("upiRow").hidden = false; $("upiId").textContent = id; }
+    var links = { phonepe: "phonepe://pay?" + q, gpay: (isIOS ? "gpay://upi/pay?" : "tez://upi/pay?") + q, upi: "upi://pay?" + q };
+    [].forEach.call(document.querySelectorAll(".app"), function (a) { a.href = links[a.dataset.app]; });
+    $("apps").hidden = !(isMobile && id);
+    $("deskNote").hidden = isMobile;
+
+    var img = $("qrImg");
+    img.onload = function () { img.hidden = false; $("qrGen").innerHTML = ""; };
+    img.onerror = function () {
+      img.hidden = true;
+      if (id && window.QRCode) {
+        $("qrGen").innerHTML = "";
+        new QRCode($("qrGen"), { text: "upi://pay?" + q, width: 176, height: 176, correctLevel: QRCode.CorrectLevel.M });
+      } else if (!id) { $("qrBox").hidden = true; }
+    };
+    img.src = QR_IMAGE + "?v=1";
+  }
+  $("copyUpi").onclick = function () {
+    var t = $("upiId").textContent, btn = this;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () {
+      btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy"; }, 1600);
+    }, function () { window.prompt("Copy this UPI ID", t); });
+  };
+
+  /* ── Screenshot ── */
+  var maxMb = function () { return (S.data && S.data.maxScreenshotMb) || 8; };
+  $("shot").onchange = function () { if (this.files[0]) takeFile(this.files[0]); };
+  ["dragenter", "dragover"].forEach(function (ev) { $("drop").addEventListener(ev, function (e) { e.preventDefault(); $("drop").classList.add("drag"); }); });
+  ["dragleave", "drop"].forEach(function (ev) { $("drop").addEventListener(ev, function (e) { e.preventDefault(); $("drop").classList.remove("drag"); }); });
+  $("drop").addEventListener("drop", function (e) { if (e.dataTransfer.files[0]) takeFile(e.dataTransfer.files[0]); });
+
+  function takeFile(file) {
+    $("submitErr").hidden = true;
+    var isImg = /^image\//.test(file.type), isPdf = file.type === "application/pdf";
+    if (!isImg && !isPdf) return fail("Please upload an image (JPG, PNG) or a PDF of your payment.");
+    var done = function (dataUrl, type, name) {
+      var b64 = dataUrl.split(",")[1];
+      if (b64.length * 0.75 > maxMb() * 1048576) return fail("That file is too large. Please upload one under " + maxMb() + " MB.");
+      S.shot = { name: name, type: type, data: b64 };
+      $("dropEmpty").hidden = true; $("dropFull").hidden = false; $("shotName").textContent = file.name;
+      $("shotThumb").hidden = !isImg; $("shotPdf").hidden = isImg;
+      if (isImg) $("shotThumb").src = dataUrl;
+      update();
+    };
+    var reader = new FileReader();
+    reader.onload = function () {
+      if (!isImg || /heic|heif/i.test(file.type)) return done(reader.result, file.type, file.name);
+      var im = new Image();
+      im.onload = function () {           // shrink big phone screenshots so the upload is quick
+        var sc = Math.min(1, 1800 / Math.max(im.width, im.height));
+        if (sc === 1 && file.size < 1.5 * 1048576) return done(reader.result, file.type, file.name);
+        var c = document.createElement("canvas"); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc);
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        done(c.toDataURL("image/jpeg", 0.85), "image/jpeg", file.name.replace(/\.\w+$/, "") + ".jpg");
+      };
+      im.onerror = function () { done(reader.result, file.type, file.name); };
+      im.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── Validation & summary ── */
+  ["parentName", "childName", "childAge", "phone", "email", "notes", "payerUpi"].forEach(function (f) {
+    $(f).addEventListener("input", update); $(f).addEventListener("change", update);
+  });
+  function detailsOk() {
+    return !!($("parentName").value.trim() && $("childName").value.trim() && $("childAge").value &&
+      $("phone").value.replace(/\D/g, "").length >= 10 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim()));
+  }
+  function update() {
+    var st = { slot: !!S.slot, details: detailsOk(), shot: !!S.shot };
+    $("s2").classList.toggle("locked", !st.slot);
+    $("s3").classList.toggle("locked", !st.slot);
+    $("sumWhen").textContent = S.slot ? S.slot.long + ", " + S.slot.label : "Choose a time";
+    var cn = $("childName").value.trim(), ca = $("childAge").value;
+    $("sumChild").textContent = cn ? cn + (ca ? " (" + (isNaN(ca) ? ca : ca + (ca === "1" ? " yr" : " yrs")) + ")" : "") : "—";
+    [].forEach.call($("checklist").children, function (li) { li.classList.toggle("done", st[li.dataset.k]); });
+    $("submit").disabled = !(st.slot && st.details && st.shot) || S.sending;
+  }
+  function fail(msg) { $("submitErr").textContent = msg; $("submitErr").hidden = false; }
+
+  /* ── Submit: the calendar is booked only here, after the screenshot is attached ── */
+  $("form").onsubmit = function (e) {
+    e.preventDefault();
+    if (S.sending) return;
+    if (!S.slot) return fail("Please choose a date and time.");
+    if (!detailsOk()) return fail("Please fill in all the required details: a valid email and a 10-digit phone number.");
+    if (!S.shot) return fail("Please upload the screenshot of your payment.");
+    S.sending = true; $("submitErr").hidden = true; show("sending");
+    window.scrollTo({ top: $("head").offsetTop, behavior: "smooth" });
+    var payload = {
+      action: "book", start: S.slot.start,
+      parentName: $("parentName").value.trim(), childName: $("childName").value.trim(), childAge: $("childAge").value,
+      phone: $("phone").value.trim(), email: $("email").value.trim(), notes: $("notes").value.trim(),
+      payerUpi: $("payerUpi").value.trim(), website: $("website").value, screenshot: S.shot
+    };
+    var p = demo
+      ? new Promise(function (r) { setTimeout(function () { r({ ok: true, when: S.slot.long + " at " + S.slot.label, email: payload.email, meetLink: "https://meet.google.com/" }); }, 1200); })
+      : fetch(BOOKING_API, { method: "POST", body: JSON.stringify(payload) }).then(function (r) { return r.json(); });
+    p.then(function (r) {
+      S.sending = false;
+      if (r && r.ok) {
+        $("doneText").innerHTML = "Your session is booked for <b>" + esc(r.when) + "</b> (India time). We've emailed the Google Meet link and a calendar invite to <b>" +
+          esc(r.email || payload.email) + "</b>. Nidhi will verify your payment and see you then.";
+        if (r.meetLink) { $("doneMeet").href = r.meetLink; $("doneMeet").hidden = false; }
+        show("done"); return;
+      }
+      show("flow"); fail((r && r.message) || "Something went wrong. Please try again.");
+      if (r && r.code === "SLOT_TAKEN") { S.slot = null; loadSlots(S.date); $("s1").scrollIntoView({ behavior: "smooth" }); }
+      update();
+    }).catch(function () {
+      S.sending = false; show("flow");
+      fail("We couldn't reach the booking system. Please check your connection and try again. Your slot is not booked yet.");
+      update();
+    });
+  };
+  function esc(s) { return String(s || "").replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  /* ── Demo data for previewing the page: add ?demo=1 to the address ── */
+  function demoData() {
+    var W = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], WL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], ML = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var days = [];
+    for (var i = 1; i <= 21; i++) {
+      var d = new Date(); d.setDate(d.getDate() + i);
+      var slots = [];
+      if (d.getDay() !== 0 && i !== 3) [10, 11, 12, 14, 15, 16, 17].forEach(function (h, k) {
+        if ((i + k) % 4 === 0) return;
+        var s = new Date(d); s.setHours(h, 0, 0, 0);
+        slots.push({ start: s.toISOString(), label: (h % 12 || 12) + ":00 " + (h < 12 ? "AM" : "PM") });
+      });
+      days.push({ date: d.toISOString().slice(0, 10), weekday: W[d.getDay()], day: String(d.getDate()), month: M[d.getMonth()], long: WL[d.getDay()] + ", " + d.getDate() + " " + ML[d.getMonth()], slots: slots });
+    }
+    return { ok: true, price: 1000, upi: { id: "nidhirao.1997-2@okaxis", name: "Nidhi Rao" }, maxScreenshotMb: 8, days: days };
+  }
+
+  if (!BOOKING_API && !demo) unavailable();
+  else loadSlots();
 })();
 </script>
 </body>

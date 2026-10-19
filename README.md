@@ -5,7 +5,7 @@ Website for [samhithe.in](https://samhithe.in), hosted on GitHub Pages.
 ## Structure
 - `index.html` – the full single-page site (Home, About Nidhi, Services, Contact)
 - `apps-script/Code.gs` – Google Apps Script backend for the contact form
-- `booking/index.html` – the Book a Session page; links to the Google Calendar booking page
+- `booking/index.html` – the Book a Session page; the Book a Session flow
 - `bookings/index.html` – redirects `/bookings` to `/booking/`
 - `.nojekyll` – serve files as-is
 
@@ -20,9 +20,13 @@ The site goes live at `https://bharathprakash8.github.io/samhithe/`.
 Until then, the form opens a pre-filled email to nidhi@samhithe.in.
 
 ## Booking page
-`booking/index.html` sends parents to the Google Calendar booking page "Session with Nidhi" (`BOOKING_LINK`).
-To show the calendar inside the page instead, paste the Website embed `src` address (ends in `?gv=true`) into `BOOKING_EMBED_URL`.
-Get it in Google Calendar: open the booking page → Share → Website embed → Inline.
+`booking/index.html` is the full booking flow: date-wise slots, parent and child details, UPI payment
+(QR code `booking/upi-qr.png`, PhonePe and Google Pay buttons) and a required payment screenshot.
+The calendar is booked only when the form is submitted with the screenshot.
+
+It runs on the Apps Script in `apps-script/booking/`. Follow `apps-script/booking/SETUP.md`, then paste the
+web-app URL into `BOOKING_API` in `booking/index.html`. Until then the page the Book a Session flow.
+Preview the flow with sample data at `/booking/?demo=1`.
 
 ## Point samhithe.in here (when ready)
 1. Settings → Pages → Custom domain: `samhithe.in` (this adds a `CNAME` file).
