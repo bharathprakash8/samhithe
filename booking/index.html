@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Book a Session | Samhithe – Child and Family Wellness</title>
-<meta name="description" content="Book a 60-minute online parent consultation with child psychologist Nidhi Rao. ₹1,000, paid by UPI, with a Google Meet link sent by email." />
+<meta name="description" content="Book a 60-minute online parent consultation with child psychologist Nidhi Rao. ₹1,000 per session, with a Google Meet link sent by email." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -19,12 +19,21 @@
 .frame-card iframe{display:block;width:100%;height:min(1100px,calc(100vh - 120px));min-height:720px;border:0;background:#fff}
 .help{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:18px 0 56px;color:var(--ink-2);font-size:15px}
 .help a{color:var(--clay);font-weight:600;text-decoration:underline;text-underline-offset:3px}
-.fallback{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(28px,5vw,48px);text-align:center}
+/* unused */.fallback{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(28px,5vw,48px);text-align:center}
 .fallback h2{font-size:clamp(26px,3vw,34px);margin-bottom:10px}
 .fallback p{color:var(--ink-2);max-width:520px;margin:0 auto 24px}
 .fallback .row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .btn-line{border-color:var(--ink);color:var(--ink)}
 .btn-line:hover{background:var(--ink);color:var(--paper)}
+.choose{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(26px,4.5vw,44px);box-shadow:0 10px 40px -24px rgba(43,38,34,.35)}
+.steps{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:30px}
+.steps li{counter-increment:s;display:flex;flex-direction:column;gap:4px;padding-top:46px;position:relative}
+.steps li::before{content:counter(s);position:absolute;top:0;left:0;width:34px;height:34px;border-radius:50%;background:var(--clay-soft);color:var(--clay-d);font-weight:700;display:grid;place-items:center;font-size:15px}
+.steps b{font-size:17px}
+.steps span{color:var(--ink-2);font-size:15px}
+.btn-big{padding:17px 32px;font-size:16.5px}
+.note{margin-top:14px;font-size:13.5px;color:var(--ink-2)}
+@media(max-width:720px){.steps{grid-template-columns:1fr;gap:18px}.steps li{padding:0 0 0 48px;min-height:34px}.btn-big{width:100%;justify-content:center}}
 [hidden]{display:none !important}
 </style>
 </head>
@@ -61,46 +70,45 @@
   <section class="book-head">
     <span class="eyebrow">Book a session</span>
     <h1>Parent Consultation with <em class="i">Nidhi</em></h1>
-    <p class="lead">Pick a time that suits you, pay by UPI, and your Google Meet link arrives by email straight away.</p>
-    <div class="facts"><span>60 minutes</span><span>Online · Google Meet</span><span>₹1,000 by UPI</span></div>
+    <p class="lead">A calm, focused hour online to understand what's happening with your child, and leave with a few practical next steps.</p>
+    <div class="facts"><span>60 minutes</span><span>Online · Google Meet</span><span>₹1,000 per session</span></div>
   </section>
 
   <div class="frame-card" id="frameCard" hidden>
-    <iframe id="bookingFrame" title="Book a session with Samhithe" allow="clipboard-write" loading="eager"></iframe>
-  </div>
-  <div class="help" id="help" hidden>
-    <span>Booking form not loading? <a id="openNew" href="#" target="_blank" rel="noopener">Open it in a new tab</a></span>
-    <span>Questions? <a href="mailto:nidhi@samhithe.in">nidhi@samhithe.in</a></span>
+    <iframe id="bookingFrame" title="Choose a time for your session with Nidhi" loading="eager"></iframe>
   </div>
 
-  <div class="fallback" id="fallback" hidden>
-    <h2>Let's find a time together</h2>
-    <p>Online booking is being updated. Send Nidhi a message and she'll personally confirm a slot with you within 24 hours.</p>
-    <div class="row">
-      <a class="btn btn-clay" href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%27d%20like%20to%20book%20a%20parent%20consultation." target="_blank" rel="noopener">WhatsApp Nidhi</a>
-      <a class="btn btn-line" href="mailto:nidhi@samhithe.in?subject=Booking%20a%20parent%20consultation">Email nidhi@samhithe.in</a>
-    </div>
+  <div class="choose" id="choose">
+    <ol class="steps">
+      <li><b>Choose a time</b><span>See Nidhi's open slots and pick the one that suits you.</span></li>
+      <li><b>Add your details</b><span>Your name, email and phone, plus anything you'd like Nidhi to know.</span></li>
+      <li><b>Get your Meet link</b><span>A confirmation with the Google Meet link arrives by email.</span></li>
+    </ol>
+    <a class="btn btn-clay btn-big" id="bookBtn" href="#">See available times <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <p class="note">Booking opens Google Calendar's secure scheduling page for “Session with Nidhi”.</p>
   </div>
-  <div style="height:56px" id="spacer" hidden></div>
+
+  <div class="help">
+    <span>Prefer to talk first? <a href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%27d%20like%20to%20book%20a%20parent%20consultation." target="_blank" rel="noopener">WhatsApp Nidhi</a></span>
+    <span>Questions? <a href="mailto:nidhi@samhithe.in">nidhi@samhithe.in</a></span>
+  </div>
 </main>
 
 <script>
-/* ── The only setting on this page ──────────────────────────────────────────
-   Paste the booking Apps Script web-app URL (ends in /exec) between the quotes.
-   Find it at script.google.com → booking project → Deploy → Manage deployments.
-   Leave empty to show the "message Nidhi" fallback instead of the booking form. */
-var BOOKING_APP_URL = "";
+/* ── Settings ───────────────────────────────────────────────────────────────
+   BOOKING_LINK: the "Session with Nidhi" booking page from Google Calendar.
+   BOOKING_EMBED_URL (optional): to show the calendar right on this page, open the
+   booking page in Google Calendar → Share → Website embed → Inline, and paste only
+   the src="…" address here (it ends in ?gv=true). Empty = show the button instead. */
+var BOOKING_LINK = "https://calendar.app.google/pmmywdd9het1e4zq5";
+var BOOKING_EMBED_URL = "";
 
 (function () {
-  var ok = /^https:\/\/script\.google\.com\/(a\/[^/]+\/)?macros\/s\/[\w-]+\/exec/.test(BOOKING_APP_URL);
-  if (ok) {
-    document.getElementById("bookingFrame").src = BOOKING_APP_URL;
-    document.getElementById("openNew").href = BOOKING_APP_URL;
+  document.getElementById("bookBtn").href = BOOKING_LINK;
+  if (/^https:\/\/calendar\.google\.com\/calendar\/appointments\/schedules\/[\w-]+\?gv=true/.test(BOOKING_EMBED_URL)) {
+    document.getElementById("bookingFrame").src = BOOKING_EMBED_URL;
     document.getElementById("frameCard").hidden = false;
-    document.getElementById("help").hidden = false;
-  } else {
-    document.getElementById("fallback").hidden = false;
-    document.getElementById("spacer").hidden = false;
+    document.getElementById("choose").hidden = true;
   }
   document.getElementById("burger").onclick = function () {
     var o = document.getElementById("mnav").classList.toggle("open");
