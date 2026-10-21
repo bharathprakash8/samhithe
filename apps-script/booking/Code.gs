@@ -13,7 +13,7 @@
  *   • Time off     – dates when no sessions can be booked (holidays, leave).
  *   • Settings     – session length, gap between sessions, notice, how far ahead.
  *   • Bookings     – every booking, with the payment screenshot and Payment Status.
- *   • Intake       – the child & family intake answered by first-time parents before booking.
+ *   • Intake       – every child & family intake (website + the old Google Form answers, copied in).
  *   • School enquiries – call-back requests from preschools / schools.
  * Changes show on the website within a minute – no code changes or redeploys needed.
  *
@@ -38,7 +38,7 @@ var CONFIG = {
   CALENDAR_ID: 'primary',
   NOTIFY_EMAIL: '',                    // where new-booking alerts go; empty = the script owner
   MAX_SCREENSHOT_MB: 8,
-  INTAKE_FORM_ID: '1CmylFbrq-nIFeFZp6-QUI4D6c40eGe-JtYFbNlRyg9o',   // Nidhi's original Google intake form
+  OLD_FORM_ID: '1CmylFbrq-nIFeFZp6-QUI4D6c40eGe-JtYFbNlRyg9o',      // Nidhi's old Google intake form (retired; answers copied to Intake)
   SHEET_NAME: 'Samhithe – Bookings & Availability',
   FOLDER_NAME: 'Samhithe – Payment Screenshots'
 };
@@ -111,8 +111,9 @@ function cachedSlots_() {
   return r;
 }
 
-/** Time-driven, every minute: keeps the slot list fresh in the cache so the booking page gets an instant answer. */
+/** Time-driven, every minute: finishes queued booking follow-ups and keeps the slot list fresh in the cache. */
 function warmSlots() {
+  processQueue_();                       // finish recent bookings first (emails, intake row)
   applySettings_();
   var r = getSlots_();
   try { CacheService.getScriptCache().put('slots_v1', JSON.stringify(r), 90); } catch (x) {}
@@ -328,17 +329,17 @@ function book_(b) {
   cache.put(key, String(count + 1), 3600);
 
   var start = new Date(f.start), end = new Date(start.getTime() + CONFIG.SESSION_MINUTES * 60000);
+  var t0 = Date.now(), steps = [];
+  var lap = function (s) { steps.push(s + ' ' + (Date.now() - t0) + 'ms'); };
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
+  var tz = Session.getScriptTimeZone(), when, file, meet;
   try {
-    var open = getSlots_().days.some(function (d) {
-      return d.slots.some(function (s) { return s.start === start.toISOString(); });
-    });
-    if (!open) return { ok: false, code: 'SLOT_TAKEN', message: 'Sorry, that time was just booked. Please choose another slot.' };
-
-    var tz = Session.getScriptTimeZone();
-    var when = Utilities.formatDate(start, tz, "EEEE, d MMMM yyyy 'at' h:mm a");
-    var file = saveScreenshot_(b.screenshot, f, start);
+    if (!slotFree_(start, end)) return { ok: false, code: 'SLOT_TAKEN', message: 'Sorry, that time was just booked. Please choose another slot.' };
+    lap('slot');
+    when = Utilities.formatDate(start, tz, "EEEE, d MMMM yyyy 'at' h:mm a");
+    file = saveScreenshot_(b.screenshot, f, start);
+    lap('screenshot');
 
     var description = [
       'Parent consultation booked via samhithe.in',
@@ -364,23 +365,75 @@ function book_(b) {
       conferenceData: { createRequest: { requestId: Utilities.getUuid(), conferenceSolutionKey: { type: 'hangoutsMeet' } } },
       extendedProperties: { private: { source: 'samhithe-booking', screenshot: file.getUrl() } }
     }, CONFIG.CALENDAR_ID, { conferenceDataVersion: 1, sendUpdates: 'all' });
+    meet = event.hangoutLink || '';
+    lap('calendar');
 
-    var meet = event.hangoutLink || '';
     getSheet_().appendRow([new Date(), start, end, f.childName, f.childAge, f.parentName, f.email,
       "'" + f.phone, f.payerUpi, f.notes, file.getUrl(), meet, event.id, 'To verify']);
-
-    if (intake.length) { saveIntake_(f, start, intake); submitToForm_(f, intake); }
-
     try { CacheService.getScriptCache().remove('slots_v1'); } catch (x) {}
-
-    sendParentEmail_(f, when, meet);
-    sendNidhiEmail_(f, when, meet, file, intake, who);
-
-    return { ok: true, when: when, meetLink: meet, email: f.email,
-      message: 'Your session is booked for ' + when + '.' };
+    lap('sheet');
   } finally {
     lock.releaseLock();
   }
+
+  // The parent is confirmed now. Emails and the intake row are finished by warmSlots within a minute.
+  queueFollowUp_({ f: f, start: start.toISOString(), when: when, meet: meet, fileId: file.getId(), intake: intake, who: who });
+  lap('queued');
+  console.log('Booking timings: ' + steps.join(', '));
+  return { ok: true, when: when, meetLink: meet, email: f.email,
+    message: 'Your session is booked for ' + when + '.' };
+}
+
+/** Is this exact time still offered and still free on Nidhi's calendar? (Cheap: cached slot list + a one-hour calendar read.) */
+function slotFree_(start, end) {
+  var iso = start.toISOString();
+  var listed = cachedSlots_().days.some(function (d) { return d.slots.some(function (s) { return s.start === iso; }); });
+  if (!listed) return false;
+  var pad = CONFIG.BUFFER_MINUTES * 60000;
+  var cal = CONFIG.CALENDAR_ID === 'primary' ? CalendarApp.getDefaultCalendar() : CalendarApp.getCalendarById(CONFIG.CALENDAR_ID);
+  return !cal.getEvents(new Date(start.getTime() - pad), new Date(end.getTime() + pad)).some(function (ev) {
+    if (ev.isAllDayEvent()) return false;
+    try { if (ev.getMyStatus() === CalendarApp.GuestStatus.NO) return false; } catch (x) {}
+    return true;
+  });
+}
+
+/* ───────────────────────── Booking follow-ups (run in the background) ───────────────────────── */
+
+function queueFollowUp_(job) {
+  var s = JSON.stringify(job);
+  if (s.length > 8500) { finishBooking_(job, true); return; }      // too big to queue: finish it right away
+  PropertiesService.getScriptProperties().setProperty('job_' + Date.now() + '_' + Utilities.getUuid().slice(0, 6), s);
+}
+
+/** Runs queued follow-ups. Each step is done once; a failed step is retried on the next run (up to 5 times). */
+function processQueue_() {
+  var props = PropertiesService.getScriptProperties(), all = props.getProperties();
+  Object.keys(all).filter(function (k) { return k.indexOf('job_') === 0; }).sort().forEach(function (k) {
+    if (props.getProperty(k) == null) return;                    // another run already took it
+    props.deleteProperty(k);
+    var job;
+    try { job = JSON.parse(all[k]); } catch (x) { return; }
+    try { finishBooking_(job, false); }
+    catch (x) {
+      job.tries = (job.tries || 0) + 1;
+      console.error('Booking follow-up failed (try ' + job.tries + '): ' + x);
+      props.setProperty((job.tries < 5 ? 'job_' : 'failed_') + k.slice(4), JSON.stringify(job));
+    }
+  });
+}
+
+function finishBooking_(job, swallow) {
+  var f = job.f, start = new Date(job.start), done = job.done = job.done || {}, errs = [];
+  var step = function (name, fn) {
+    if (done[name]) return;
+    try { fn(); done[name] = 1; } catch (x) { errs.push(name + ': ' + x); }
+  };
+  step('intake', function () { if (job.intake && job.intake.length) saveIntake_(f, start, job.intake); });
+  step('parent', function () { sendParentEmail_(f, job.when, job.meet); });
+  step('nidhi', function () { sendNidhiEmail_(f, job.when, job.meet, DriveApp.getFileById(job.fileId), job.intake, job.who); });
+  if (errs.length && !swallow) throw new Error(errs.join(' | '));
+  if (errs.length) console.error('Booking follow-up: ' + errs.join(' | '));
 }
 
 function validate_(f, shot) {
@@ -430,7 +483,7 @@ function sendNidhiEmail_(f, when, meet, file, intake, who) {
   var intakeHtml = intake && intake.length
     ? '<h3 style="margin:26px 0 8px">Intake (first session)</h3><table style="border-collapse:collapse;font-size:14px">' +
       intake.map(function (qa) { return row_(qa[0], qa[1] || '—'); }).join('') + '</table>'
-    : '<p style="color:#6A5F57">Returning parent – intake already on file (see the Intake tab or the Google Form responses).</p>';
+    : '<p style="color:#6A5F57">Returning parent – intake already on file (see the Intake tab of the bookings sheet).</p>';
   MailApp.sendEmail({
     to: notifyEmail_(),
     replyTo: f.email,
@@ -475,7 +528,7 @@ function lookup_(b) {
 
 function hasIntake_(email, phone) { return intakeMatch_(email, phone).both; }
 
-/** Earlier intake on file (website Intake tab + Nidhi's Google Form)? both = email AND phone match one entry; any = either matches. */
+/** Earlier intake on file (Intake tab)? both = email AND phone match one entry; any = either matches. */
 function intakeMatch_(email, phone) {
   var e = String(email || '').trim().toLowerCase(), p = phoneKey_(phone), out = { both: false, any: false };
   if (!e && p.length < 10) return out;
@@ -488,42 +541,11 @@ function intakeMatch_(email, phone) {
   return out;
 }
 
-/** [[email, last-10-digit phone], ...] from the Intake tab and the Google Form responses. */
+/** [[email, last-10-digit phone], ...] from the Intake tab (website intakes + the old Google Form answers). */
 function intakeKeys_() {
-  var list = [];
-  var sh = getTab_('Intake'), n = sh.getLastRow() - 1;
+  var list = [], sh = getTab_('Intake'), n = sh.getLastRow() - 1;
   if (n > 0) sh.getRange(2, 3, n, 2).getDisplayValues().forEach(function (r) { list.push([String(r[0]).trim().toLowerCase(), phoneKey_(r[1])]); });
-  try {
-    var cache = CacheService.getScriptCache(), keys = cache.get('form_intake_keys');
-    if (keys == null) {
-      var form = getIntakeForm_(), fl = [];
-      if (form) form.getResponses().forEach(function (r) {
-        var em = '', ph = '';
-        try { em = String(r.getRespondentEmail() || ''); } catch (x) {}
-        r.getItemResponses().forEach(function (ir) {
-          var t = ir.getItem().getTitle().toLowerCase(), v = String(ir.getResponse() || '');
-          if (t.indexOf('email') >= 0) em = v;
-          else if (t.indexOf('contact') >= 0 || t.indexOf('phone') >= 0) ph = v;
-        });
-        fl.push(em.trim().toLowerCase() + '|' + phoneKey_(ph));
-      });
-      keys = fl.join('\n');
-      cache.put('form_intake_keys', keys.slice(0, 90000), 300);
-    }
-    keys.split('\n').forEach(function (k) { if (k) { var a = k.split('|'); list.push([a[0], a[1] || '']); } });
-  } catch (x) { console.warn('Intake form check skipped: ' + x); }
   return list;
-}
-
-function getIntakeForm_() {
-  var props = PropertiesService.getScriptProperties(), id = CONFIG.INTAKE_FORM_ID || props.getProperty('INTAKE_FORM_ID');
-  if (id) { try { return FormApp.openById(id); } catch (x) { console.warn('Could not open intake form ' + id + ': ' + x); } }
-  var it = DriveApp.searchFiles("mimeType = 'application/vnd.google-apps.form' and title contains 'Intake' and trashed = false");
-  while (it.hasNext()) {
-    var fid = it.next().getId();
-    try { var form = FormApp.openById(fid); props.setProperty('INTAKE_FORM_ID', fid); return form; } catch (x) {}
-  }
-  return null;
 }
 
 function saveIntake_(f, start, intake) {
@@ -538,13 +560,38 @@ function saveIntake_(f, start, intake) {
     }
     row[c] = qa[1];
   });
+  var src = head.indexOf('Source');
+  if (src >= 0) row[src] = 'Website';
   for (var i = 0; i < head.length; i++) if (row[i] === undefined) row[i] = '';
   sh.appendRow(row);
-  try { CacheService.getScriptCache().remove('form_intake_keys'); } catch (x) {}
 }
 
-/** Also records the website intake as a response in Nidhi's Google Form, so every intake is in one place. */
-var FORM_KEYS = {
+/* ───────────────────────── One-off: copy the old Google Form answers into the Intake tab ───────────────────────── */
+
+/** Website question text for each intake key (the Intake tab's column headers). Must match INTAKE in booking/index.html. */
+var INTAKE_LABELS = {
+  relationship: 'Your relationship to the child', dob: "Child's date of birth", gender: "Child's gender",
+  livesWith: 'Who does the child currently live with?', languages: 'Languages your child can speak',
+  siblings: 'Are there other children in the home? If yes, please list their ages.',
+  goingWell: 'How would you describe your child when things are going well?',
+  strengths: "What are your child's strengths, interests, or things they love?",
+  school: 'What school does your child attend, and what year/grade are they in?',
+  schoolOverall: 'How is your child doing at school overall?',
+  schoolConcerns: "Has your child's school raised any concerns? If yes, please describe.",
+  mainReason: 'In your own words, what is the main reason you are reaching out for support?',
+  howLong: 'How long have you been noticing these behaviours?',
+  behaviours: 'Which of these behaviours does your child show? (Select all that apply)',
+  where: 'Where does the behaviour happen most? (Select all that apply)',
+  tried: 'What strategies or approaches have you already tried? (Select all that apply)',
+  worked: 'What has worked, even a little?', worse: 'What has made things worse?',
+  diagnosis: 'Has your child ever been assessed or diagnosed with anything? (Select all that apply)',
+  medication: 'Is your child currently on any medication? If yes, please describe briefly.',
+  events: 'Any significant event or change in the last 1–2 years that might be relevant? (e.g. separation, bereavement, house move, new sibling, change of school)',
+  sleep: "How would you describe your child's sleep?", eating: "How would you describe your child's eating?",
+  anythingElse: "Is there anything else you'd like Nidhi to know before you meet?"
+};
+/** Start of each old-form question title (lower case) → intake key. */
+var OLD_FORM_TITLES = {
   parentName: 'parent/guardian name', relationship: 'relationship to child', phone: 'contact number', email: 'email address',
   childName: "child's name", dob: "child's date of birth", gender: "child's gender", livesWith: 'who does the child currently live',
   languages: 'please mention the languages', siblings: 'are there other children', goingWell: 'how would you describe your child when',
@@ -555,36 +602,44 @@ var FORM_KEYS = {
   medication: 'is your child currently on any medication', events: 'has there been any significant event',
   sleep: "how would you describe your child's sleep", eating: "how would you describe your child's eating", anythingElse: 'is there anything else'
 };
-function submitToForm_(f, intake) {
-  try {
-    var form = getIntakeForm_(); if (!form) return;
-    var vals = { parentName: f.parentName, phone: f.phone, email: f.email, childName: f.childName };
-    intake.forEach(function (x) { if (x[2]) vals[x[2]] = x[3] && x[3].length ? x[3] : x[1]; });
-    var norm = function (t) { return String(t || '').toLowerCase().replace(/[‘’]/g, "'").replace(/\s+/g, ' ').trim(); };
-    var resp = form.createResponse(), added = 0;
-    form.getItems().forEach(function (item) {
-      var title = norm(item.getTitle()), key = null;
-      for (var k in FORM_KEYS) if (title.indexOf(FORM_KEYS[k]) === 0) { key = k; break; }
-      var v = key && vals[key];
-      if (v == null || v === '' || (Array.isArray(v) && !v.length)) return;
-      try {
-        var T = FormApp.ItemType, t = item.getType();
-        if (t === T.TEXT) resp.withItemResponse(item.asTextItem().createResponse(String(v)));
-        else if (t === T.PARAGRAPH_TEXT) resp.withItemResponse(item.asParagraphTextItem().createResponse(String(v)));
-        else if (t === T.MULTIPLE_CHOICE) resp.withItemResponse(item.asMultipleChoiceItem().createResponse(Array.isArray(v) ? v[0] : String(v)));
-        else if (t === T.CHECKBOX) resp.withItemResponse(item.asCheckboxItem().createResponse(Array.isArray(v) ? v : [String(v)]));
-        else if (t === T.LIST) resp.withItemResponse(item.asListItem().createResponse(Array.isArray(v) ? v[0] : String(v)));
-        else if (t === T.DATE) {
-          var d = String(v).split('-');
-          if (d.length !== 3) return;
-          resp.withItemResponse(item.asDateItem().createResponse(new Date(+d[0], +d[1] - 1, +d[2])));
-        } else return;
-        added++;
-      } catch (x) { console.warn('Form item skipped (' + item.getTitle() + '): ' + x); }
+
+/** Run once from the editor. Safe to run again: answers already copied are skipped. Test entries are left out. */
+function copyOldFormToIntake() {
+  var form = FormApp.openById(CONFIG.OLD_FORM_ID), sh = getTab_('Intake'), tz = Session.getScriptTimeZone();
+  var head = sh.getRange(1, 1, 1, Math.max(sh.getLastColumn(), INTAKE_FIXED.length)).getValues()[0].map(String);
+  var col = function (label) {
+    var c = head.indexOf(label);
+    if (c < 0) { head.push(label); c = head.length - 1; sh.getRange(1, c + 1).setValue(label).setFontWeight('bold').setBackground('#E3EDD5').setWrap(true); }
+    return c;
+  };
+  col('Source');
+  var seen = {}, n = sh.getLastRow() - 1;
+  if (n > 0) sh.getRange(2, 1, n, 3).getValues().forEach(function (r) { seen[new Date(r[0]).getTime() + '|' + String(r[2]).trim().toLowerCase()] = 1; });
+  var norm = function (t) { return String(t || '').toLowerCase().replace(/[‘’]/g, "'").replace(/\s+/g, ' ').trim(); };
+  var rows = [], skipped = 0;
+  form.getResponses().forEach(function (resp) {
+    var vals = {};
+    resp.getItemResponses().forEach(function (ir) {
+      var t = norm(ir.getItem().getTitle());
+      for (var k in OLD_FORM_TITLES) if (t.indexOf(OLD_FORM_TITLES[k]) === 0) { var x = ir.getResponse(); vals[k] = Array.isArray(x) ? x.join(', ') : String(x); break; }
     });
-    if (added) resp.submit();
-    try { CacheService.getScriptCache().remove('form_intake_keys'); } catch (x) {}
-  } catch (x) { console.warn('Could not add the intake to the Google Form: ' + x); }
+    var ts = resp.getTimestamp(), email = String(vals.email || '').trim().toLowerCase();
+    if (/\(TEST\)/.test((vals.parentName || '') + (vals.childName || '')) || seen[ts.getTime() + '|' + email]) { skipped++; return; }
+    var row = [ts, String(vals.parentName || '').trim(), email, "'" + String(vals.phone || '').trim(), String(vals.childName || '').trim(), ageFrom_(vals.dob), ''];
+    Object.keys(INTAKE_LABELS).forEach(function (k) { if (vals[k]) row[col(INTAKE_LABELS[k])] = vals[k]; });
+    row[col('Source')] = 'Old Google Form';
+    rows.push(row);
+  });
+  rows.forEach(function (r) { for (var i = 0; i < head.length; i++) if (r[i] === undefined) r[i] = ''; });
+  if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, head.length).setValues(rows);
+  console.log('Copied ' + rows.length + ' old form answers into the Intake tab (' + skipped + ' skipped: tests or already copied).');
+}
+
+function ageFrom_(dob) {
+  var d = toDate_(dob); if (!d) return '';
+  var now = new Date(), y = now.getFullYear() - d.getFullYear();
+  if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) y--;
+  return y >= 0 && y < 30 ? String(y) : '';
 }
 
 /* ───────────────────────── Preschools / schools: call-back requests ───────────────────────── */
@@ -658,14 +713,11 @@ function getFolder_() {
 
 /** Run from the editor: creates/updates the sheet tabs and Drive folder, checks the calendar. */
 function setup() {
-  ScriptApp.requireScopes(ScriptApp.AuthMode.FULL, ['https://www.googleapis.com/auth/forms']);
   var sh = getSheet_(), ss = sh.getParent(), folder = getFolder_();
   ss.rename(CONFIG.SHEET_NAME);
   ['Availability', 'Time off', 'Settings', 'Intake', 'School enquiries'].forEach(getTab_);
   var note = getTab_('Availability').getRange('E7');
   if (/straight away/.test(note.getValue())) note.setValue('• Changes appear on www.samhithe.in/booking within a minute.');
-  var form = getIntakeForm_();
-  console.log('Original intake Google Form: ' + (form ? form.getTitle() + ' (' + form.getResponses().length + ' responses, used for returning parents)' : 'not found in this account'));
   Calendar.Calendars.get(CONFIG.CALENDAR_ID);              // confirms the Calendar advanced service is on
   applySettings_();
   var r = getSlots_();
