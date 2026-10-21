@@ -118,6 +118,33 @@
 .help a{color:var(--clay);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 [hidden]{display:none !important}
 
+/* who's booking */
+.who{display:grid;gap:12px}
+.who-opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:16px;background:var(--paper);padding:15px 18px;color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.who-opt b{display:block;font-size:16.5px}
+.who-opt span{display:block;font-size:14px;color:var(--ink-2);margin-top:3px}
+.who-opt:hover{border-color:var(--clay)}
+.who-opt.on{border-color:var(--clay);background:#fff;box-shadow:inset 0 0 0 1px var(--clay)}
+.ret{margin-top:16px;padding:16px;border-radius:14px;background:var(--paper-2);border:1px solid var(--line)}
+.ret p{font-size:14.5px;color:var(--ink-2);margin-bottom:12px}
+.ret .row3{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.btn-sm{padding:12px 20px;font-size:15px}
+.note-ok{background:var(--leaf-soft);color:var(--leaf);border-radius:12px;padding:11px 14px;font-size:14.5px;font-weight:600;margin-top:12px}
+.note-info{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:14.5px;margin-top:12px}
+
+/* intake */
+.q-h{font-family:var(--serif);font-weight:400;font-size:21px;margin:28px 0 14px;padding-top:20px;border-top:1px solid var(--line)}
+.q-h:first-child{margin-top:0;padding-top:0;border-top:0}
+.qs{display:grid;gap:18px}
+.field .lbl{font-size:14px;font-weight:600}
+.field .lbl i{font-style:normal;color:var(--clay)}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);font-size:14.5px;font-weight:500;cursor:pointer;line-height:1.35}
+.opt input{margin-top:2px;accent-color:var(--clay);width:16px;height:16px;flex:none}
+.opt:has(input:checked){border-color:var(--clay);background:#fff}
+.layout.solo{grid-template-columns:minmax(0,1fr)}
+.layout.solo .summary{display:none}
+
 @media(max-width:960px){
   .layout{grid-template-columns:minmax(0,1fr)}
   .summary{position:static}
@@ -127,6 +154,7 @@
   .pay{grid-template-columns:1fr}
   .qr{max-width:230px;margin:0 auto;width:100%}
   .date{width:70px}
+  .ret .row3{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -170,8 +198,49 @@
   <!-- Booking flow -->
   <div class="layout" id="flow">
     <form id="form" novalidate>
+      <!-- Who's booking -->
+      <section class="card" id="s0">
+        <div class="step-h"><span class="n">1</span><h2>Who's booking?</h2></div>
+        <div class="who" role="radiogroup" aria-label="Who's booking">
+          <button type="button" class="who-opt" data-who="new" role="radio" aria-checked="false"><b>Parent – first session with Nidhi</b><span>You'll share a little about your child and family before confirming (about 10 minutes).</span></button>
+          <button type="button" class="who-opt" data-who="returning" role="radio" aria-checked="false"><b>Parent – I've filled the intake form before</b><span>Already shared your child's details with Nidhi? Skip straight to booking.</span></button>
+          <button type="button" class="who-opt" data-who="school" role="radio" aria-checked="false"><b>Preschool or school</b><span>Workshops, teacher training or a partnership – request a call back. No payment needed.</span></button>
+        </div>
+        <div class="ret" id="retBox" hidden>
+          <p>Enter the email and phone number you used last time, and we'll find your details.</p>
+          <div class="row3">
+            <div class="field"><label for="retEmail">Email</label><input id="retEmail" type="email" autocomplete="email" maxlength="120" /></div>
+            <div class="field"><label for="retPhone">Phone / WhatsApp</label><input id="retPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" /></div>
+            <button type="button" class="btn btn-clay btn-sm" id="retCheck">Continue</button>
+          </div>
+        </div>
+        <div class="note-ok" id="retOk" hidden></div>
+        <div class="note-info" id="retMiss" hidden></div>
+        <div class="err" id="retErr" hidden></div>
+      </section>
+
+      <!-- Preschool / school call back -->
+      <section class="card" id="sSchool" hidden>
+        <div class="step-h"><span class="n">2</span><h2>Request a call back</h2></div>
+        <p class="sub">Tell us a little about your school and Nidhi will call you to talk through what would help your children, teachers and parents.</p>
+        <div class="grid2">
+          <div class="field"><label for="scName">School / preschool name <i>*</i></label><input id="scName" maxlength="120" /></div>
+          <div class="field"><label for="scArea">Area / city</label><input id="scArea" maxlength="80" placeholder="e.g. Jayanagar, Bengaluru" /></div>
+          <div class="field"><label for="scContact">Your name <i>*</i></label><input id="scContact" autocomplete="name" maxlength="80" /></div>
+          <div class="field"><label for="scRole">Your role</label><input id="scRole" maxlength="80" placeholder="Founder, principal, coordinator…" /></div>
+          <div class="field"><label for="scPhone">Phone / WhatsApp <i>*</i></label><input id="scPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" /></div>
+          <div class="field"><label for="scEmail">Email</label><input id="scEmail" type="email" autocomplete="email" maxlength="120" /></div>
+          <div class="field"><label for="scKids">Number of children &amp; age group</label><input id="scKids" maxlength="120" placeholder="e.g. 80 children, 2–6 years" /></div>
+          <div class="field"><label for="scTime">Best time to call</label><select id="scTime"><option>Any time</option><option>Morning (10 am – 1 pm)</option><option>Afternoon (1 – 5 pm)</option><option>Evening (5 – 8 pm)</option></select></div>
+          <div class="field full"><span class="lbl">Interested in</span><div class="opts" id="scInterests"></div></div>
+          <div class="field full"><label for="scMsg">Anything you'd like Nidhi to know? <span>(optional)</span></label><textarea id="scMsg" maxlength="1500"></textarea></div>
+        </div>
+        <button type="button" class="btn btn-clay submit" id="scSubmit" style="margin-top:22px">Request a call back</button>
+        <div class="err" id="scErr" hidden></div>
+      </section>
+
       <!-- Step 1 -->
-      <section class="card" id="s1">
+      <section class="card locked" id="s1">
         <div class="step-h"><span class="n">1</span><h2>Choose a date and time</h2></div>
         <div id="slotsLoading"><div class="skel"></div></div>
         <div id="slotsArea" hidden>
@@ -193,9 +262,16 @@
           </div>
           <div class="field"><label for="phone">Phone / WhatsApp <i>*</i></label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="98765 43210" maxlength="16" /></div>
           <div class="field full"><label for="email">Email <i>*</i></label><input id="email" type="email" autocomplete="email" required maxlength="120" /><span class="hint">Your Google Meet link and confirmation are sent here.</span></div>
-          <div class="field full"><label for="notes">What would you like support with? <span>(optional)</span></label><textarea id="notes" maxlength="1000" placeholder="A few lines are enough, e.g. tantrums at bedtime, school refusal, screen time…"></textarea></div>
+          <div class="field full" id="notesField"><label for="notes">What would you like support with? <span>(optional)</span></label><textarea id="notes" maxlength="1000" placeholder="A few lines are enough, e.g. tantrums at bedtime, school refusal, screen time…"></textarea></div>
         </div>
         <div class="hp" aria-hidden="true"><label>Website <input id="website" tabindex="-1" autocomplete="off" /></label></div>
+      </section>
+
+      <!-- Intake (first-time parents) -->
+      <section class="card locked" id="sIntake" hidden>
+        <div class="step-h"><span class="n">4</span><h2>About your child and family</h2></div>
+        <p class="sub">Please fill this before your first session. It helps Nidhi understand your child and make your time together as useful as possible. Everything you share is confidential, and you only need to do this once.</p>
+        <div id="intakeBox"></div>
       </section>
 
       <!-- Step 3 -->
@@ -245,6 +321,7 @@
       <ul class="checklist" id="checklist">
         <li data-k="slot">Date and time chosen</li>
         <li data-k="details">Your details filled in</li>
+        <li data-k="intake" hidden>About your child filled in</li>
         <li data-k="shot">Payment screenshot uploaded</li>
       </ul>
       <div class="err" id="submitErr" hidden></div>
@@ -256,7 +333,7 @@
   <section class="card state" id="sending" hidden><div class="spinner"></div><h2>Booking your session…</h2><p>Uploading your screenshot and reserving your slot. This takes a few seconds.</p></section>
   <section class="card state" id="done" hidden>
     <div class="big-tick"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-    <h2>You're booked!</h2>
+    <h2 id="doneTitle">You're booked!</h2>
     <p id="doneText"></p>
     <div class="row"><a class="btn btn-clay" id="doneMeet" href="#" target="_blank" rel="noopener" hidden>Open Google Meet link</a><a class="btn btn-line" href="../">Back to Samhithe</a></div>
   </section>
@@ -288,7 +365,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
 
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var S = { data: null, date: null, slot: null, shot: null, sending: false };
+  var S = { data: null, date: null, slot: null, shot: null, sending: false, who: null, verified: false };
   var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   var demo = /[?&]demo=1/.test(location.search);
@@ -303,6 +380,165 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
 
   function show(id) { ["flow", "sending", "done", "unavailable"].forEach(function (k) { $(k).hidden = k !== id; }); }
   function unavailable() { $("calLink").href = FALLBACK_BOOKING; show("unavailable"); }
+
+  /* ── Intake questions (first-time parents) – mirrors Nidhi's "Child & Family Information Form" ── */
+  var INTAKE = [
+    { h: "Your family" },
+    { k: "relationship", q: "Your relationship to the child", t: "text", req: 1, ph: "Mother, father, grandparent…" },
+    { k: "dob", q: "Child's date of birth", t: "date", req: 1 },
+    { k: "gender", q: "Child's gender", t: "text", req: 1 },
+    { k: "livesWith", q: "Who does the child currently live with?", t: "check", req: 1, o: ["Both parents (together)", "Both parents (separated / co-parenting)", "Mother only", "Father only", "Grandparent(s)", "Parents and grandparents"] },
+    { k: "languages", q: "Languages your child can speak", t: "text", req: 1, ph: "e.g. Kannada, English" },
+    { k: "siblings", q: "Are there other children in the home? If yes, please list their ages.", t: "text", req: 1, ph: "e.g. Sister, 9 – or “None”" },
+    { h: "About your child" },
+    { k: "goingWell", q: "How would you describe your child when things are going well?", t: "area" },
+    { k: "strengths", q: "What are your child's strengths, interests, or things they love?", t: "area" },
+    { k: "school", q: "What school does your child attend, and what year/grade are they in?", t: "text" },
+    { k: "schoolOverall", q: "How is your child doing at school overall?", t: "radio", o: ["Doing well academically and socially", "Struggling academically but okay socially", "Struggling socially but okay academically", "Struggling in both areas", "Home-schooled / not currently in school"] },
+    { k: "schoolConcerns", q: "Has your child's school raised any concerns? If yes, please describe.", t: "area" },
+    { h: "The behaviours you're concerned about" },
+    { k: "mainReason", q: "In your own words, what is the main reason you are reaching out for support?", t: "area", req: 1 },
+    { k: "howLong", q: "How long have you been noticing these behaviours?", t: "radio", o: ["Less than 3 months", "3 to 6 months", "6 months to 1 year", "More than 1 year"] },
+    { k: "behaviours", q: "Which of these behaviours does your child show? (Select all that apply)", t: "check", req: 1, o: ["Refuses to follow instructions or rules", "Argues with adults constantly", "Loses temper quickly and intensely", "Deliberately annoys or provokes others", "Blames others for their mistakes", "Is easily annoyed or irritated by others", "Is spiteful or vengeful", "Destroys objects when angry", "Hits, kicks, or is physically aggressive", "Uses hurtful or abusive language", "Refuses to go to school", "Shuts down / goes silent / freezes", "Runs away or leaves situations", "None of the above"] },
+    { k: "where", q: "Where does the behaviour happen most? (Select all that apply)", t: "check", o: ["At home with parents", "At home with siblings", "At school with teachers", "At school with peers", "In public places", "During transitions (e.g. leaving home, ending screen time)", "Everywhere, consistently"] },
+    { h: "What you've already tried" },
+    { k: "tried", q: "What strategies or approaches have you already tried? (Select all that apply)", t: "check", req: 1, o: ["Reward charts / sticker charts", "Taking away privileges", "Time out / cool down space", "Shouting / raising voice (being honest is fine — we don't judge)", "Ignoring the behaviour", "Talking it through calmly afterward", "Giving more choices and control", "Changing routines", "Nothing yet — I'm not sure where to start"] },
+    { k: "worked", q: "What has worked, even a little?", t: "area" },
+    { k: "worse", q: "What has made things worse?", t: "area" },
+    { h: "Background" },
+    { k: "diagnosis", q: "Has your child ever been assessed or diagnosed with anything? (Select all that apply)", t: "check", o: ["ADHD / ADD", "Anxiety disorder", "Autism / ASD", "ODD (Oppositional Defiant Disorder)", "Depression", "Sensory Processing Disorder", "Trauma / PTSD", "Learning difficulty (e.g. dyslexia)", "No diagnosis", "Assessment is pending", "I'm not sure"] },
+    { k: "medication", q: "Is your child currently on any medication? If yes, please describe briefly.", t: "text" },
+    { k: "events", q: "Any significant event or change in the last 1–2 years that might be relevant? (e.g. separation, bereavement, house move, new sibling, change of school)", t: "area" },
+    { k: "sleep", q: "How would you describe your child's sleep?", t: "radio", req: 1, o: ["Generally sleeps well", "Takes a long time to fall asleep", "Wakes frequently during the night", "Wakes very early", "Sleep is a major struggle"] },
+    { k: "eating", q: "How would you describe your child's eating?", t: "radio", req: 1, o: ["No concerns", "Some fussiness but generally okay", "Significant food restrictions or sensitivities", "Eating is a regular source of conflict"] },
+    { k: "anythingElse", q: "Is there anything else you'd like Nidhi to know before you meet?", t: "area" }
+  ];
+  var SCHOOL_INTERESTS = ["Teacher training", "Parent workshops", "Child observation / screening", "Ongoing partnership", "Something else"];
+
+  function optList(box, name, type, opts) {
+    opts.forEach(function (o, i) {
+      var l = document.createElement("label"); l.className = "opt";
+      var inp = document.createElement("input"); inp.type = type; inp.name = name; inp.value = o; inp.id = name + "_" + i;
+      inp.addEventListener("change", update);
+      l.appendChild(inp); l.appendChild(document.createTextNode(o)); box.appendChild(l);
+    });
+  }
+  (function buildIntake() {
+    var box = $("intakeBox"), qs = null;
+    INTAKE.forEach(function (it) {
+      if (it.h) { var h = document.createElement("h3"); h.className = "q-h"; h.textContent = it.h; box.appendChild(h);
+        qs = document.createElement("div"); qs.className = "qs"; box.appendChild(qs); return; }
+      var f = document.createElement("div"); f.className = "field";
+      var star = it.req ? " <i>*</i>" : "";
+      if (it.t === "check" || it.t === "radio") {
+        f.innerHTML = '<span class="lbl">' + esc(it.q) + star + '</span>';
+        var o = document.createElement("div"); o.className = "opts"; f.appendChild(o);
+        optList(o, "q_" + it.k, it.t === "check" ? "checkbox" : "radio", it.o);
+      } else {
+        f.innerHTML = '<label for="q_' + it.k + '">' + esc(it.q) + star + '</label>';
+        var inp = document.createElement(it.t === "area" ? "textarea" : "input");
+        inp.id = "q_" + it.k; inp.maxLength = it.t === "area" ? 2000 : 200;
+        if (it.t === "date") { inp.type = "date"; inp.max = new Date().toISOString().slice(0, 10); }
+        if (it.ph) inp.placeholder = it.ph;
+        inp.addEventListener("input", update); inp.addEventListener("change", update);
+        f.appendChild(inp);
+      }
+      qs.appendChild(f);
+    });
+    optList($("scInterests"), "scInt", "checkbox", SCHOOL_INTERESTS);
+  })();
+  function intakeVal(it) {
+    if (it.t === "check" || it.t === "radio") {
+      return [].map.call(document.querySelectorAll('input[name="q_' + it.k + '"]:checked'), function (x) { return x.value; }).join(", ");
+    }
+    return $("q_" + it.k).value.trim();
+  }
+  function intakeOk() { return INTAKE.every(function (it) { return it.h || !it.req || !!intakeVal(it); }); }
+  function collectIntake() { return INTAKE.filter(function (it) { return !it.h; }).map(function (it) { return [it.q, intakeVal(it)]; }); }
+
+  /* ── Who's booking ── */
+  [].forEach.call(document.querySelectorAll(".who-opt"), function (b) { b.onclick = function () { choose(b.dataset.who); }; });
+  function choose(who) {
+    S.who = who;
+    [].forEach.call(document.querySelectorAll(".who-opt"), function (b) {
+      var on = b.dataset.who === who; b.classList.toggle("on", on); b.setAttribute("aria-checked", on);
+    });
+    var school = who === "school";
+    $("retBox").hidden = !(who === "returning" && !S.verified);
+    $("retOk").hidden = !(who === "returning" && S.verified);
+    if (who !== "new") $("retMiss").hidden = true;
+    $("retErr").hidden = true;
+    $("sSchool").hidden = !school;
+    ["s1", "s2", "s3"].forEach(function (id) { $(id).hidden = school; });
+    $("sIntake").hidden = who !== "new";
+    $("notesField").hidden = who === "new";
+    $("flow").classList.toggle("solo", school);
+    $("checklist").querySelector('[data-k="intake"]').hidden = who !== "new";
+    renumber(); update();
+    if (school) setTimeout(function () { $("sSchool").scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
+    else if (who === "returning" && !S.verified) $("retEmail").focus();
+  }
+  function renumber() {
+    var n = 0;
+    ["s0", "sSchool", "s1", "s2", "sIntake", "s3"].forEach(function (id) {
+      if (!$(id).hidden) $(id).querySelector(".n").textContent = ++n;
+    });
+  }
+  $("retCheck").onclick = function () {
+    var email = $("retEmail").value.trim(), phone = $("retPhone").value.trim(), btn = this;
+    $("retErr").hidden = true;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || phone.replace(/\D/g, "").length < 10) {
+      $("retErr").textContent = "Please enter the email and 10-digit phone number you used before."; $("retErr").hidden = false; return;
+    }
+    btn.disabled = true; btn.textContent = "Checking…";
+    var p = demo ? Promise.resolve({ ok: true, found: /found/.test(email) })
+      : fetch(BOOKING_API, { method: "POST", body: JSON.stringify({ action: "lookup", email: email, phone: phone }) }).then(function (r) { return r.json(); });
+    p.then(function (r) {
+      btn.disabled = false; btn.textContent = "Continue";
+      if (!r || !r.ok) { $("retErr").textContent = (r && r.message) || "Something went wrong. Please try again."; $("retErr").hidden = false; return; }
+      $("email").value = email; $("phone").value = phone;
+      if (r.found) {
+        S.verified = true;
+        $("retOk").textContent = "Welcome back! We have your details on file, so there's no form to fill this time. Choose a time below.";
+        choose("returning");
+        setTimeout(function () { $("s1").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
+      } else {
+        $("retMiss").textContent = "We couldn't find an earlier form with that email and phone number, so please fill in the short section about your child below. You only need to do it once.";
+        choose("new"); $("retMiss").hidden = false;
+      }
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = "Continue";
+      $("retErr").textContent = "We couldn't reach the booking system. Please check your connection and try again."; $("retErr").hidden = false;
+    });
+  };
+
+  /* ── Preschool / school call back ── */
+  $("scSubmit").onclick = function () {
+    var btn = this, err = $("scErr"); err.hidden = true;
+    var c = { action: "callback", school: $("scName").value.trim(), name: $("scContact").value.trim(), role: $("scRole").value.trim(),
+      phone: $("scPhone").value.trim(), email: $("scEmail").value.trim(), city: $("scArea").value.trim(), kids: $("scKids").value.trim(),
+      time: $("scTime").value, message: $("scMsg").value.trim(), website: $("website").value,
+      interests: [].map.call(document.querySelectorAll('input[name="scInt"]:checked'), function (x) { return x.value; }) };
+    var bad = !c.school ? "Please enter the name of your school." : !c.name ? "Please enter your name." :
+      c.phone.replace(/\D/g, "").length < 10 ? "Please enter a valid phone number so Nidhi can call you." :
+      (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c.email)) ? "Please check the email address." : "";
+    if (bad) { err.textContent = bad; err.hidden = false; return; }
+    btn.disabled = true; btn.textContent = "Sending…";
+    var p = demo ? new Promise(function (r) { setTimeout(function () { r({ ok: true }); }, 800); })
+      : fetch(BOOKING_API, { method: "POST", body: JSON.stringify(c) }).then(function (r) { return r.json(); });
+    p.then(function (r) {
+      btn.disabled = false; btn.textContent = "Request a call back";
+      if (!r || !r.ok) { err.textContent = (r && r.message) || "Something went wrong. Please try again."; err.hidden = false; return; }
+      $("doneTitle").textContent = "Thank you!";
+      $("doneText").innerHTML = "We've received your request for <b>" + esc(c.school) + "</b>. Nidhi will call you on <b>" + esc(c.phone) + "</b>" +
+        (c.time && c.time !== "Any time" ? " (" + esc(c.time.toLowerCase()) + ")" : "") + " within two working days.";
+      $("doneMeet").hidden = true; show("done");
+      window.scrollTo({ top: $("head").offsetTop, behavior: "smooth" });
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = "Request a call back";
+      err.textContent = "We couldn't reach the booking system. Please check your connection and try again."; err.hidden = false;
+    });
+  };
 
   /* ── Slots ── */
   function loadSlots(keepDate) {
@@ -441,14 +677,17 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       $("phone").value.replace(/\D/g, "").length >= 10 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim()));
   }
   function update() {
-    var st = { slot: !!S.slot, details: detailsOk(), shot: !!S.shot };
+    var ready = S.who === "new" || (S.who === "returning" && S.verified);
+    var st = { slot: ready && !!S.slot, details: detailsOk(), shot: !!S.shot, intake: S.who !== "new" || intakeOk() };
+    $("s1").classList.toggle("locked", !ready);
     $("s2").classList.toggle("locked", !st.slot);
+    $("sIntake").classList.toggle("locked", !st.slot);
     $("s3").classList.toggle("locked", !st.slot);
     $("sumWhen").textContent = S.slot ? S.slot.long + ", " + S.slot.label : "Choose a time";
     var cn = $("childName").value.trim(), ca = $("childAge").value;
     $("sumChild").textContent = cn ? cn + (ca ? " (" + (isNaN(ca) ? ca : ca + (ca === "1" ? " yr" : " yrs")) + ")" : "") : "—";
     [].forEach.call($("checklist").children, function (li) { li.classList.toggle("done", st[li.dataset.k]); });
-    $("submit").disabled = !(st.slot && st.details && st.shot) || S.sending;
+    $("submit").disabled = !(st.slot && st.details && st.shot && st.intake) || S.sending;
   }
   function fail(msg) { $("submitErr").textContent = msg; $("submitErr").hidden = false; }
 
@@ -458,6 +697,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
     if (S.sending) return;
     if (!S.slot) return fail("Please choose a date and time.");
     if (!detailsOk()) return fail("Please fill in all the required details: a valid email and a 10-digit phone number.");
+    if (S.who === "new" && !intakeOk()) return fail("Please answer the required questions (marked *) about your child.");
     if (!S.shot) return fail("Please upload the screenshot of your payment.");
     S.sending = true; $("submitErr").hidden = true; show("sending");
     window.scrollTo({ top: $("head").offsetTop, behavior: "smooth" });
@@ -465,7 +705,8 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       action: "book", start: S.slot.start,
       parentName: $("parentName").value.trim(), childName: $("childName").value.trim(), childAge: $("childAge").value,
       phone: $("phone").value.trim(), email: $("email").value.trim(), notes: $("notes").value.trim(),
-      payerUpi: $("payerUpi").value.trim(), website: $("website").value, screenshot: S.shot
+      payerUpi: $("payerUpi").value.trim(), website: $("website").value, screenshot: S.shot,
+      who: S.who, intake: S.who === "new" ? collectIntake() : null
     };
     var p = demo
       ? new Promise(function (r) { setTimeout(function () { r({ ok: true, when: S.slot.long + " at " + S.slot.label, email: payload.email, meetLink: "https://meet.google.com/" }); }, 1200); })
@@ -480,6 +721,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       }
       show("flow"); fail((r && r.message) || "Something went wrong. Please try again.");
       if (r && r.code === "SLOT_TAKEN") { S.slot = null; loadSlots(S.date); $("s1").scrollIntoView({ behavior: "smooth" }); }
+      if (r && r.code === "NEED_INTAKE") { S.verified = false; choose("new"); setTimeout(function () { $("sIntake").scrollIntoView({ behavior: "smooth" }); }, 150); }
       update();
     }).catch(function () {
       S.sending = false; show("flow");
@@ -507,6 +749,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
     return { ok: true, price: 1000, upi: { id: "nidhirao.1997-2@okaxis", name: "Nidhi Rao" }, maxScreenshotMb: 8, days: days };
   }
 
+  renumber(); update();
   if (!BOOKING_API && !demo) unavailable();
   else loadSlots();
 })();
