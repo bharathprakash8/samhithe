@@ -111,6 +111,21 @@ function cachedSlots_() {
   return r;
 }
 
+/** Time-driven, every minute: keeps the slot list fresh in the cache so the booking page gets an instant answer. */
+function warmSlots() {
+  applySettings_();
+  var r = getSlots_();
+  try { CacheService.getScriptCache().put('slots_v1', JSON.stringify(r), 90); } catch (x) {}
+}
+
+/** Run once from the editor to start the warm-up job (safe to run again – it replaces the old one). */
+function installWarmup() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'warmSlots') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('warmSlots').timeBased().everyMinutes(1).create();
+  warmSlots();
+  console.log('Warm-up job installed: available times refresh every minute.');
+}
+
 function getSlots_() {
   var tz = Session.getScriptTimeZone();
   var now = new Date();
