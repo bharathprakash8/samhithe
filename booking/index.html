@@ -541,7 +541,7 @@ var QR_IMAGE = "upi-qr.png";
       if (!r || !r.ok) { err.textContent = (r && r.message) || "Something went wrong. Please try again."; err.hidden = false; return; }
       $("doneTitle").textContent = "Thank you!";
       $("doneText").innerHTML = "We've received your request for <b>" + esc(c.school) + "</b>. Nidhi will call you on <b>" + esc(c.phone) + "</b>" +
-        (c.time && c.time !== "Any time" ? " (" + esc(c.time.toLowerCase()) + ")" : "") + " within two working days.";
+        (c.time && c.time !== "Any time" ? " (" + esc(c.time.toLowerCase().replace(" (", ", ").replace(")", "")) + ")" : "") + " within two working days.";
       $("doneMeet").hidden = true; show("done");
       window.scrollTo({ top: $("head").offsetTop, behavior: "smooth" });
     }).catch(function () {
@@ -742,7 +742,7 @@ var QR_IMAGE = "upi-qr.png";
     post(payload).then(function (r) {
       S.sending = false;
       if (r && r.ok) {
-        $("doneText").innerHTML = "Your session is booked for <b>" + esc(r.when) + "</b> (India time). We've emailed the Google Meet link and a calendar invite to <b>" +
+        $("doneText").innerHTML = "Your session is booked for <b>" + esc(r.when) + "</b> (India time). Your Google Meet link and calendar invite are on their way to <b>" +
           esc(r.email || payload.email) + "</b>. Nidhi will verify your payment and see you then.";
         if (r.meetLink) { $("doneMeet").href = r.meetLink; $("doneMeet").hidden = false; }
         try { localStorage.removeItem(SLOTS_KEY); } catch (e) {}
