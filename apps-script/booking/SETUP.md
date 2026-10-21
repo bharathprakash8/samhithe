@@ -1,45 +1,36 @@
-# Samhithe booking: one-time setup (about 10 minutes)
+# Samhithe booking – how it works and how to change it
 
-Do this signed in as **nidhi@samhithe.in**. Bookings then land on her calendar, payment screenshots
-go to her Drive, and the alert emails reach her.
+The booking page (www.samhithe.in/booking) talks to the **Samhithe Booking** Apps Script project in
+**nidhi@samhithe.in**'s account. Live copy of the code: `Code.gs` and `appsscript.json` in this folder.
 
-## 1. Create the script
-1. Go to **script.google.com** and click **New project**. Rename it **Samhithe Booking**.
-2. Delete everything in `Code.gs` and paste in the contents of `Code.gs` from this folder.
-3. Click **Project Settings** (gear icon) and tick **Show "appsscript.json" manifest file in editor**.
-   Back in the editor, open `appsscript.json` and replace it with the `appsscript.json` from this folder.
+## Where things live (all in nidhi@samhithe.in)
+- **Samhithe – Bookings & Availability** (Google Sheet)
+  - *Availability*: weekly hours (Day / From / To). Sessions are offered back-to-back inside each block.
+  - *Time off*: dates with no sessions.
+  - *Settings*: session length, gap, minimum notice, how many days ahead.
+  - *Bookings*: every booking, payment-screenshot link, Meet link, Payment Status.
+  - *Intake*: first-session answers from the website (also added to the Google Form below).
+  - *School enquiries*: call-back requests from preschools / schools.
+- **Child & Family Information Form** (Google Form): the intake form. Website intakes are added as responses;
+  parents with a response here count as returning.
+- **Samhithe – Payment Screenshots** (Drive folder).
+- **Google Calendar**: each booking is an event with a Meet link. Anything on the calendar blocks that time.
 
-## 2. Check the settings at the top of Code.gs
-- `UPI_ID` is already `nidhirao.1997-2@okaxis`.
-- `AVAILABILITY_TITLE` is `Session with Nidhi`. Slots are offered only inside calendar blocks with this
-  exact title. If there are none, the weekly `HOURS` (Mon–Sat, 10am–6pm) are used instead.
-- `MIN_NOTICE_HOURS` (12) and `DAYS_AHEAD` (21) control how soon and how far ahead parents can book.
+Sheet changes reach the website within a minute (the slot list is cached for 60 seconds).
 
-## 3. Run setup once
-1. In the toolbar, choose **setup** in the function dropdown and click **Run**.
-2. Click **Review permissions**, choose Nidhi's account, then **Allow**. It asks for Calendar, Drive,
-   Sheets and email access because it books sessions, stores screenshots and sends confirmations.
-3. The log shows links to the new **Samhithe – Session Bookings** sheet and the
-   **Samhithe – Payment Screenshots** folder, plus how many open slots it found.
+## Booking flow
+1. Who's booking: *One-on-one session* or *Preschool or school* (call-back request, no slots).
+2. Parent details + "first session" tick → `lookup` (email AND phone must match an earlier intake to skip it;
+   ticking "first session" when either already matches shows an error).
+3. Date & time → intake (first session only) → UPI payment + screenshot → `book`.
 
-## 4. Deploy
-1. Click **Deploy → New deployment**. Click the gear next to "Select type" and choose **Web app**.
-2. Set **Execute as: Me** and **Who has access: Anyone**, then click **Deploy**.
-3. Copy the **Web app URL** (it ends in `/exec`).
+## Changing the code
+1. Edit in script.google.com (signed in as nidhi@samhithe.in), then copy the result back into this folder.
+2. **Deploy → Manage deployments → ✏️ → Version: New version → Deploy.** The web-app URL stays the same.
+3. If Google asks for permissions again, run `setup` from the editor and approve.
 
-## 5. Connect the website
-Paste that URL into `BOOKING_API` near the bottom of `booking/index.html` and commit, or send it to Claude.
-The booking page switches from the Google Calendar fallback to the full booking flow.
-
-## Day to day
-- **Each booking:** Nidhi gets an email with the payment screenshot attached. She checks the ₹1,000 credit
-  and sets **Payment Status** to *Verified* (or *Problem*) in the bookings sheet.
-- **Changing hours:** add, move or delete "Session with Nidhi" blocks in Google Calendar. Other events on her
-  calendar automatically block those times.
-- **Cancelling:** delete the event in Google Calendar (choose to email the guest). The slot reopens on the website.
-- **After editing the code:** Deploy → Manage deployments → pencil icon → Version: **New version** → Deploy.
-  The URL stays the same.
-
-## Note on the old Google Calendar booking page
-The "Session with Nidhi" appointment page lets parents book **without paying**. Once this is live,
-remove its link wherever it's shared (Instagram bio, WhatsApp) and point people to www.samhithe.in/booking.
+## First-time setup (only if the project is ever recreated)
+1. New Apps Script project "Samhithe Booking"; paste `Code.gs`; show and paste `appsscript.json`.
+2. Run `setup` and approve Calendar, Drive, Sheets, Forms and email access.
+3. Deploy as Web app (Execute as: Me, Who has access: Anyone) and put the `/exec` URL in `BOOKING_API`
+   in `booking/index.html`.
