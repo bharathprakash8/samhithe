@@ -202,21 +202,9 @@
       <section class="card" id="s0">
         <div class="step-h"><span class="n">1</span><h2>Who's booking?</h2></div>
         <div class="who" role="radiogroup" aria-label="Who's booking">
-          <button type="button" class="who-opt" data-who="new" role="radio" aria-checked="false"><b>Parent – first session with Nidhi</b><span>You'll share a little about your child and family before confirming (about 10 minutes).</span></button>
-          <button type="button" class="who-opt" data-who="returning" role="radio" aria-checked="false"><b>Parent – I've filled the intake form before</b><span>Already shared your child's details with Nidhi? Skip straight to booking.</span></button>
-          <button type="button" class="who-opt" data-who="school" role="radio" aria-checked="false"><b>Preschool or school</b><span>Workshops, teacher training or a partnership – request a call back. No payment needed.</span></button>
+          <button type="button" class="who-opt" data-who="parent" role="radio" aria-checked="false"><b>One-on-one session with Nidhi</b><span>A 60-minute online consultation for parents, about your child.</span></button>
+          <button type="button" class="who-opt" data-who="school" role="radio" aria-checked="false"><b>Preschool or school</b><span>Workshops, teacher training or a partnership – request a call back from Nidhi.</span></button>
         </div>
-        <div class="ret" id="retBox" hidden>
-          <p>Enter the email and phone number you used last time, and we'll find your details.</p>
-          <div class="row3">
-            <div class="field"><label for="retEmail">Email</label><input id="retEmail" type="email" autocomplete="email" maxlength="120" /></div>
-            <div class="field"><label for="retPhone">Phone / WhatsApp</label><input id="retPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" /></div>
-            <button type="button" class="btn btn-clay btn-sm" id="retCheck">Continue</button>
-          </div>
-        </div>
-        <div class="note-ok" id="retOk" hidden></div>
-        <div class="note-info" id="retMiss" hidden></div>
-        <div class="err" id="retErr" hidden></div>
       </section>
 
       <!-- Preschool / school call back -->
@@ -239,6 +227,27 @@
         <div class="err" id="scErr" hidden></div>
       </section>
 
+      <!-- Your details -->
+      <section class="card" id="s2" hidden>
+        <div class="step-h"><span class="n">2</span><h2>About you and your child</h2></div>
+        <div class="grid2">
+          <div class="field"><label for="childName">Child's name <i>*</i></label><input id="childName" required maxlength="80" /></div>
+          <div class="field"><label for="childAge">Child's age <i>*</i></label>
+            <select id="childAge" required><option value="">Select age</option></select>
+          </div>
+          <div class="field"><label for="parentName">Parent's name <i>*</i></label><input id="parentName" autocomplete="name" required maxlength="80" /></div>
+          <div class="field"><label for="phone">Phone / WhatsApp <i>*</i></label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="98765 43210" maxlength="16" /></div>
+          <div class="field full"><label for="email">Email <i>*</i></label><input id="email" type="email" autocomplete="email" required maxlength="120" /><span class="hint">Your Google Meet link and confirmation are sent here.</span></div>
+          <div class="field full"><label class="opt" for="firstSession"><input type="checkbox" id="firstSession" /><span><b>This is my child's first session with Nidhi</b><br><span class="hint">You'll answer a few questions about your child before booking. You only need to do this once.</span></span></label></div>
+          <div class="field full" id="notesField"><label for="notes">What would you like support with? <span>(optional)</span></label><textarea id="notes" maxlength="1000" placeholder="A few lines are enough, e.g. tantrums at bedtime, school refusal, screen time…"></textarea></div>
+        </div>
+        <div class="hp" aria-hidden="true"><label>Website <input id="website" tabindex="-1" autocomplete="off" /></label></div>
+        <button type="button" class="btn btn-clay btn-sm" id="detailsNext" style="margin-top:20px">Continue</button>
+        <div class="note-ok" id="detOk" hidden></div>
+        <div class="note-info" id="detInfo" hidden></div>
+        <div class="err" id="detErr" hidden></div>
+      </section>
+
       <!-- Step 1 -->
       <section class="card locked" id="s1">
         <div class="step-h"><span class="n">1</span><h2>Choose a date and time</h2></div>
@@ -249,22 +258,6 @@
           <div class="times" id="times" aria-label="Available times"></div>
         </div>
         <div class="err" id="slotsErr" hidden></div>
-      </section>
-
-      <!-- Step 2 -->
-      <section class="card locked" id="s2">
-        <div class="step-h"><span class="n">2</span><h2>About you and your child</h2></div>
-        <div class="grid2">
-          <div class="field"><label for="parentName">Parent's name <i>*</i></label><input id="parentName" autocomplete="name" required maxlength="80" /></div>
-          <div class="field"><label for="childName">Child's name <i>*</i></label><input id="childName" required maxlength="80" /></div>
-          <div class="field"><label for="childAge">Child's age <i>*</i></label>
-            <select id="childAge" required><option value="">Select age</option></select>
-          </div>
-          <div class="field"><label for="phone">Phone / WhatsApp <i>*</i></label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="98765 43210" maxlength="16" /></div>
-          <div class="field full"><label for="email">Email <i>*</i></label><input id="email" type="email" autocomplete="email" required maxlength="120" /><span class="hint">Your Google Meet link and confirmation are sent here.</span></div>
-          <div class="field full" id="notesField"><label for="notes">What would you like support with? <span>(optional)</span></label><textarea id="notes" maxlength="1000" placeholder="A few lines are enough, e.g. tantrums at bedtime, school refusal, screen time…"></textarea></div>
-        </div>
-        <div class="hp" aria-hidden="true"><label>Website <input id="website" tabindex="-1" autocomplete="off" /></label></div>
       </section>
 
       <!-- Intake (first-time parents) -->
@@ -319,8 +312,8 @@
       <div class="sum-total"><span>Total</span><b>₹<span class="js-amt">1,000</span></b></div>
       <button type="submit" form="form" class="btn btn-clay submit" id="submit" disabled>Confirm booking</button>
       <ul class="checklist" id="checklist">
-        <li data-k="slot">Date and time chosen</li>
         <li data-k="details">Your details filled in</li>
+        <li data-k="slot">Date and time chosen</li>
         <li data-k="intake" hidden>About your child filled in</li>
         <li data-k="shot">Payment screenshot uploaded</li>
       </ul>
@@ -365,7 +358,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
 
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var S = { data: null, date: null, slot: null, shot: null, sending: false, who: null, verified: false };
+  var S = { data: null, date: null, slot: null, shot: null, sending: false, who: null, ready: false, mode: null };
   var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   var demo = /[?&]demo=1/.test(location.search);
@@ -454,7 +447,12 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
     return $("q_" + it.k).value.trim();
   }
   function intakeOk() { return INTAKE.every(function (it) { return it.h || !it.req || !!intakeVal(it); }); }
-  function collectIntake() { return INTAKE.filter(function (it) { return !it.h; }).map(function (it) { return [it.q, intakeVal(it)]; }); }
+  function collectIntake() {
+    return INTAKE.filter(function (it) { return !it.h; }).map(function (it) {
+      var arr = it.t === "check" ? [].map.call(document.querySelectorAll('input[name="q_' + it.k + '"]:checked'), function (x) { return x.value; }) : null;
+      return [it.q, intakeVal(it), it.k, arr];
+    });
+  }
 
   /* ── Who's booking ── */
   [].forEach.call(document.querySelectorAll(".who-opt"), function (b) { b.onclick = function () { choose(b.dataset.who); }; });
@@ -464,53 +462,69 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       var on = b.dataset.who === who; b.classList.toggle("on", on); b.setAttribute("aria-checked", on);
     });
     var school = who === "school";
-    $("retBox").hidden = !(who === "returning" && !S.verified);
-    $("retOk").hidden = !(who === "returning" && S.verified);
-    if (who !== "new") $("retMiss").hidden = true;
-    $("retErr").hidden = true;
     $("sSchool").hidden = !school;
-    ["s1", "s2", "s3"].forEach(function (id) { $(id).hidden = school; });
-    $("sIntake").hidden = who !== "new";
-    $("notesField").hidden = who === "new";
+    ["s2", "s1", "s3"].forEach(function (id) { $(id).hidden = school; });
     $("flow").classList.toggle("solo", school);
-    $("checklist").querySelector('[data-k="intake"]').hidden = who !== "new";
+    applyMode();
+    setTimeout(function () { $(school ? "sSchool" : "s2").scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
+  }
+  function applyMode() {
+    var intake = S.who === "parent" && S.mode === "new";
+    $("sIntake").hidden = !intake;
+    $("checklist").querySelector('[data-k="intake"]').hidden = !intake;
+    $("notesField").hidden = $("firstSession").checked || S.mode === "new";
     renumber(); update();
-    if (school) setTimeout(function () { $("sSchool").scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
-    else if (who === "returning" && !S.verified) $("retEmail").focus();
   }
   function renumber() {
     var n = 0;
-    ["s0", "sSchool", "s1", "s2", "sIntake", "s3"].forEach(function (id) {
+    ["s0", "sSchool", "s2", "s1", "sIntake", "s3"].forEach(function (id) {
       if (!$(id).hidden) $(id).querySelector(".n").textContent = ++n;
     });
   }
-  $("retCheck").onclick = function () {
-    var email = $("retEmail").value.trim(), phone = $("retPhone").value.trim(), btn = this;
-    $("retErr").hidden = true;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || phone.replace(/\D/g, "").length < 10) {
-      $("retErr").textContent = "Please enter the email and 10-digit phone number you used before."; $("retErr").hidden = false; return;
+  // Changing any detail after "Continue" means we check again
+  ["childName", "childAge", "parentName", "phone", "email", "firstSession"].forEach(function (f) {
+    $(f).addEventListener("input", reset); $(f).addEventListener("change", reset);
+  });
+  function reset() {
+    $("detErr").hidden = true;
+    if (!S.ready) { applyMode(); return; }
+    S.ready = false; S.mode = null; $("detOk").hidden = true; $("detInfo").hidden = true; applyMode();
+  }
+  $("detailsNext").onclick = function () {
+    var btn = this, first = $("firstSession").checked, err = $("detErr");
+    err.hidden = true; $("detOk").hidden = true; $("detInfo").hidden = true;
+    if (!detailsOk()) {
+      err.textContent = "Please fill in your child's name and age, your name, a valid email and a 10-digit phone number."; err.hidden = false; return;
     }
+    var email = $("email").value.trim(), phone = $("phone").value.trim();
     btn.disabled = true; btn.textContent = "Checking…";
-    var p = demo ? Promise.resolve({ ok: true, found: /found/.test(email) })
+    var p = demo ? Promise.resolve({ ok: true, found: /found/.test(email), any: /found|any/.test(email) })
       : fetch(BOOKING_API, { method: "POST", body: JSON.stringify({ action: "lookup", email: email, phone: phone }) }).then(function (r) { return r.json(); });
     p.then(function (r) {
       btn.disabled = false; btn.textContent = "Continue";
-      if (!r || !r.ok) { $("retErr").textContent = (r && r.message) || "Something went wrong. Please try again."; $("retErr").hidden = false; return; }
-      $("email").value = email; $("phone").value = phone;
-      if (r.found) {
-        S.verified = true;
-        $("retOk").textContent = "Welcome back! We have your details on file, so there's no form to fill this time. Choose a time below.";
-        choose("returning");
-        setTimeout(function () { $("s1").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
-      } else {
-        $("retMiss").textContent = "We couldn't find an earlier form with that email and phone number, so please fill in the short section about your child below. You only need to do it once.";
-        choose("new"); $("retMiss").hidden = false;
+      if (!r || !r.ok) { err.textContent = (r && r.message) || "Something went wrong. Please try again."; err.hidden = false; return; }
+      if (first && r.any) {
+        err.textContent = "It looks like you've already filled the intake form with Nidhi earlier (we found it with this email or phone number). Please untick “first session” to continue.";
+        err.hidden = false; return;
       }
+      S.ready = true;
+      if (first) { S.mode = "new"; }
+      else if (r.found) {
+        S.mode = "returning";
+        $("detOk").textContent = "Welcome back! Your child's details are already with Nidhi, so there's no form to fill this time."; $("detOk").hidden = false;
+      } else {
+        S.mode = "new";
+        $("detInfo").textContent = "We couldn't find an earlier form with this email and phone number, so please answer a few questions about your child after choosing a time. You only need to do this once.";
+        $("detInfo").hidden = false;
+      }
+      applyMode();
+      setTimeout(function () { $("s1").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
     }).catch(function () {
       btn.disabled = false; btn.textContent = "Continue";
-      $("retErr").textContent = "We couldn't reach the booking system. Please check your connection and try again."; $("retErr").hidden = false;
+      err.textContent = "We couldn't reach the booking system. Please check your connection and try again."; err.hidden = false;
     });
   };
+  $("firstSession").addEventListener("change", function () { $("notesField").hidden = this.checked || S.mode === "new"; });
 
   /* ── Preschool / school call back ── */
   $("scSubmit").onclick = function () {
@@ -592,7 +606,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
         S.slot = { start: s.start, label: s.label, date: d.date, long: d.long };
         [].forEach.call(t.children, function (x) { x.classList.remove("on"); }); b.classList.add("on");
         update();
-        if (window.innerWidth < 960) setTimeout(function () { $("s2").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
+        if (window.innerWidth < 960) setTimeout(function () { $(S.mode === "new" ? "sIntake" : "s3").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
       };
       t.appendChild(b);
     });
@@ -677,10 +691,8 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       $("phone").value.replace(/\D/g, "").length >= 10 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim()));
   }
   function update() {
-    var ready = S.who === "new" || (S.who === "returning" && S.verified);
-    var st = { slot: ready && !!S.slot, details: detailsOk(), shot: !!S.shot, intake: S.who !== "new" || intakeOk() };
-    $("s1").classList.toggle("locked", !ready);
-    $("s2").classList.toggle("locked", !st.slot);
+    var st = { details: S.ready, slot: S.ready && !!S.slot, shot: !!S.shot, intake: S.mode !== "new" || intakeOk() };
+    $("s1").classList.toggle("locked", !S.ready);
     $("sIntake").classList.toggle("locked", !st.slot);
     $("s3").classList.toggle("locked", !st.slot);
     $("sumWhen").textContent = S.slot ? S.slot.long + ", " + S.slot.label : "Choose a time";
@@ -697,7 +709,8 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
     if (S.sending) return;
     if (!S.slot) return fail("Please choose a date and time.");
     if (!detailsOk()) return fail("Please fill in all the required details: a valid email and a 10-digit phone number.");
-    if (S.who === "new" && !intakeOk()) return fail("Please answer the required questions (marked *) about your child.");
+    if (!S.ready) return fail("Please fill in your details and press Continue.");
+    if (S.mode === "new" && !intakeOk()) return fail("Please answer the required questions (marked *) about your child.");
     if (!S.shot) return fail("Please upload the screenshot of your payment.");
     S.sending = true; $("submitErr").hidden = true; show("sending");
     window.scrollTo({ top: $("head").offsetTop, behavior: "smooth" });
@@ -706,7 +719,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       parentName: $("parentName").value.trim(), childName: $("childName").value.trim(), childAge: $("childAge").value,
       phone: $("phone").value.trim(), email: $("email").value.trim(), notes: $("notes").value.trim(),
       payerUpi: $("payerUpi").value.trim(), website: $("website").value, screenshot: S.shot,
-      who: S.who, intake: S.who === "new" ? collectIntake() : null
+      who: S.mode === "new" ? "new" : "returning", intake: S.mode === "new" ? collectIntake() : null
     };
     var p = demo
       ? new Promise(function (r) { setTimeout(function () { r({ ok: true, when: S.slot.long + " at " + S.slot.label, email: payload.email, meetLink: "https://meet.google.com/" }); }, 1200); })
@@ -721,7 +734,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       }
       show("flow"); fail((r && r.message) || "Something went wrong. Please try again.");
       if (r && r.code === "SLOT_TAKEN") { S.slot = null; loadSlots(S.date); $("s1").scrollIntoView({ behavior: "smooth" }); }
-      if (r && r.code === "NEED_INTAKE") { S.verified = false; choose("new"); setTimeout(function () { $("sIntake").scrollIntoView({ behavior: "smooth" }); }, 150); }
+      if (r && r.code === "NEED_INTAKE") { S.mode = "new"; applyMode(); setTimeout(function () { $("sIntake").scrollIntoView({ behavior: "smooth" }); }, 150); }
       update();
     }).catch(function () {
       S.sending = false; show("flow");
