@@ -16,7 +16,8 @@ The booking page (www.samhithe.in/booking) talks to the **Samhithe Booking** App
 - **Samhithe – Payment Screenshots** (Drive folder).
 - **Google Calendar**: each booking is an event with a Meet link. Anything on the calendar blocks that time.
 
-Sheet changes reach the website within a minute (the slot list is cached for 60 seconds).
+Sheet changes reach the website within a minute: a background job (`warmSlots`, every minute) refreshes the
+cached slot list so the booking page gets a fast answer. If it is ever removed, run `installWarmup` once.
 
 ## Booking flow
 1. Who's booking: *One-on-one session* or *Preschool or school* (call-back request, no slots).
