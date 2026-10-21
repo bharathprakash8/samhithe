@@ -7,6 +7,8 @@
 <meta name="description" content="Book a 60-minute online parent consultation with child psychologist Nidhi Rao. Choose a time, pay ₹1,000 by UPI, and get your Google Meet link by email." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://script.google.com" crossorigin />
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../blog/blog.css" />
 <style>
@@ -77,6 +79,8 @@
 .upload:hover,.upload.drag{border-color:var(--clay);background:#fff}
 .upload b{display:block;font-size:16px}
 .upload span{font-size:14px;color:var(--ink-2)}
+#dropEmpty,.ok-tick{display:block}
+.upload .ok-tick{color:var(--leaf);font-weight:700}
 .upload input{display:none}
 .preview{display:flex;align-items:center;gap:14px;text-align:left}
 .preview img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
@@ -125,9 +129,6 @@
 .who-opt span{display:block;font-size:14px;color:var(--ink-2);margin-top:3px}
 .who-opt:hover{border-color:var(--clay)}
 .who-opt.on{border-color:var(--clay);background:#fff;box-shadow:inset 0 0 0 1px var(--clay)}
-.ret{margin-top:16px;padding:16px;border-radius:14px;background:var(--paper-2);border:1px solid var(--line)}
-.ret p{font-size:14.5px;color:var(--ink-2);margin-bottom:12px}
-.ret .row3{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
 .btn-sm{padding:12px 20px;font-size:15px}
 .note-ok{background:var(--leaf-soft);color:var(--leaf);border-radius:12px;padding:11px 14px;font-size:14.5px;font-weight:600;margin-top:12px}
 .note-info{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:14.5px;margin-top:12px}
@@ -154,7 +155,6 @@
   .pay{grid-template-columns:1fr}
   .qr{max-width:230px;margin:0 auto;width:100%}
   .date{width:70px}
-  .ret .row3{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -253,9 +253,9 @@
         <div class="step-h"><span class="n">1</span><h2>Choose a date and time</h2></div>
         <div id="slotsLoading"><div class="skel"></div></div>
         <div id="slotsArea" hidden>
-          <div class="dates" id="dates" aria-label="Available dates"></div>
+          <div class="dates" id="dates" role="group" aria-label="Available dates"></div>
           <p class="day-label" id="dayLabel"></p>
-          <div class="times" id="times" aria-label="Available times"></div>
+          <div class="times" id="times" role="group" aria-label="Available times"></div>
         </div>
         <div class="err" id="slotsErr" hidden></div>
       </section>
@@ -273,7 +273,7 @@
         <p class="sub">Pay first, then upload the payment screenshot below. Your slot is confirmed when you submit.</p>
         <div class="pay">
           <div class="qr" id="qrBox">
-            <img id="qrImg" alt="Samhithe UPI QR code" hidden />
+            <img id="qrImg" alt="Samhithe UPI QR code" width="531" height="597" loading="lazy" decoding="async" hidden />
             <div id="qrGen"></div>
             <small>Scan with any UPI app</small>
           </div>
@@ -292,12 +292,12 @@
 
         <label class="upload" id="drop" for="shot">
           <input type="file" id="shot" accept="image/*,application/pdf" />
-          <div id="dropEmpty"><b>Upload payment screenshot <i style="color:var(--clay);font-style:normal">*</i></b><span>Tap to choose an image or PDF of your successful payment</span></div>
-          <div class="preview" id="dropFull" hidden>
-            <img id="shotThumb" alt="" /><div class="pdf" id="shotPdf" hidden>PDF</div>
-            <div class="meta"><b id="shotName"></b><div class="ok-tick">✓ Screenshot added</div></div>
+          <span id="dropEmpty"><b>Upload payment screenshot <i style="color:var(--clay);font-style:normal">*</i></b><span>Tap to choose an image or PDF of your successful payment</span></span>
+          <span class="preview" id="dropFull" hidden>
+            <img id="shotThumb" alt="" /><span class="pdf" id="shotPdf" hidden>PDF</span>
+            <span class="meta"><b id="shotName"></b><span class="ok-tick">✓ Screenshot added</span></span>
             <span class="copy">Change</span>
-          </div>
+          </span>
         </label>
       </section>
     </form>
@@ -331,11 +331,11 @@
     <div class="row"><a class="btn btn-clay" id="doneMeet" href="#" target="_blank" rel="noopener" hidden>Open Google Meet link</a><a class="btn btn-line" href="../">Back to Samhithe</a></div>
   </section>
   <section class="card state" id="unavailable" hidden>
-    <h2>Book your session</h2>
-    <p>Pick a time, pay ₹1,000 by UPI and upload your payment screenshot. Your Google Meet link arrives by email. Prefer to talk first? Message Nidhi on WhatsApp.</p>
+    <h2>Online booking is taking a break</h2>
+    <p>We couldn't load the available times just now. Please try again in a few minutes, or message Nidhi on WhatsApp and she'll find a time for you.</p>
     <div class="row">
-      <a class="btn btn-clay" id="calLink" href="#">Choose a time and book</a>
-      <a class="btn btn-line" href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%27d%20like%20to%20book%20a%20parent%20consultation." target="_blank" rel="noopener">WhatsApp Nidhi</a>
+      <a class="btn btn-clay" href="https://wa.me/919513876919?text=Hi%20Nidhi%2C%20I%27d%20like%20to%20book%20a%20session." target="_blank" rel="noopener">WhatsApp Nidhi</a>
+      <a class="btn btn-line" href="./">Try again</a>
     </div>
   </section>
 
@@ -345,23 +345,23 @@
   </div>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 /* ── Settings ───────────────────────────────────────────────────────────────
    BOOKING_API: the booking Apps Script web-app URL (ends in /exec). See apps-script/booking/SETUP.md.
    QR_IMAGE:    your UPI QR code image, saved next to this page (booking/upi-qr.png).
-                If that file is missing, a QR is generated from the UPI ID set in the Apps Script.
-   FALLBACK_BOOKING: the original booking app, used while BOOKING_API is empty or unreachable. */
+                If that file is missing, a QR is generated from the UPI ID set in the Apps Script. */
 var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_Z9pp0Zy5-k7r59Glr8W9PoYSTGnGGId2N3mtlUqFlnoMc2/exec";
 var QR_IMAGE = "upi-qr.png";
-var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsriCppy1CRXQFbzfpKvutLoDqy3QjYbRmD_MDv4oWNtZq0_BJABJmI/exec";
 
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var S = { data: null, date: null, slot: null, shot: null, sending: false, who: null, ready: false, mode: null };
   var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  var demo = /[?&]demo=1/.test(location.search);
+  var SLOTS_KEY = "samhithe_slots_v1";
+  function post(body) {
+    return fetch(BOOKING_API, { method: "POST", body: JSON.stringify(body) }).then(function (r) { return r.json(); });
+  }
 
   $("burger").onclick = function () {
     var o = $("mnav").classList.toggle("open"); this.setAttribute("aria-expanded", o);
@@ -372,7 +372,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
   })).forEach(function (a) { var o = document.createElement("option"); o.value = a[0]; o.textContent = a[1]; ageSel.appendChild(o); });
 
   function show(id) { ["flow", "sending", "done", "unavailable"].forEach(function (k) { $(k).hidden = k !== id; }); }
-  function unavailable() { $("calLink").href = FALLBACK_BOOKING; show("unavailable"); }
+  function unavailable() { show("unavailable"); }
 
   /* ── Intake questions (first-time parents) – mirrors Nidhi's "Child & Family Information Form" ── */
   var INTAKE = [
@@ -498,9 +498,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
     }
     var email = $("email").value.trim(), phone = $("phone").value.trim();
     btn.disabled = true; btn.textContent = "Checking…";
-    var p = demo ? Promise.resolve({ ok: true, found: /found/.test(email), any: /found|any/.test(email) })
-      : fetch(BOOKING_API, { method: "POST", body: JSON.stringify({ action: "lookup", email: email, phone: phone }) }).then(function (r) { return r.json(); });
-    p.then(function (r) {
+    post({ action: "lookup", email: email, phone: phone }).then(function (r) {
       btn.disabled = false; btn.textContent = "Continue";
       if (!r || !r.ok) { err.textContent = (r && r.message) || "Something went wrong. Please try again."; err.hidden = false; return; }
       if (first && r.any) {
@@ -538,9 +536,7 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c.email)) ? "Please check the email address." : "";
     if (bad) { err.textContent = bad; err.hidden = false; return; }
     btn.disabled = true; btn.textContent = "Sending…";
-    var p = demo ? new Promise(function (r) { setTimeout(function () { r({ ok: true }); }, 800); })
-      : fetch(BOOKING_API, { method: "POST", body: JSON.stringify(c) }).then(function (r) { return r.json(); });
-    p.then(function (r) {
+    post(c).then(function (r) {
       btn.disabled = false; btn.textContent = "Request a call back";
       if (!r || !r.ok) { err.textContent = (r && r.message) || "Something went wrong. Please try again."; err.hidden = false; return; }
       $("doneTitle").textContent = "Thank you!";
@@ -555,13 +551,29 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
   };
 
   /* ── Slots ── */
+  // Times from the last visit (up to 30 minutes old) show instantly while fresh ones load.
+  // The booking system re-checks the slot when booking, so a stale slot can never be double-booked.
+  function cachedSlots() {
+    try {
+      var c = JSON.parse(localStorage.getItem(SLOTS_KEY) || "null");
+      return c && Date.now() - c.t < 30 * 60000 ? c.d : null;
+    } catch (e) { return null; }
+  }
+  function useSlots(d, keepDate) {
+    S.data = d;
+    if (S.slot && !d.days.some(function (x) { return x.slots.some(function (s) { return s.start === S.slot.start; }); })) S.slot = null;
+    renderPayment(); renderDates(keepDate);
+  }
   function loadSlots(keepDate) {
-    $("slotsLoading").hidden = false; $("slotsArea").hidden = true; $("slotsErr").hidden = true;
-    var p = demo ? Promise.resolve(demoData()) :
-      fetch(BOOKING_API + "?action=slots", { cache: "no-store" }).then(function (r) { return r.json(); });
-    return p.then(function (d) {
+    $("slotsErr").hidden = true;
+    if (!S.data) {
+      var c = cachedSlots();
+      if (c) useSlots(c, keepDate); else { $("slotsLoading").hidden = false; $("slotsArea").hidden = true; }
+    }
+    return fetch(BOOKING_API + "?action=slots", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d || !d.ok) throw new Error((d && d.message) || "Could not load times");
-      S.data = d; renderPayment(); renderDates(keepDate);
+      try { localStorage.setItem(SLOTS_KEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
+      useSlots(d, keepDate || S.date);
     }).catch(function () {
       if (!S.data) { unavailable(); return; }
       $("slotsLoading").hidden = true; $("slotsErr").hidden = false;
@@ -628,13 +640,19 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
     $("deskNote").hidden = isMobile;
 
     var img = $("qrImg");
+    if (img.dataset.set) return;
+    img.dataset.set = "1";
     img.onload = function () { img.hidden = false; $("qrGen").innerHTML = ""; };
-    img.onerror = function () {
+    img.onerror = function () {           // no QR image: draw one from the UPI ID (library loaded only when needed)
       img.hidden = true;
-      if (id && window.QRCode) {
+      if (!id) { $("qrBox").hidden = true; return; }
+      var sc = document.createElement("script");
+      sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+      sc.onload = function () {
         $("qrGen").innerHTML = "";
         new QRCode($("qrGen"), { text: "upi://pay?" + q, width: 176, height: 176, correctLevel: QRCode.CorrectLevel.M });
-      } else if (!id) { $("qrBox").hidden = true; }
+      };
+      document.head.appendChild(sc);
     };
     img.src = QR_IMAGE + "?v=1";
   }
@@ -721,15 +739,13 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
       payerUpi: $("payerUpi").value.trim(), website: $("website").value, screenshot: S.shot,
       who: S.mode === "new" ? "new" : "returning", intake: S.mode === "new" ? collectIntake() : null
     };
-    var p = demo
-      ? new Promise(function (r) { setTimeout(function () { r({ ok: true, when: S.slot.long + " at " + S.slot.label, email: payload.email, meetLink: "https://meet.google.com/" }); }, 1200); })
-      : fetch(BOOKING_API, { method: "POST", body: JSON.stringify(payload) }).then(function (r) { return r.json(); });
-    p.then(function (r) {
+    post(payload).then(function (r) {
       S.sending = false;
       if (r && r.ok) {
         $("doneText").innerHTML = "Your session is booked for <b>" + esc(r.when) + "</b> (India time). We've emailed the Google Meet link and a calendar invite to <b>" +
           esc(r.email || payload.email) + "</b>. Nidhi will verify your payment and see you then.";
         if (r.meetLink) { $("doneMeet").href = r.meetLink; $("doneMeet").hidden = false; }
+        try { localStorage.removeItem(SLOTS_KEY); } catch (e) {}
         show("done"); return;
       }
       show("flow"); fail((r && r.message) || "Something went wrong. Please try again.");
@@ -744,26 +760,8 @@ var FALLBACK_BOOKING = "https://script.google.com/macros/s/AKfycbztn0GoNjDdoHsri
   };
   function esc(s) { return String(s || "").replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
-  /* ── Demo data for previewing the page: add ?demo=1 to the address ── */
-  function demoData() {
-    var W = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], WL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    var M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], ML = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    var days = [];
-    for (var i = 1; i <= 21; i++) {
-      var d = new Date(); d.setDate(d.getDate() + i);
-      var slots = [];
-      if (d.getDay() !== 0 && i !== 3) [10, 11, 12, 14, 15, 16, 17].forEach(function (h, k) {
-        if ((i + k) % 4 === 0) return;
-        var s = new Date(d); s.setHours(h, 0, 0, 0);
-        slots.push({ start: s.toISOString(), label: (h % 12 || 12) + ":00 " + (h < 12 ? "AM" : "PM") });
-      });
-      days.push({ date: d.toISOString().slice(0, 10), weekday: W[d.getDay()], day: String(d.getDate()), month: M[d.getMonth()], long: WL[d.getDay()] + ", " + d.getDate() + " " + ML[d.getMonth()], slots: slots });
-    }
-    return { ok: true, price: 1000, upi: { id: "nidhirao.1997-2@okaxis", name: "Nidhi Rao" }, maxScreenshotMb: 8, days: days };
-  }
-
   renumber(); update();
-  if (!BOOKING_API && !demo) unavailable();
+  if (!BOOKING_API) unavailable();
   else loadSlots();
 })();
 </script>
