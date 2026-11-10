@@ -1,1 +1,1 @@
-initial health check
+fix: admin session check

@@ -9,7 +9,7 @@ OUT=$(mktemp)
 
 t0=$(date +%s%3N); curl -sSL --max-time 60 "$BOOKING?action=slots" -o /tmp/slots.json; t1=$(date +%s%3N)
 curl -sSL --max-time 60 "$ADMIN" -o /tmp/admin.json; t2=$(date +%s%3N)
-curl -sSL --max-time 60 -X POST -H 'Content-Type: text/plain' --data '{"action":"data","token":"0000000000000000000000000000000000000000000000000000000000000000"}' "$ADMIN" -o /tmp/auth.json
+curl -sSL --max-time 60 -H 'Content-Type: text/plain' --data '{"action":"data","token":"0000000000000000000000000000000000000000000000000000000000000000"}' "$ADMIN" -o /tmp/auth.json
 for p in / /booking/ /admin/ /admin/sw.js; do printf '%s %s\n' "$p" "$(curl -s -o /dev/null -w '%{http_code} %{time_total}s' "https://www.samhithe.in$p")"; done > /tmp/site.txt
 
 python3 - "$NOTE" $((t1-t0)) $((t2-t1)) > "$OUT" <<'PY'
