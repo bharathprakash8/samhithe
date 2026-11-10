@@ -124,7 +124,9 @@ function login_(b) {
   var s = { u: u.username, name: u.name || u.username, role: u.role };
   CacheService.getScriptCache().put('s_' + token, JSON.stringify(s), CFG.SESSION_HOURS * 3600);
   audit_(u.username, 'login', '');
-  return { ok: true, token: token, user: s };
+  var d = null;
+  try { d = data_({}, s); } catch (x) { console.warn('login data: ' + x); }    // dashboard data in the same round trip
+  return { ok: true, token: token, user: s, data: d };
 }
 
 /** Returns the session for a token (and keeps it alive), or null. */
@@ -246,12 +248,10 @@ function findUser_(name) {
   if (!n) return null;
   return users_().filter(function (u) { return u.username === n; })[0] || null;
 }
-function setUser_(u, fields) {
-  var sh = tab_('Users', USER_HEADERS);
-  Object.keys(fields).forEach(function (k) {
-    var c = USER_HEADERS.indexOf(k);
-    if (c >= 0) sh.getRange(u.row, c + 1).setValue(fields[k]);
-  });
+function setUser_(u, fields) {                            // one read + one write per change (sheet calls are slow)
+  var sh = tab_('Users', USER_HEADERS), rg = sh.getRange(u.row, 1, 1, USER_HEADERS.length), row = rg.getValues()[0];
+  Object.keys(fields).forEach(function (k) { var c = USER_HEADERS.indexOf(k); if (c >= 0) row[c] = fields[k]; });
+  rg.setValues([row]);
 }
 
 /* ───────────────────────── Main data (one request per screen load) ───────────────────────── */

@@ -183,7 +183,12 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   /* ── helpers ── */
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function $(sel) { return root.querySelector(sel); }
-  function fmt(iso, o) { return iso ? new Intl.DateTimeFormat("en-IN", Object.assign({ timeZone: TZ }, o)).format(new Date(iso)) : ""; }
+  var FMT = {};   // date formatters are slow to create, so make each one once
+  function fmt(iso, o) {
+    if (!iso) return "";
+    var k = JSON.stringify(o); var f = FMT[k] || (FMT[k] = new Intl.DateTimeFormat("en-IN", Object.assign({ timeZone: TZ }, o)));
+    return f.format(new Date(iso));
+  }
   function dDate(iso) { return fmt(iso, { weekday: "short", day: "numeric", month: "short" }); }
   function dLong(iso) { return fmt(iso, { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
   function dTime(iso) { return fmt(iso, { hour: "numeric", minute: "2-digit", hour12: true }).toUpperCase(); }
@@ -239,7 +244,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   function strip(d) { var x = Object.assign({}, d); delete x.now; return x; }
   function signOut(silent) {
     if (!silent && S.token) api("logout").catch(function () {});
-    S.token = null; S.user = null; S.d = null; S.cache = {};
+    S.token = null; S.user = null; S.d = null; S.cache = {}; S.prefetched = false;
     try { sessionStorage.removeItem("sam_admin_t"); sessionStorage.removeItem("sam_admin_u"); sessionStorage.removeItem("sam_admin_d"); } catch (e) {}
     if (!silent) location.hash = "";
     route();
@@ -291,6 +296,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   }
   function signedIn(r) {
     S.token = r.token; S.user = r.user;
+    if (r.data && r.data.ok) { S.d = r.data; try { sessionStorage.setItem("sam_admin_d", JSON.stringify(r.data)); } catch (e) {} }
     try { sessionStorage.setItem("sam_admin_t", r.token); sessionStorage.setItem("sam_admin_u", JSON.stringify(r.user)); } catch (e) {}
     if (!location.hash || /reset=/.test(location.hash)) location.hash = "#today"; else route();
   }
@@ -375,7 +381,16 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
       $("#rf").onclick = function () { var b = this; b.textContent = "Refreshing…"; load(true).then(function () { todayView(); }).catch(function (e) { toast(e.message); }); };
       bindItems();
       [].forEach.call(root.querySelectorAll("[data-f]"), function (a) { a.onclick = function () { S.filter = a.dataset.f; }; });
+      setTimeout(prefetch, 400);
     }).catch(function (e) { fail("today", e); });
+  }
+  // Warm up the slower screens in the background so they open instantly later.
+  function prefetch() {
+    if (S.prefetched || !S.token) return; S.prefetched = true;
+    if (isAdmin() && !S.cache.tr) api("transcripts").then(function (r) { if (r.ok) S.cache.tr = r; }).catch(function () {});
+    if (!S.cache.av) api("availability").then(function (r) { if (r.ok) S.cache.av = r; }).catch(function () {});
+    var soon = (S.d && S.d.bookings || []).filter(function (b) { return b.state !== "Cancelled" && b.end > new Date().toISOString(); }).slice(0, 3);
+    soon.forEach(function (b) { if (b.fam && !S.cache["f:" + b.fam]) api("family", { key: b.fam }).then(function (r) { if (r.ok) S.cache["f:" + b.fam] = r; }).catch(function () {}); });
   }
   function bookingItem(b) {
     var past = b.start < new Date().toISOString();
@@ -434,7 +449,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
         (b.notes ? '<p class="small muted" style="margin-top:10px">Parent\'s note</p><p style="white-space:pre-wrap">' + esc(b.notes) + "</p>" : "") + "</div></div>";
       shell("bookings", html);
       bindItems();
-      if ($("#shot")) $("#shot").onclick = function () { showShot(b.row); };
+      if ($("#shot")) { shotFetch(b.row); $("#shot").onclick = function () { showShot(b.row); }; }
       if ($("#rs")) $("#rs").onclick = function () { rescheduleModal(b); };
       if ($("#cx")) $("#cx").onclick = function () { cancelModal(b); };
       [].forEach.call(root.querySelectorAll("[data-st]"), function (btn) {
@@ -443,7 +458,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
           [].forEach.call(root.querySelectorAll("[data-st]"), function (x) { x.disabled = true; });
           api("setStatus", { row: b.row, status: st }).then(function (r) {
             if (!r.ok) throw new Error(r.message);
-            b.status = st; bookingView(row); toast("Marked " + st);
+            b.status = st; delete S.cache["f:" + b.fam]; try { sessionStorage.setItem("sam_admin_d", JSON.stringify(S.d)); } catch (e) {} bookingView(row); toast("Marked " + st);
             if (st === "Verified") composer(b.row, "payment_ok"); else if (st === "Problem") composer(b.row, "payment_issue");
           }).catch(function (e) { toast(e.message); bookingView(row); });
         };
@@ -457,9 +472,14 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     m.onclick = function (e) { if (e.target === m || e.target.className === "x") m.remove(); };
     document.body.appendChild(m); return m;
   }
+  function shotFetch(row) {
+    var k = "s:" + row;
+    if (!S.cache[k]) S.cache[k] = api("screenshot", { row: row }).catch(function (e) { delete S.cache[k]; throw e; });
+    return S.cache[k];
+  }
   function showShot(row) {
     var m = modal('<h2 style="font-size:22px">Payment screenshot</h2><div id="sb"><div class="spin"></div></div>');
-    api("screenshot", { row: row }).then(function (r) {
+    shotFetch(row).then(function (r) {
       var sb = m.querySelector("#sb");
       if (!r.ok) { sb.innerHTML = '<div class="err">' + esc(r.message) + "</div>"; return; }
       sb.innerHTML = (/pdf/.test(r.type) ? '<p class="muted" style="margin-top:12px">This is a PDF.</p>' : '<img class="shot" alt="Payment screenshot" src="data:' + esc(r.type) + ";base64," + r.data + '" />') +
@@ -512,9 +532,21 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   }
 
   function familyView(key) {
-    loading("families");
-    Promise.all([load(), api("family", { key: key })]).then(function (res) {
-      var r = res[1]; if (!r.ok) throw new Error(r.message);
+    var ck = "f:" + key, had = S.cache[ck];
+    if (!had) loading("families");
+    var fresh = api("family", { key: key }).then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      var changed = JSON.stringify(r) !== JSON.stringify(S.cache[ck]); S.cache[ck] = r; return changed;
+    });
+    Promise.all([load(), had ? Promise.resolve() : fresh]).then(function () {
+      renderFamily(S.cache[ck]);
+      if (had) fresh.then(function (changed) {
+        if (changed && location.hash === "#family/" + encodeURIComponent(key) && !document.querySelector(".main textarea:focus,.modal")) renderFamily(S.cache[ck]);
+      }).catch(function () {});
+    }).catch(function (e) { fail("families", e); });
+  }
+  function renderFamily(r) {
+    (function () {
       var f = r.family, ph = f.phones[0] || "";
       var html = '<a class="back" href="#families">← Families</a><h1 class="h1">' + esc(f.children.join(", ") || f.parents[0]) + '</h1><p class="sub">' + esc(f.parents.join(", ")) + "</p>" +
         '<div class="card"><dl class="kv"><dt>Phone</dt><dd>' + f.phones.map(function (p) { return '<a href="tel:' + esc(p) + '">' + esc(p) + "</a>"; }).join(", ") + "</dd><dt>Email</dt><dd>" +
@@ -535,10 +567,10 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
       bindItems();
       $("#an").onclick = function () {
         var t = $("#nt").value.trim(), b = this; if (!t) return; b.disabled = true;
-        api("addNote", { key: f.key, text: t }).then(function (x) { if (!x.ok) throw new Error(x.message); $("#nt").value = ""; $("#nl").innerHTML = notesHtml(x.notes); b.disabled = false; toast("Note saved"); })
+        api("addNote", { key: f.key, text: t }).then(function (x) { if (!x.ok) throw new Error(x.message); r.notes = x.notes; $("#nt").value = ""; $("#nl").innerHTML = notesHtml(x.notes); b.disabled = false; toast("Note saved"); })
           .catch(function (e) { b.disabled = false; toast(e.message); });
       };
-    }).catch(function (e) { fail("families", e); });
+    })();
   }
   function notesHtml(ns) {
     return (ns || []).map(function (n) { return '<div class="note"><div class="m">' + dDate(n.at) + ", " + dTime(n.at) + " · " + esc(n.by) + "</div><p>" + esc(n.text) + "</p></div>"; }).join("");
@@ -584,7 +616,8 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   function transcriptView(id) {
     loading("transcripts");
     var p = S.cache.tr ? Promise.resolve(S.cache.tr) : api("transcripts").then(function (r) { if (!r.ok) throw new Error(r.message); S.cache.tr = r; return r; });
-    Promise.all([p, api("transcript", { id: id })]).then(function (res) {
+    var tk = "t:" + id, tp = S.cache[tk] ? Promise.resolve(S.cache[tk]) : api("transcript", { id: id }).then(function (r) { if (r.ok) S.cache[tk] = r; return r; });
+    Promise.all([p, tp]).then(function (res) {
       var idx = res[0], r = res[1]; if (!r.ok) throw new Error(r.message);
       var t = r.transcript, info = idx.transcripts.filter(function (x) { return x.id === id; })[0] || t, names = idx.familyNames;
       var opts = '<option value="">— Not filed —</option><option value="none"' + (info.dismissed ? " selected" : "") + ">Not a client session (school, partner, internal)</option>" +
@@ -614,6 +647,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
 
   /* ── Reschedule / cancel ── */
   function updateBooking(nb) {
+    Object.keys(S.cache).forEach(function (k) { if (k.indexOf("f:") === 0) delete S.cache[k]; });
     var i = S.d.bookings.findIndex(function (x) { return x.row === nb.row; });
     if (i >= 0) { nb.fam = S.d.bookings[i].fam; S.d.bookings[i] = nb; }
   }
@@ -686,8 +720,8 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   /* ── Availability ── */
   var DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   function availabilityView() {
-    loading("availability");
-    api("availability").then(function (r) {
+    if (!S.cache.av) loading("availability");
+    (S.cache.av ? Promise.resolve(S.cache.av) : api("availability")).then(function (r) {
       if (!r.ok) throw new Error(r.message);
       var A = { weekly: r.weekly.slice(), off: r.timeOff.slice(), settings: r.settings };
       A.weekly.sort(function (a, b) { return DAYS.indexOf(a[0]) - DAYS.indexOf(b[0]) || (a[1] < b[1] ? -1 : 1); });
@@ -724,7 +758,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
           var sets = {}; A.settings.forEach(function (x) { sets[x.label] = Number(x.value); });
           api("saveAvailability", { weekly: A.weekly, timeOff: A.off, settings: sets }).then(function (x) {
             if (!x.ok) throw new Error(x.message);
-            A.weekly = x.weekly; A.off = x.timeOff; A.settings = x.settings; draw(); toast("Saved – booking page updates within a minute");
+            S.cache.av = x; A.weekly = x.weekly; A.off = x.timeOff; A.settings = x.settings; draw(); toast("Saved – booking page updates within a minute");
           }).catch(function (e) { btn.disabled = false; btn.textContent = "Save changes"; $("#am").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
         };
       }

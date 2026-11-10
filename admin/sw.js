@@ -1,7 +1,7 @@
 /* Samhithe Admin – service worker.
    Caches only the app shell (this page, icons, logo, fonts) so the portal opens instantly and installs to the home screen.
    It never caches or touches the data requests to Google (script.google.com) – families' data is not stored here. */
-var CACHE = "sam-admin-v1";
+var CACHE = "sam-admin-v2";
 var SHELL = ["./", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/apple-touch-icon.png", "../blog/assets/mark.webp"];
 
 self.addEventListener("install", function (e) {
