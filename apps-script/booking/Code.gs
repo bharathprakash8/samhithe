@@ -37,6 +37,7 @@ var CONFIG = {
   BUFFER_MINUTES: 0,                   // extra gap kept free around other calendar events
   CALENDAR_ID: 'primary',
   NOTIFY_EMAIL: '',                    // where new-booking alerts go; empty = the script owner
+  NOTIFY_CC: 'nidhirao.1997@gmail.com', // also copied on every new-booking alert (comma-separate for more)
   MAX_SCREENSHOT_MB: 8,
   OLD_FORM_ID: '1CmylFbrq-nIFeFZp6-QUI4D6c40eGe-JtYFbNlRyg9o',      // Nidhi's old Google intake form (retired; answers copied to Intake)
   SHEET_NAME: 'Samhithe – Bookings & Availability',
@@ -486,6 +487,7 @@ function sendNidhiEmail_(f, when, meet, file, intake, who) {
     : '<p style="color:#6A5F57">Returning parent – intake already on file (see the Intake tab of the bookings sheet).</p>';
   MailApp.sendEmail({
     to: notifyEmail_(),
+    cc: CONFIG.NOTIFY_CC || '',
     replyTo: f.email,
     subject: 'New booking' + (who === 'returning' ? ' (returning)' : '') + ': ' + f.childName + ' (' + f.parentName + ') – ' + when,
     htmlBody: wrap_(
