@@ -7,7 +7,13 @@
 <meta name="referrer" content="no-referrer" />
 <meta name="theme-color" content="#FDF8F5" />
 <title>Samhithe Admin</title>
-<link rel="icon" href="../blog/assets/mark.webp" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Samhithe" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://script.google.com" crossorigin />
@@ -27,7 +33,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.2}
 /* layout */
 .shell{display:grid;grid-template-columns:1fr;min-height:100vh}
 .side{display:none}
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(253,248,245,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;background:rgba(253,248,245,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
 .brand img{width:34px;height:34px;object-fit:contain}
 .brand b{font-family:var(--serif);font-weight:400;font-size:20px;color:var(--clay)}
@@ -135,6 +141,26 @@ mark{background:#FFE9A8;padding:0 2px;border-radius:3px}
 .shot{max-width:100%;border-radius:12px;border:1px solid var(--line);display:block;margin:12px auto 0}
 .spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--clay);border-radius:50%;animation:sp .8s linear infinite;margin:40px auto}
 @keyframes sp{to{transform:rotate(360deg)}}
+.grid-av{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px;align-items:center;margin-top:8px}
+.grid-off{display:grid;grid-template-columns:1fr 1fr 1.4fr auto;gap:8px;align-items:center;margin-top:8px}
+.grid-av select,.grid-av input,.grid-off input{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--paper);font-size:15px;width:100%;min-width:0}
+@media(max-width:560px){.grid-off{grid-template-columns:1fr 1fr auto}.grid-off .rs{grid-column:1/3}.grid-av{grid-template-columns:1fr 1fr auto;padding-top:10px;border-top:1px solid var(--line)}.grid-av select{grid-column:1/-1}}
+.savebar{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom));z-index:5;background:var(--paper);padding:12px 0;margin-top:8px}
+@media(min-width:900px){.savebar{bottom:0}}
+.xbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:#fff;color:var(--ink-2);font-size:18px;line-height:1}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:8px}
+.slot{border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:9px 6px;font-weight:600;font-size:14px}
+.slot.on{background:var(--clay);border-color:var(--clay);color:#fff}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.day{flex:none;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);padding:7px 10px;text-align:center;font-size:13px;line-height:1.25}
+.day b{display:block;font-size:17px}
+.day.on{border-color:var(--clay);background:var(--clay);color:#fff}
+.day:disabled{opacity:.4}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:15px}
+.check input{width:18px;height:18px;accent-color:var(--clay);margin-top:2px}
+.pill.x{background:#EEE7E1;color:#7c6f66;text-decoration:line-through}
+.menu a{display:flex;align-items:center;gap:14px}
+.menu svg{width:22px;height:22px;color:var(--clay);flex:none}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:60;box-shadow:0 8px 30px rgba(0,0,0,.2)}
 @media(min-width:900px){.toast{bottom:30px}}
 </style>
@@ -147,6 +173,7 @@ mark{background:#FFE9A8;padding:0 2px;border-radius:3px}
    This page holds no data or secrets: everything is loaded after sign-in. */
 var ADMIN_API = "https://script.google.com/macros/s/AKfycbzHIlWBg_k_9V4DE3zYat7ltuOKWCysWc083ZGYLuuhh0L6g94lFztofkKt-GYrJiIM/exec";
 var TZ = "Asia/Kolkata";
+var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_Z9pp0Zy5-k7r59Glr8W9PoYSTGnGGId2N3mtlUqFlnoMc2/exec";   // public booking engine (for free slots)
 
 (function () {
   var S = { token: null, user: null, d: null, cache: {}, filter: "upcoming", famQ: "", tq: "", tHits: null, tFilter: "linked" };
@@ -175,7 +202,12 @@ var TZ = "Asia/Kolkata";
     today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>',
     bookings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
     families: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2.5 20c.7-3.6 3.4-5.5 6.5-5.5s5.8 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.3.2 4 1.8 4.5 4.5"/></svg>',
-    transcripts: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>'
+    transcripts: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>',
+    availability: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    enquiries: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg>',
+    templates: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>'
   };
 
   /* ── API ── */
@@ -186,14 +218,29 @@ var TZ = "Asia/Kolkata";
       return r;
     }, function () { throw new Error("Couldn't reach the server. Check your connection and try again."); });
   }
+  // Data: show the last copy from this session instantly, then refresh it from Google in the background.
   function load(force) {
     if (S.d && !force) return Promise.resolve(S.d);
-    return api("data").then(function (r) { if (!r.ok) throw new Error(r.message); S.d = r; return r; });
+    var fresh = api("data", force ? { fresh: 1 } : {}).then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      var changed = !S.d || JSON.stringify(strip(S.d)) !== JSON.stringify(strip(r));
+      S.d = r; try { sessionStorage.setItem("sam_admin_d", JSON.stringify(r)); } catch (e) {}
+      return changed;
+    });
+    var cached = null;
+    if (!force) { try { cached = JSON.parse(sessionStorage.getItem("sam_admin_d") || "null"); } catch (e) {} }
+    if (cached && cached.ok) {
+      S.d = cached;
+      fresh.then(function (changed) { if (changed && !document.querySelector(".modal") && !document.querySelector(".main input:focus,.main textarea:focus")) route(); }).catch(function () {});
+      return Promise.resolve(S.d);
+    }
+    return fresh.then(function () { return S.d; });
   }
+  function strip(d) { var x = Object.assign({}, d); delete x.now; return x; }
   function signOut(silent) {
     if (!silent && S.token) api("logout").catch(function () {});
     S.token = null; S.user = null; S.d = null; S.cache = {};
-    try { sessionStorage.removeItem("sam_admin_t"); sessionStorage.removeItem("sam_admin_u"); } catch (e) {}
+    try { sessionStorage.removeItem("sam_admin_t"); sessionStorage.removeItem("sam_admin_u"); sessionStorage.removeItem("sam_admin_d"); } catch (e) {}
     if (!silent) location.hash = "";
     route();
   }
@@ -249,17 +296,26 @@ var TZ = "Asia/Kolkata";
   }
 
   /* ── app shell ── */
-  function nav(cur) {
+  function navItems(full) {
     var items = [["today", "Today"], ["bookings", "Bookings"], ["families", "Families"]];
     if (isAdmin()) items.push(["transcripts", "Transcripts"]);
-    return items.map(function (i) { return '<a href="#' + i[0] + '" class="' + (cur === i[0] ? "on" : "") + '">' + ICON[i[0]] + "<span>" + i[1] + "</span></a>"; }).join("");
+    if (!full) { items.push(["more", "More"]); return items; }
+    items.push(["availability", "Availability"], ["enquiries", "School enquiries"]);
+    if (isAdmin()) items.push(["templates", "Message templates"], ["users", "Users"]);
+    return items;
+  }
+  var MORE = ["more", "availability", "enquiries", "templates", "users"];
+  function nav(cur, full) {
+    return navItems(full).map(function (i) {
+      var on = cur === i[0] || (!full && i[0] === "more" && MORE.indexOf(cur) >= 0);
+      return '<a href="#' + i[0] + '" class="' + (on ? "on" : "") + '">' + ICON[i[0]] + "<span>" + i[1] + "</span></a>"; }).join("");
   }
   function shell(cur, inner) {
     var brand = '<a class="brand" href="#today"><img src="../blog/assets/mark.webp" alt="" /><span><b>Samhithe</b><span>ADMIN</span></span></a>';
-    root.innerHTML = '<div class="shell"><aside class="side">' + brand + nav(cur) +
+    root.innerHTML = '<div class="shell"><aside class="side">' + brand + nav(cur, true) +
       '<div class="foot">Signed in as <b>' + esc(S.user.name) + '</b><br><button class="linkbtn" data-act="pw">Change password</button> · <button class="linkbtn" data-act="out">Sign out</button></div></aside>' +
       '<div><header class="top">' + brand + '<span class="sp"></span><span class="who">' + esc(first(S.user.name)) + '</span><button class="btn o sm" data-act="out">Sign out</button></header>' +
-      '<main class="main" id="main">' + inner + '</main></div></div><nav class="bnav" style="grid-template-columns:repeat(' + (isAdmin() ? 4 : 3) + ',1fr)">' + nav(cur) + "</nav>";
+      '<main class="main" id="main">' + inner + '</main></div></div><nav class="bnav" style="grid-template-columns:repeat(' + navItems(false).length + ',1fr)">' + nav(cur, false) + "</nav>";
     [].forEach.call(root.querySelectorAll('[data-act="out"]'), function (b) { b.onclick = function () { signOut(); }; });
     [].forEach.call(root.querySelectorAll('[data-act="pw"]'), function (b) { b.onclick = changePw; });
   }
@@ -275,8 +331,9 @@ var TZ = "Asia/Kolkata";
       var evs = d.events.filter(function (e) { return e.end > now; });
       var todays = evs.filter(function (e) { return isToday(e.start); });
       var next = evs[0];
-      var toVerify = d.bookings.filter(function (b) { return (b.status || "To verify") === "To verify"; });
-      var problems = d.bookings.filter(function (b) { return b.status === "Problem"; });
+      var live = d.bookings.filter(function (b) { return b.state !== "Cancelled"; });
+      var toVerify = live.filter(function (b) { return (b.status || "To verify") === "To verify"; });
+      var problems = live.filter(function (b) { return b.status === "Problem"; });
       var newEnq = d.enquiries.filter(function (e) { return (e.Status || "New") === "New"; });
       var h = new Date().getHours(), hi = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
       var html = '<h1 class="h1">' + hi + ", " + esc(first(S.user.name)) + '</h1><p class="sub">' + dLong(now) + "</p>";
@@ -315,7 +372,7 @@ var TZ = "Asia/Kolkata";
       }
       html += '<p class="small muted" style="margin-top:24px">Updated ' + dTime(d.now) + ' · <button class="linkbtn" id="rf">Refresh</button></p>';
       shell("today", html);
-      $("#rf").onclick = function () { S.d = null; todayView(); };
+      $("#rf").onclick = function () { var b = this; b.textContent = "Refreshing…"; load(true).then(function () { todayView(); }).catch(function (e) { toast(e.message); }); };
       bindItems();
       [].forEach.call(root.querySelectorAll("[data-f]"), function (a) { a.onclick = function () { S.filter = a.dataset.f; }; });
     }).catch(function (e) { fail("today", e); });
@@ -323,7 +380,8 @@ var TZ = "Asia/Kolkata";
   function bookingItem(b) {
     var past = b.start < new Date().toISOString();
     return '<a class="item" href="#booking/' + b.row + '"><div class="when"><b>' + fmt(b.start, { day: "numeric" }) + "</b><small>" + fmt(b.start, { month: "short" }) + "</small></div>" +
-      '<div class="grow"><div class="t">' + esc(b.child) + " <span class=\"muted\" style=\"font-weight:400\">· " + esc(b.parent) + '</span></div><div class="s">' + fmt(b.start, { weekday: "short" }) + ", " + dTime(b.start) + (past ? " · past" : "") + "</div></div>" + statusPill(b.status) + "</a>";
+      '<div class="grow"><div class="t">' + esc(b.child) + " <span class=\"muted\" style=\"font-weight:400\">· " + esc(b.parent) + '</span></div><div class="s">' + fmt(b.start, { weekday: "short" }) + ", " + dTime(b.start) + (past ? " · past" : "") + (b.state === "Rescheduled" ? " · moved" : "") + "</div></div>" +
+      (b.state === "Cancelled" ? '<span class="pill x">Cancelled</span>' : statusPill(b.status)) + "</a>";
   }
   function bindItems() {
     [].forEach.call(root.querySelectorAll("[data-msg]"), function (b) { b.onclick = function (ev) { ev.preventDefault(); ev.stopPropagation(); composer(+b.dataset.msg); }; });
@@ -336,6 +394,9 @@ var TZ = "Asia/Kolkata";
       var now = new Date().toISOString(), q = (S.bq || "").toLowerCase();
       var f = S.filter;
       var list = d.bookings.filter(function (b) {
+        var cx = b.state === "Cancelled";
+        if (f === "cancelled") { if (!cx) return false; }
+        else if (f !== "all" && cx) return false;
         if (f === "upcoming" && b.end < now) return false;
         if (f === "past" && b.end >= now) return false;
         if (f === "verify" && (b.status || "To verify") !== "To verify") return false;
@@ -345,7 +406,7 @@ var TZ = "Asia/Kolkata";
       }).sort(function (a, b) { return f === "upcoming" ? (a.start < b.start ? -1 : 1) : (a.start < b.start ? 1 : -1); });
       var chip = function (k, l) { return '<button class="chip' + (f === k ? " on" : "") + '" data-c="' + k + '">' + l + "</button>"; };
       shell("bookings", '<h1 class="h1">Bookings</h1><p class="sub">' + d.bookings.length + " booked through the website</p>" +
-        '<div class="chips">' + chip("upcoming", "Upcoming") + chip("verify", "To verify") + chip("problem", "Problem") + chip("past", "Past") + chip("all", "All") + "</div>" +
+        '<div class="chips">' + chip("upcoming", "Upcoming") + chip("verify", "To verify") + chip("problem", "Problem") + chip("past", "Past") + chip("cancelled", "Cancelled") + chip("all", "All") + "</div>" +
         '<input class="search" id="q" placeholder="Search child, parent, phone, email" value="' + esc(S.bq || "") + '" />' +
         '<div id="list">' + (list.length ? list.map(bookingItem).join("") : '<p class="empty">No bookings here.</p>') + "</div>");
       [].forEach.call(root.querySelectorAll("[data-c]"), function (c) { c.onclick = function () { S.filter = c.dataset.c; bookingsView(); }; });
@@ -361,6 +422,9 @@ var TZ = "Asia/Kolkata";
       var html = '<a class="back" href="#bookings">← Bookings</a><h1 class="h1">' + esc(b.child) + '</h1><p class="sub">' + dLong(b.start) + ", " + dTime(b.start) + " – " + dTime(b.end) + "</p>" +
         '<div class="btns">' + (b.meet ? '<a class="btn p" href="' + esc(b.meet) + '" target="_blank" rel="noopener">Join Meet</a>' : "") +
         '<button class="btn g" data-msg="' + b.row + '">WhatsApp / email parent</button>' + (b.fam ? '<a class="btn o" href="#family/' + encodeURIComponent(b.fam) + '">Family &amp; history</a>' : "") + "</div>" +
+        (b.state === "Cancelled" ? '<div class="err" style="margin-top:14px">This session was cancelled.</div>' :
+          (b.end > new Date().toISOString() ? '<div class="btns" style="margin-top:10px"><button class="btn o sm" id="rs">Reschedule</button><button class="btn o sm" id="cx" style="color:var(--bad)">Cancel session</button></div>' : "")) +
+        (b.state === "Rescheduled" ? '<p class="small muted" style="margin-top:8px">This session was moved. See Private notes on the family page for the original time.</p>' : "") +
         '<div class="grid two" style="margin-top:16px"><div class="card"><h3 style="font-size:20px;margin-bottom:10px">Payment</h3>' +
         '<p>' + statusPill(b.status) + ' <span class="muted small">₹' + (d.fee || 1000).toLocaleString("en-IN") + " by UPI" + (b.upi ? " from " + esc(b.upi) : "") + "</span></p>" +
         '<div class="btns" style="margin-top:12px">' + (b.hasShot ? '<button class="btn o sm" id="shot">View screenshot</button>' : '<span class="muted small">No screenshot</span>') + "</div>" +
@@ -371,6 +435,8 @@ var TZ = "Asia/Kolkata";
       shell("bookings", html);
       bindItems();
       if ($("#shot")) $("#shot").onclick = function () { showShot(b.row); };
+      if ($("#rs")) $("#rs").onclick = function () { rescheduleModal(b); };
+      if ($("#cx")) $("#cx").onclick = function () { cancelModal(b); };
       [].forEach.call(root.querySelectorAll("[data-st]"), function (btn) {
         btn.onclick = function () {
           var st = btn.dataset.st; if (st === b.status) return;
@@ -545,6 +611,202 @@ var TZ = "Asia/Kolkata";
     }).catch(function (e) { fail("transcripts", e); });
   }
 
+
+  /* ── Reschedule / cancel ── */
+  function updateBooking(nb) {
+    var i = S.d.bookings.findIndex(function (x) { return x.row === nb.row; });
+    if (i >= 0) { nb.fam = S.d.bookings[i].fam; S.d.bookings[i] = nb; }
+  }
+  function rescheduleModal(b) {
+    var m = modal('<h2 style="font-size:22px">Reschedule ' + esc(first(b.child)) + "</h2><p class=\"muted small\">Now: " + dLong(b.start) + ", " + dTime(b.start) +
+      '</p><div id="sl"><div class="spin"></div></div><label class="check"><input type="checkbox" id="nt" checked /> <span>Email ' + esc(first(b.parent)) + ' the new time automatically (Google also sends an updated calendar invite)</span></label>' +
+      '<div class="btns" style="margin-top:16px"><button class="btn p" id="go" disabled>Move session</button></div><div id="mm"></div>');
+    var pick = null;
+    fetch(BOOKING_API + "?action=slots", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok) throw new Error("Couldn't load free times.");
+      var days = d.days.filter(function (x) { return x.slots.length; }), box = m.querySelector("#sl");
+      if (!days.length) { box.innerHTML = '<p class="empty">No free times in the booking window. Add hours under Availability first.</p>'; return; }
+      box.innerHTML = '<div class="days">' + days.map(function (x, i) { return '<button class="day' + (i ? "" : " on") + '" data-d="' + i + '">' + esc(x.weekday) + "<b>" + esc(x.day) + "</b>" + esc(x.month) + "</button>"; }).join("") + '</div><div class="slots" id="ts"></div>';
+      function showDay(i) {
+        [].forEach.call(box.querySelectorAll(".day"), function (x) { x.classList.toggle("on", +x.dataset.d === i); });
+        box.querySelector("#ts").innerHTML = days[i].slots.map(function (sl) { return '<button class="slot" data-s="' + esc(sl.start) + '">' + esc(sl.label) + "</button>"; }).join("");
+        [].forEach.call(box.querySelectorAll(".slot"), function (sb) {
+          sb.onclick = function () { pick = sb.dataset.s; [].forEach.call(box.querySelectorAll(".slot"), function (y) { y.classList.toggle("on", y === sb); }); m.querySelector("#go").disabled = false; m.querySelector("#go").textContent = "Move to " + rel(pick) + ", " + dTime(pick); };
+        });
+      }
+      [].forEach.call(box.querySelectorAll(".day"), function (x) { x.onclick = function () { showDay(+x.dataset.d); }; });
+      showDay(0);
+    }).catch(function (e) { m.querySelector("#sl").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    m.querySelector("#go").onclick = function () {
+      var btn = this; if (!pick) return; btn.disabled = true; btn.textContent = "Moving…";
+      api("reschedule", { row: b.row, start: pick, notify: m.querySelector("#nt").checked }).then(function (r) {
+        if (!r.ok) throw new Error(r.message);
+        updateBooking(r.booking); m.remove(); toast(r.emailed ? "Moved · parent emailed" : "Session moved");
+        bookingView(b.row); setTimeout(function () { composer(b.row, "rescheduled"); }, 400);
+      }).catch(function (e) { btn.disabled = false; btn.textContent = "Move session"; m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+  }
+  function cancelModal(b) {
+    var m = modal('<h2 style="font-size:22px">Cancel this session?</h2><p class="muted">' + esc(b.child) + " · " + dLong(b.start) + ", " + dTime(b.start) + "</p>" +
+      '<div class="field"><label for="rz">Reason <span class="muted">(optional, included in the email)</span></label><textarea id="rz" style="min-height:80px" placeholder="e.g. Nidhi is unwell today."></textarea></div>' +
+      '<label class="check"><input type="checkbox" id="nt" checked /> <span>Email ' + esc(first(b.parent)) + ' automatically (the calendar invite is also cancelled)</span></label>' +
+      '<p class="small muted" style="margin-top:10px">Refunds are not automatic – handle them by UPI and add a note.</p>' +
+      '<div class="btns" style="margin-top:16px"><button class="btn p" id="go" style="background:var(--bad)">Cancel session</button><button class="btn o" id="no">Keep it</button></div><div id="mm"></div>');
+    m.querySelector("#no").onclick = function () { m.remove(); };
+    m.querySelector("#go").onclick = function () {
+      var btn = this; btn.disabled = true; btn.textContent = "Cancelling…";
+      api("cancel", { row: b.row, reason: m.querySelector("#rz").value, notify: m.querySelector("#nt").checked }).then(function (r) {
+        if (!r.ok) throw new Error(r.message);
+        updateBooking(r.booking); m.remove(); toast(r.emailed ? "Cancelled · parent emailed" : "Session cancelled");
+        bookingView(b.row); setTimeout(function () { composer(b.row, "cancelled"); }, 400);
+      }).catch(function (e) { btn.disabled = false; btn.textContent = "Cancel session"; m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+  }
+
+  /* ── More ── */
+  function moreView() {
+    var items = navItems(true).filter(function (i) { return MORE.indexOf(i[0]) >= 0; });
+    shell("more", '<h1 class="h1">More</h1><p class="sub">Signed in as ' + esc(S.user.name) + " (" + esc(S.user.role) + ")</p>" +
+      '<div class="menu">' + items.map(function (i) { return '<a class="item" href="#' + i[0] + '">' + ICON[i[0]] + '<span class="grow t">' + i[1] + "</span><span class=\"muted\">›</span></a>"; }).join("") +
+      '<a class="item" href="../booking/" target="_blank" rel="noopener">' + ICON.bookings + '<span class="grow t">Open the public booking page</span><span class="muted">↗</span></a></div>' +
+      installHtml() + '<div class="btns" style="margin-top:20px"><button class="btn o" data-act="pw">Change password</button><button class="btn o" data-act="out">Sign out</button></div>');
+    if ($("#inst")) $("#inst").onclick = function () { S.bip.prompt(); S.bip.userChoice.then(function () { S.bip = null; moreView(); }); };
+    [].forEach.call(root.querySelectorAll('.main [data-act="out"]'), function (b) { b.onclick = function () { signOut(); }; });
+    [].forEach.call(root.querySelectorAll('.main [data-act="pw"]'), function (b) { b.onclick = changePw; });
+  }
+
+  function standalone() { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; }
+  function installHtml() {
+    if (standalone()) return "";
+    if (S.bip) return '<div class="card" style="margin-top:16px"><h3 style="font-size:19px">Install on this device</h3><p class="small muted">Adds Samhithe Admin to the home screen so it opens like an app.</p><div class="btns" style="margin-top:10px"><button class="btn p sm" id="inst">Install app</button></div></div>';
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) return '<div class="card" style="margin-top:16px"><h3 style="font-size:19px">Add to Home Screen</h3><p class="small muted">In Safari, tap the Share button, then “Add to Home Screen”.</p></div>';
+    return "";
+  }
+
+  /* ── Availability ── */
+  var DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  function availabilityView() {
+    loading("availability");
+    api("availability").then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      var A = { weekly: r.weekly.slice(), off: r.timeOff.slice(), settings: r.settings };
+      A.weekly.sort(function (a, b) { return DAYS.indexOf(a[0]) - DAYS.indexOf(b[0]) || (a[1] < b[1] ? -1 : 1); });
+      function draw() {
+        var today = new Date().toISOString().slice(0, 10);
+        var html = '<h1 class="h1">Availability</h1><p class="sub">These hours drive the public booking page. Changes show there within a minute. Anything already on Nidhi\'s Google Calendar is blocked automatically.</p>' +
+          '<div class="card"><h3 style="font-size:20px">Weekly hours</h3><p class="small muted">Sessions are offered back-to-back inside each block (session length + gap).</p>' +
+          A.weekly.map(function (w, i) {
+            return '<div class="grid-av"><select data-w="' + i + '" data-k="0">' + DAYS.map(function (d) { return "<option" + (d === w[0] ? " selected" : "") + ">" + d + "</option>"; }).join("") + "</select>" +
+              '<input type="time" data-w="' + i + '" data-k="1" value="' + esc(w[1]) + '" /><input type="time" data-w="' + i + '" data-k="2" value="' + esc(w[2]) + '" /><button class="xbtn" data-dw="' + i + '" aria-label="Remove">×</button></div>';
+          }).join("") + '<div class="btns" style="margin-top:12px"><button class="btn o sm" id="aw">+ Add hours</button></div></div>' +
+          '<div class="card"><h3 style="font-size:20px">Time off</h3><p class="small muted">No sessions on these dates. Leave “to” empty for a single day.</p>' +
+          (A.off.length ? A.off.map(function (o, i) {
+            return '<div class="grid-off"><input type="date" data-o="' + i + '" data-k="0" value="' + esc(o[0]) + '" /><input type="date" data-o="' + i + '" data-k="1" value="' + esc(o[1]) + '" />' +
+              '<input class="rs" placeholder="Reason (optional)" data-o="' + i + '" data-k="2" value="' + esc(o[2]) + '" /><button class="xbtn" data-do="' + i + '" aria-label="Remove">×</button></div>';
+          }).join("") : '<p class="empty">No time off planned.</p>') + '<div class="btns" style="margin-top:12px"><button class="btn o sm" id="ao">+ Add time off</button></div></div>' +
+          '<div class="card"><h3 style="font-size:20px">Settings</h3>' + A.settings.map(function (x, i) {
+            return '<div class="field"><label>' + esc(x.label) + '</label><input type="number" min="0" data-s="' + i + '" value="' + esc(x.value) + '" /><span class="small muted">' + esc(x.help) + "</span></div>";
+          }).join("") + "</div>" +
+          '<div class="btns savebar"><button class="btn p" id="sv">Save changes</button><a class="btn o" href="../booking/" target="_blank" rel="noopener">Preview booking page</a></div><div id="am"></div>';
+        shell("availability", html);
+        [].forEach.call(root.querySelectorAll("[data-w]"), function (el) { el.onchange = function () { A.weekly[+el.dataset.w][+el.dataset.k] = el.value; }; });
+        [].forEach.call(root.querySelectorAll("[data-o]"), function (el) { el.onchange = el.oninput = function () { A.off[+el.dataset.o][+el.dataset.k] = el.value; }; });
+        [].forEach.call(root.querySelectorAll("[data-s]"), function (el) { el.oninput = function () { A.settings[+el.dataset.s].value = el.value; }; });
+        [].forEach.call(root.querySelectorAll("[data-dw]"), function (el) { el.onclick = function () { A.weekly.splice(+el.dataset.dw, 1); draw(); }; });
+        [].forEach.call(root.querySelectorAll("[data-do]"), function (el) { el.onclick = function () { A.off.splice(+el.dataset.do, 1); draw(); }; });
+        $("#aw").onclick = function () { A.weekly.push(["Monday", "18:00", "20:00"]); draw(); };
+        $("#ao").onclick = function () { A.off.push([today, "", ""]); draw(); };
+        $("#sv").onclick = function () {
+          var bad = A.weekly.filter(function (w) { return !w[1] || !w[2] || w[2] <= w[1]; }).length ? "Each block needs a start time before its end time." :
+            A.off.filter(function (o) { return !o[0] || (o[1] && o[1] < o[0]); }).length ? "Each time-off row needs a start date, and the end can't be before the start." : "";
+          if (bad) { $("#am").innerHTML = '<div class="err">' + esc(bad) + "</div>"; return; }
+          var btn = this; btn.disabled = true; btn.textContent = "Saving…";
+          var sets = {}; A.settings.forEach(function (x) { sets[x.label] = Number(x.value); });
+          api("saveAvailability", { weekly: A.weekly, timeOff: A.off, settings: sets }).then(function (x) {
+            if (!x.ok) throw new Error(x.message);
+            A.weekly = x.weekly; A.off = x.timeOff; A.settings = x.settings; draw(); toast("Saved – booking page updates within a minute");
+          }).catch(function (e) { btn.disabled = false; btn.textContent = "Save changes"; $("#am").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+        };
+      }
+      draw();
+    }).catch(function (e) { fail("availability", e); });
+  }
+
+  /* ── School enquiries ── */
+  function enquiriesView() {
+    loading("enquiries");
+    load(true).then(function (d) {
+      var list = d.enquiries.slice().reverse();
+      var html = '<h1 class="h1">School enquiries</h1><p class="sub">Call-back requests from preschools and schools on the booking page.</p>' +
+        (list.length ? list.map(function (q) {
+          var st = q.Status || "New";
+          return '<div class="card"><div class="row"><div class="grow"><h3 style="font-size:20px">' + esc(q.School) + '</h3><p class="small muted">' + (q["Received At"] ? dDate(q["Received At"]) : "") + (q["Area / City"] ? " · " + esc(q["Area / City"]) : "") + "</p></div>" +
+            '<select data-q="' + q.row + '" style="border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff">' + ["New", "Called", "Follow up", "Closed"].map(function (x) { return "<option" + (x === st ? " selected" : "") + ">" + x + "</option>"; }).join("") + "</select></div>" +
+            '<dl class="kv" style="margin-top:10px"><dt>Contact</dt><dd>' + esc(q["Contact Person"]) + (q.Role ? ", " + esc(q.Role) : "") + "</dd><dt>Phone</dt><dd>" + esc(q.Phone) + "</dd>" + (q.Email ? "<dt>Email</dt><dd>" + esc(q.Email) + "</dd>" : "") +
+            (q["Children & Ages"] ? "<dt>Children</dt><dd>" + esc(q["Children & Ages"]) + "</dd>" : "") + (q["Interested In"] ? "<dt>Interested in</dt><dd>" + esc(q["Interested In"]) + "</dd>" : "") +
+            "<dt>Best time</dt><dd>" + esc(q["Best Time to Call"] || "Any time") + "</dd>" + (q.Message ? "<dt>Message</dt><dd style=\"white-space:pre-wrap\">" + esc(q.Message) + "</dd>" : "") + "</dl>" +
+            '<div class="btns" style="margin-top:12px"><a class="btn g sm" target="_blank" rel="noopener" href="https://wa.me/' + waNumber(q.Phone) + "?text=" + encodeURIComponent("Hi " + first(q["Contact Person"]) + ", this is Nidhi from Samhithe. Thank you for your enquiry for " + q.School + ". ") + '">WhatsApp</a>' +
+            '<a class="btn o sm" href="tel:' + esc(q.Phone) + '">Call</a>' + (q.Email ? '<a class="btn o sm" href="mailto:' + esc(q.Email) + '">Email</a>' : "") + "</div></div>";
+        }).join("") : '<p class="empty">No enquiries yet.</p>');
+      shell("enquiries", html);
+      [].forEach.call(root.querySelectorAll("[data-q]"), function (sel) {
+        sel.onchange = function () { sel.disabled = true; api("setEnquiry", { row: +sel.dataset.q, status: sel.value }).then(function (r) { if (!r.ok) throw new Error(r.message); sel.disabled = false; toast("Marked " + sel.value); S.d = null; }).catch(function (e) { sel.disabled = false; toast(e.message); }); };
+      });
+    }).catch(function (e) { fail("enquiries", e); });
+  }
+
+  /* ── Message templates ── */
+  function templatesView() {
+    loading("templates");
+    load().then(function (d) {
+      var T = d.templates.map(function (t) { return Object.assign({}, t); });
+      shell("templates", '<h1 class="h1">Message templates</h1><p class="sub">Used for WhatsApp messages and emails to parents. You can use {parent}, {child}, {date}, {time}, {meet}, {fee} and, for cancellations, {reason}.</p>' +
+        T.map(function (t, i) {
+          return '<details class="acc"' + (i ? "" : " open") + "><summary><span>" + esc(t.name) + '</span><span class="muted small">' + esc(t.key) + '</span></summary><div style="padding:6px 0 14px">' +
+            '<div class="field"><label>Name</label><input data-t="' + i + '" data-k="name" value="' + esc(t.name) + '" /></div>' +
+            '<div class="field"><label>Email subject</label><input data-t="' + i + '" data-k="subject" value="' + esc(t.subject) + '" /></div>' +
+            '<div class="field"><label>Message</label><textarea data-t="' + i + '" data-k="body">' + esc(t.body) + "</textarea></div></div></details>";
+        }).join("") + '<div class="btns" style="margin-top:16px"><button class="btn p" id="sv">Save templates</button></div><div id="tm"></div>');
+      [].forEach.call(root.querySelectorAll("[data-t]"), function (el) { el.oninput = function () { T[+el.dataset.t][el.dataset.k] = el.value; }; });
+      $("#sv").onclick = function () {
+        var btn = this; btn.disabled = true; btn.textContent = "Saving…";
+        api("saveTemplates", { templates: T }).then(function (r) { if (!r.ok) throw new Error(r.message); S.d.templates = r.templates; btn.disabled = false; btn.textContent = "Save templates"; toast("Templates saved"); })
+          .catch(function (e) { btn.disabled = false; btn.textContent = "Save templates"; $("#tm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+      };
+    }).catch(function (e) { fail("templates", e); });
+  }
+
+  /* ── Users ── */
+  function usersView() {
+    loading("users");
+    api("users").then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      function form(u) {
+        var n = !u; u = u || { role: "assistant", active: true };
+        return '<form class="card uf" data-new="' + (n ? 1 : 0) + '"><h3 style="font-size:19px">' + (n ? "Add a user" : esc(u.name) + ' <span class="muted small">@' + esc(u.username) + "</span>") + "</h3>" +
+          '<div class="grid two"><div class="field"><label>Username</label><input name="username" value="' + esc(u.username || "") + '"' + (n ? "" : " readonly") + ' autocapitalize="none" /></div>' +
+          '<div class="field"><label>Name</label><input name="name" value="' + esc(u.name || "") + '" /></div><div class="field"><label>Email (for password links)</label><input name="email" type="email" value="' + esc(u.email || "") + '" /></div>' +
+          '<div class="field"><label>Role</label><select name="role"><option value="assistant"' + (u.role === "assistant" ? " selected" : "") + '>Assistant – bookings, availability, families (no intake or transcripts)</option><option value="admin"' + (u.role === "admin" ? " selected" : "") + ">Admin – everything</option></select></div></div>" +
+          '<label class="check"><input type="checkbox" name="active"' + (u.active ? " checked" : "") + " /> <span>Active (can sign in)</span></label>" +
+          (n ? "" : '<p class="small muted" style="margin-top:8px">' + (u.hasPassword ? "Password set" : "No password yet") + (u.lastLogin ? " · last sign-in " + dDate(u.lastLogin) : "") + "</p>") +
+          '<div class="btns" style="margin-top:12px"><button class="btn p sm">' + (n ? "Add user" : "Save") + "</button>" + (n ? "" : '<button type="button" class="btn o sm" data-link="' + esc(u.username) + '">Email password link</button>') + "</div><div class=\"um\"></div></form>";
+      }
+      shell("users", '<h1 class="h1">Users</h1><p class="sub">People who can sign in to this portal. New users get their password through an emailed link.</p>' +
+        r.users.map(form).join("") + form(null));
+      [].forEach.call(root.querySelectorAll("form.uf"), function (f) {
+        f.onsubmit = function (ev) {
+          ev.preventDefault(); var btn = f.querySelector("button.p"); btn.disabled = true;
+          var el = f.elements; api("saveUser", { isNew: f.dataset.new === "1", username: el["username"].value, name: el["name"].value, email: el["email"].value, role: el["role"].value, active: el["active"].checked }).then(function (x) {
+            if (!x.ok) throw new Error(x.message); toast("Saved"); usersView();
+          }).catch(function (e) { btn.disabled = false; f.querySelector(".um").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+        };
+      });
+      [].forEach.call(root.querySelectorAll("[data-link]"), function (b) {
+        b.onclick = function () { b.disabled = true; api("sendLink", { username: b.dataset.link }).then(function (x) { toast(x.message || "Sent"); }).catch(function (e) { toast(e.message); b.disabled = false; }); };
+      });
+    }).catch(function (e) { fail("users", e); });
+  }
+
   /* ── change password ── */
   function changePw() {
     var m = modal('<h2 style="font-size:22px">Change password</h2><form id="cp"><div class="field"><label>Current password</label><input id="c0" type="password" autocomplete="current-password" required /></div>' +
@@ -574,9 +836,16 @@ var TZ = "Asia/Kolkata";
     if (p[0] === "family") return familyView(id);
     if (p[0] === "transcripts" && isAdmin()) return transcriptsView();
     if (p[0] === "transcript" && isAdmin()) return transcriptView(id);
+    if (p[0] === "more") return moreView();
+    if (p[0] === "availability") return availabilityView();
+    if (p[0] === "enquiries") return enquiriesView();
+    if (p[0] === "templates" && isAdmin()) return templatesView();
+    if (p[0] === "users" && isAdmin()) return usersView();
     return todayView();
   }
   window.addEventListener("hashchange", route);
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); S.bip = e; });
+  if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
   route();
 })();
 </script>
