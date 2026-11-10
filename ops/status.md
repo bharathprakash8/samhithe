@@ -1,17 +1,17 @@
 # Samhithe health check
 
-**When:** Wed 11 Nov 2026, 12:28 AM IST  
-**Trigger:** deploy skipped (not set up), success - Ops: auto-deploy Apps Script from GitHub + health checks (no laptop ne
+**When:** Wed 11 Nov 2026, 12:33 AM IST  
+**Trigger:** fix: admin session check
 
 | Check | Result |
 |---|---|
-| Booking engine (slots) | OK · 1349 ms |
-| Admin backend | OK · 1197 ms |
-| Admin rejects bad session | UNEXPECTED: {"ok": false, "message": "unreadable: Expecting value: line 1 column 1 (char 0)" |
-| www.samhithe.in/ | OK 200 · 0.125979s |
-| www.samhithe.in/booking/ | OK 200 · 0.120124s |
-| www.samhithe.in/admin/ | OK 200 · 0.150904s |
-| www.samhithe.in/admin/sw.js | OK 200 · 0.207074s |
+| Booking engine (slots) | OK · 1068 ms |
+| Admin backend | OK · 1082 ms |
+| Admin rejects bad session | OK |
+| www.samhithe.in/ | OK 200 · 0.145200s |
+| www.samhithe.in/booking/ | OK 200 · 0.059113s |
+| www.samhithe.in/admin/ | OK 200 · 0.047055s |
+| www.samhithe.in/admin/sw.js | OK 200 · 0.033576s |
 
 ## Bookable days (next 31 days) – session 60 min, ₹1000
 
