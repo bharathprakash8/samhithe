@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<meta name="theme-color" content="#FDF8F5" />
+<title>Samhithe Admin</title>
+<link rel="icon" href="../blog/assets/mark.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://script.google.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{--paper:#FDF8F5;--paper-2:#F7EFE8;--line:#EADFD4;--ink:#2B2622;--ink-2:#6A5F57;--clay:#CB5521;--clay-d:#A9431A;--clay-soft:#F7DFD2;--leaf:#4D7A2E;--leaf-soft:#E3EDD5;--warn:#B7791F;--warn-soft:#FBEFD5;--bad:#B3261E;--bad-soft:#FBE3E1;--serif:"DM Serif Display",Georgia,serif;--sans:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.5;-webkit-text-size-adjust:100%}
+a{color:var(--clay)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.2}
+[hidden]{display:none!important}
+.muted{color:var(--ink-2)}
+.small{font-size:13.5px}
+
+/* layout */
+.shell{display:grid;grid-template-columns:1fr;min-height:100vh}
+.side{display:none}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(253,248,245,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.brand img{width:34px;height:34px;object-fit:contain}
+.brand b{font-family:var(--serif);font-weight:400;font-size:20px;color:var(--clay)}
+.brand span{font-size:10.5px;letter-spacing:.16em;color:var(--leaf);font-weight:600;display:block;margin-top:-3px}
+.top .sp{flex:1}
+.who{font-size:13px;color:var(--ink-2)}
+.main{padding:18px 16px 96px;max-width:1080px;width:100%;margin:0 auto}
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.bnav a,.side a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;color:var(--ink-2);text-decoration:none;font-size:12px;font-weight:600}
+.bnav a.on,.side a.on{color:var(--clay);background:var(--clay-soft)}
+.bnav svg,.side svg{width:22px;height:22px}
+@media(min-width:900px){
+  .shell{grid-template-columns:230px 1fr}
+  .side{display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;padding:18px 14px;border-right:1px solid var(--line);background:#fff}
+  .side .brand{margin:0 6px 20px}
+  .side a{flex-direction:row;gap:12px;font-size:15px;padding:11px 14px;justify-content:flex-start}
+  .side .foot{margin-top:auto;font-size:13px;color:var(--ink-2);padding:0 8px}
+  .bnav,.top .brand{display:none}
+  .main{padding:26px 34px 60px}
+}
+
+/* blocks */
+.h1{font-size:clamp(26px,4vw,34px);margin:4px 0 4px}
+.sub{color:var(--ink-2);margin-bottom:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.card+.card,.stack>*+*{margin-top:12px}
+.grid{display:grid;gap:12px}
+@media(min-width:700px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+.sec{font-family:var(--serif);font-size:21px;margin:26px 0 10px}
+.stat{display:block;text-decoration:none;color:var(--ink)}
+.stat b{display:block;font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.1}
+.stat span{font-size:13.5px;color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:12px}
+.row .grow{flex:1;min-width:0}
+.item{display:flex;align-items:center;gap:12px;padding:13px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink)}
+.item+.item{margin-top:8px}
+.item:hover{border-color:#d9c6b6}
+.item .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .s{font-size:13.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.when{flex:none;width:54px;text-align:center;border-radius:12px;background:var(--paper-2);padding:6px 0;line-height:1.15}
+.when b{display:block;font-size:15px}
+.when small{font-size:11.5px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--leaf-soft);color:var(--leaf)}
+.pill.wait{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.n{background:var(--paper-2);color:var(--ink-2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:11px 18px;font-weight:600;font-size:15px;text-decoration:none;border:1.5px solid transparent;white-space:nowrap}
+.btn.p{background:var(--clay);color:#fff}
+.btn.p:hover{background:var(--clay-d)}
+.btn.o{border-color:var(--line);background:#fff;color:var(--ink)}
+.btn.o:hover{border-color:var(--ink)}
+.btn.g{background:#25D366;color:#fff}
+.btn.sm{padding:7px 13px;font-size:13.5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px;white-space:nowrap}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.search{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;background:#fff;margin-bottom:12px;font-size:16px}
+.search:focus,.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--clay)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:15px}
+.kv dt{color:var(--ink-2)}
+.kv dd{word-break:break-word}
+.empty{color:var(--ink-2);padding:14px 2px}
+.err{background:var(--bad-soft);color:var(--bad);border-radius:12px;padding:10px 14px;font-size:14.5px;margin-top:12px}
+.okmsg{background:var(--leaf-soft);color:var(--leaf);border-radius:12px;padding:10px 14px;font-size:14.5px;margin-top:12px;font-weight:600}
+.qa{border-top:1px solid var(--line);padding:10px 0}
+.qa:first-child{border-top:0}
+.qa .q{font-size:13.5px;color:var(--ink-2)}
+.qa .a{white-space:pre-wrap}
+details.acc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 16px}
+details.acc+details.acc{margin-top:8px}
+details.acc summary{list-style:none;cursor:pointer;padding:13px 0;font-weight:600;display:flex;justify-content:space-between;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc[open] summary{border-bottom:1px solid var(--line)}
+.note{border-left:3px solid var(--clay-soft);padding:6px 12px;margin-top:10px}
+.note .m{font-size:12.5px;color:var(--ink-2)}
+.note p{white-space:pre-wrap}
+.tx{white-space:pre-wrap;font-size:15px;line-height:1.65}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+mark{background:#FFE9A8;padding:0 2px;border-radius:3px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2);text-decoration:none;font-weight:600;font-size:14px;margin-bottom:6px}
+
+/* forms */
+.field{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.field label{font-size:14px;font-weight:600}
+.field input,.field textarea,.field select{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--paper);font-size:16px;width:100%}
+.field textarea{min-height:150px;resize:vertical}
+
+/* auth */
+.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.auth .card{width:100%;max-width:400px;padding:28px 26px}
+.auth .brand{justify-content:center;margin-bottom:18px}
+.auth .brand img{width:46px;height:46px}
+.auth h1{font-size:28px;text-align:center}
+.auth .btn{width:100%;margin-top:18px;padding:13px}
+.linkbtn{color:var(--clay);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(43,38,34,.45);display:flex;align-items:flex-end;justify-content:center}
+.modal .box{background:#fff;width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom))}
+@media(min-width:700px){.modal{align-items:center}.modal .box{border-radius:20px}}
+.modal .x{float:right;font-size:24px;line-height:1;color:var(--ink-2);padding:4px 8px}
+.shot{max-width:100%;border-radius:12px;border:1px solid var(--line);display:block;margin:12px auto 0}
+.spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--clay);border-radius:50%;animation:sp .8s linear infinite;margin:40px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:60;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+@media(min-width:900px){.toast{bottom:30px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* Samhithe admin portal. Talks only to the "Samhithe Admin" Apps Script (see apps-script/admin/).
+   This page holds no data or secrets: everything is loaded after sign-in. */
+var ADMIN_API = "https://script.google.com/macros/s/AKfycbzHIlWBg_k_9V4DE3zYat7ltuOKWCysWc083ZGYLuuhh0L6g94lFztofkKt-GYrJiIM/exec";
+var TZ = "Asia/Kolkata";
+
+(function () {
+  var S = { token: null, user: null, d: null, cache: {}, filter: "upcoming", famQ: "", tq: "", tHits: null, tFilter: "linked" };
+  try { S.token = sessionStorage.getItem("sam_admin_t"); S.user = JSON.parse(sessionStorage.getItem("sam_admin_u") || "null"); } catch (e) {}
+  var root = document.getElementById("root");
+
+  /* ── helpers ── */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function $(sel) { return root.querySelector(sel); }
+  function fmt(iso, o) { return iso ? new Intl.DateTimeFormat("en-IN", Object.assign({ timeZone: TZ }, o)).format(new Date(iso)) : ""; }
+  function dDate(iso) { return fmt(iso, { weekday: "short", day: "numeric", month: "short" }); }
+  function dLong(iso) { return fmt(iso, { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
+  function dTime(iso) { return fmt(iso, { hour: "numeric", minute: "2-digit", hour12: true }).toUpperCase(); }
+  function dayKey(iso) { return fmt(iso, { year: "numeric", month: "2-digit", day: "2-digit" }); }
+  function isToday(iso) { return dayKey(iso) === dayKey(new Date().toISOString()); }
+  function rel(iso) {
+    var k = dayKey(iso), t = new Date(), tm = new Date(t.getTime() + 86400000);
+    if (k === dayKey(t.toISOString())) return "Today"; if (k === dayKey(tm.toISOString())) return "Tomorrow"; return dDate(iso);
+  }
+  function first(s) { return String(s || "").trim().split(/\s+/)[0] || ""; }
+  function waNumber(p) { var d = String(p || "").replace(/\D/g, ""); if (d.length === 10) d = "91" + d; if (d.length === 11 && d[0] === "0") d = "91" + d.slice(1); return d; }
+  function toast(msg) { var t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 2600); }
+  function statusPill(s) { var c = s === "Verified" ? "ok" : s === "Problem" ? "bad" : "wait"; return '<span class="pill ' + c + '">' + esc(s || "To verify") + "</span>"; }
+  function isAdmin() { return S.user && S.user.role === "admin"; }
+  var ICON = {
+    today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>',
+    bookings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+    families: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M2.5 20c.7-3.6 3.4-5.5 6.5-5.5s5.8 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.5c2.3.2 4 1.8 4.5 4.5"/></svg>',
+    transcripts: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>'
+  };
+
+  /* ── API ── */
+  function api(action, body) {
+    body = Object.assign({ action: action, token: S.token }, body || {});
+    return fetch(ADMIN_API, { method: "POST", body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (r) {
+      if (r && r.code === "AUTH") { signOut(true); throw new Error("Your session ended. Please sign in again."); }
+      return r;
+    }, function () { throw new Error("Couldn't reach the server. Check your connection and try again."); });
+  }
+  function load(force) {
+    if (S.d && !force) return Promise.resolve(S.d);
+    return api("data").then(function (r) { if (!r.ok) throw new Error(r.message); S.d = r; return r; });
+  }
+  function signOut(silent) {
+    if (!silent && S.token) api("logout").catch(function () {});
+    S.token = null; S.user = null; S.d = null; S.cache = {};
+    try { sessionStorage.removeItem("sam_admin_t"); sessionStorage.removeItem("sam_admin_u"); } catch (e) {}
+    if (!silent) location.hash = "";
+    route();
+  }
+
+  /* ── auth screens ── */
+  function authShell(inner) {
+    root.innerHTML = '<div class="auth"><div class="card"><a class="brand" href="../"><img src="../blog/assets/mark.webp" alt="" /><span><b>Samhithe</b><span>ADMIN</span></span></a>' + inner + "</div></div>";
+  }
+  function loginView(msg) {
+    authShell('<h1>Sign in</h1><form id="f"><div class="field"><label for="u">Username</label><input id="u" autocomplete="username" autocapitalize="none" required /></div>' +
+      '<div class="field"><label for="p">Password</label><input id="p" type="password" autocomplete="current-password" required /></div>' +
+      '<button class="btn p" id="go">Sign in</button></form><p style="text-align:center;margin-top:16px"><button class="linkbtn" id="fg">Forgot password / set password</button></p>' +
+      (msg ? '<div class="okmsg">' + esc(msg) + "</div>" : "") + '<div class="err" id="e" hidden></div>');
+    $("#f").onsubmit = function (ev) {
+      ev.preventDefault(); var b = $("#go"); b.disabled = true; b.textContent = "Signing in…"; $("#e").hidden = true;
+      api("login", { username: $("#u").value.trim(), password: $("#p").value }).then(function (r) {
+        if (!r.ok) throw new Error(r.message); signedIn(r);
+      }).catch(function (e) { b.disabled = false; b.textContent = "Sign in"; $("#e").textContent = e.message; $("#e").hidden = false; });
+    };
+    $("#fg").onclick = function () { forgotView($("#u").value.trim()); };
+  }
+  function forgotView(u) {
+    authShell('<h1>Set or reset password</h1><p class="muted" style="text-align:center;margin-top:6px">Enter your username. We\'ll email a link to the address on your account.</p>' +
+      '<form id="f"><div class="field"><label for="u">Username</label><input id="u" autocomplete="username" autocapitalize="none" required value="' + esc(u || "") + '" /></div>' +
+      '<button class="btn p" id="go">Email me a link</button></form><p style="text-align:center;margin-top:16px"><button class="linkbtn" id="bk">Back to sign in</button></p><div id="m"></div>');
+    $("#bk").onclick = function () { loginView(); };
+    $("#f").onsubmit = function (ev) {
+      ev.preventDefault(); var b = $("#go"); b.disabled = true; b.textContent = "Sending…";
+      api("forgot", { username: $("#u").value.trim() }).then(function (r) {
+        b.textContent = "Link sent"; $("#m").innerHTML = '<div class="okmsg">' + esc(r.message) + "</div>";
+      }).catch(function (e) { b.disabled = false; b.textContent = "Email me a link"; $("#m").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+  }
+  function resetView(t) {
+    authShell('<h1>Choose a password</h1><p class="muted" style="text-align:center;margin-top:6px">At least 10 characters, with letters and numbers.</p>' +
+      '<form id="f"><div class="field"><label for="p">New password</label><input id="p" type="password" autocomplete="new-password" required minlength="10" /></div>' +
+      '<div class="field"><label for="p2">Type it again</label><input id="p2" type="password" autocomplete="new-password" required /></div>' +
+      '<button class="btn p" id="go">Save password and sign in</button></form><div class="err" id="e" hidden></div>');
+    $("#f").onsubmit = function (ev) {
+      ev.preventDefault(); var e = $("#e"); e.hidden = true;
+      if ($("#p").value !== $("#p2").value) { e.textContent = "The two passwords don't match."; e.hidden = false; return; }
+      var b = $("#go"); b.disabled = true; b.textContent = "Saving…";
+      api("reset", { resetToken: t, password: $("#p").value }).then(function (r) {
+        if (!r.ok) throw new Error(r.message);
+        history.replaceState(null, "", location.pathname + "#today"); signedIn(r); toast("Password saved");
+      }).catch(function (x) { b.disabled = false; b.textContent = "Save password and sign in"; e.textContent = x.message; e.hidden = false; });
+    };
+  }
+  function signedIn(r) {
+    S.token = r.token; S.user = r.user;
+    try { sessionStorage.setItem("sam_admin_t", r.token); sessionStorage.setItem("sam_admin_u", JSON.stringify(r.user)); } catch (e) {}
+    if (!location.hash || /reset=/.test(location.hash)) location.hash = "#today"; else route();
+  }
+
+  /* ── app shell ── */
+  function nav(cur) {
+    var items = [["today", "Today"], ["bookings", "Bookings"], ["families", "Families"]];
+    if (isAdmin()) items.push(["transcripts", "Transcripts"]);
+    return items.map(function (i) { return '<a href="#' + i[0] + '" class="' + (cur === i[0] ? "on" : "") + '">' + ICON[i[0]] + "<span>" + i[1] + "</span></a>"; }).join("");
+  }
+  function shell(cur, inner) {
+    var brand = '<a class="brand" href="#today"><img src="../blog/assets/mark.webp" alt="" /><span><b>Samhithe</b><span>ADMIN</span></span></a>';
+    root.innerHTML = '<div class="shell"><aside class="side">' + brand + nav(cur) +
+      '<div class="foot">Signed in as <b>' + esc(S.user.name) + '</b><br><button class="linkbtn" data-act="pw">Change password</button> · <button class="linkbtn" data-act="out">Sign out</button></div></aside>' +
+      '<div><header class="top">' + brand + '<span class="sp"></span><span class="who">' + esc(first(S.user.name)) + '</span><button class="btn o sm" data-act="out">Sign out</button></header>' +
+      '<main class="main" id="main">' + inner + '</main></div></div><nav class="bnav" style="grid-template-columns:repeat(' + (isAdmin() ? 4 : 3) + ',1fr)">' + nav(cur) + "</nav>";
+    [].forEach.call(root.querySelectorAll('[data-act="out"]'), function (b) { b.onclick = function () { signOut(); }; });
+    [].forEach.call(root.querySelectorAll('[data-act="pw"]'), function (b) { b.onclick = changePw; });
+  }
+  function loading(cur) { shell(cur, '<div class="spin"></div>'); }
+  function fail(cur, e) { shell(cur, '<div class="err">' + esc(e.message || e) + '</div><p style="margin-top:12px"><button class="btn o" onclick="location.reload()">Try again</button></p>'); }
+
+  /* ── Today ── */
+  function todayView() {
+    loading("today");
+    load().then(function (d) {
+      var now = new Date().toISOString();
+      var byEvent = {}; d.bookings.forEach(function (b) { if (b.eventId) byEvent[b.eventId] = b; });
+      var evs = d.events.filter(function (e) { return e.end > now; });
+      var todays = evs.filter(function (e) { return isToday(e.start); });
+      var next = evs[0];
+      var toVerify = d.bookings.filter(function (b) { return (b.status || "To verify") === "To verify"; });
+      var problems = d.bookings.filter(function (b) { return b.status === "Problem"; });
+      var newEnq = d.enquiries.filter(function (e) { return (e.Status || "New") === "New"; });
+      var h = new Date().getHours(), hi = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+      var html = '<h1 class="h1">' + hi + ", " + esc(first(S.user.name)) + '</h1><p class="sub">' + dLong(now) + "</p>";
+      if (next) {
+        var nb = byEvent[next.id];
+        html += '<div class="card" style="border-color:var(--clay);box-shadow:0 10px 30px -22px rgba(203,85,33,.6)"><div class="small muted">' +
+          (isToday(next.start) ? "Next session · today" : "Next · " + rel(next.start)) + '</div><h2 style="font-size:24px;margin:4px 0 2px">' + esc(nb ? nb.child + " · " + nb.parent : next.title) +
+          '</h2><p class="muted">' + rel(next.start) + ", " + dTime(next.start) + " – " + dTime(next.end) + "</p>" +
+          '<div class="btns" style="margin-top:12px">' + (next.meet ? '<a class="btn p" href="' + esc(next.meet) + '" target="_blank" rel="noopener">Join Meet</a>' : "") +
+          (nb ? '<button class="btn g" data-msg="' + nb.row + '">WhatsApp / email</button><a class="btn o" href="#booking/' + nb.row + '">Details</a>' : "") + "</div></div>";
+      } else html += '<div class="card muted">No sessions in the next 7 days.</div>';
+      html += '<div class="grid three" style="margin-top:12px">' +
+        '<a class="card stat" href="#bookings" data-f="verify"><b>' + toVerify.length + "</b><span>Payments to verify</span></a>" +
+        '<a class="card stat" href="#bookings" data-f="upcoming"><b>' + todays.length + "</b><span>Sessions today</span></a>" +
+        (isAdmin() ? '<a class="card stat" href="#transcripts"><b>' + (d.unlinkedTranscripts || 0) + "</b><span>Transcripts to file</span></a>" :
+          '<div class="card stat"><b>' + newEnq.length + "</b><span>New school enquiries</span></div>") + "</div>";
+      if (toVerify.length || problems.length) {
+        html += '<h2 class="sec">Payments to check</h2>' + problems.concat(toVerify).map(bookingItem).join("");
+      }
+      html += '<h2 class="sec">Next 7 days</h2>';
+      if (!evs.length) html += '<p class="empty">Nothing on the calendar.</p>';
+      var lastDay = "";
+      evs.forEach(function (e) {
+        var k = rel(e.start);
+        if (k !== lastDay) { html += '<p class="small muted" style="margin:14px 2px 6px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">' + k + "</p>"; lastDay = k; }
+        var b = byEvent[e.id];
+        html += b ? bookingItem(b) : '<div class="item"><div class="when"><b>' + dTime(e.start).replace(/ (AM|PM)/, "") + "</b><small>" + dTime(e.start).slice(-2) + '</small></div><div class="grow"><div class="t">' + esc(e.title) +
+          '</div><div class="s">' + dTime(e.start) + " – " + dTime(e.end) + (e.guests.length ? " · " + esc(e.guests.join(", ")) : "") + "</div></div>" +
+          (e.meet ? '<a class="btn o sm" href="' + esc(e.meet) + '" target="_blank" rel="noopener">Meet</a>' : "") + "</div>";
+      });
+      if (newEnq.length) {
+        html += '<h2 class="sec">New school enquiries</h2>' + newEnq.map(function (q) {
+          return '<div class="item"><div class="grow"><div class="t">' + esc(q.School) + '</div><div class="s">' + esc(q["Contact Person"]) + " · " + esc(q.Phone) + " · " + esc(q["Best Time to Call"]) + "</div></div>" +
+            '<a class="btn o sm" href="https://wa.me/' + waNumber(q.Phone) + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn o sm" href="tel:' + esc(q.Phone) + '">Call</a></div>';
+        }).join("");
+      }
+      html += '<p class="small muted" style="margin-top:24px">Updated ' + dTime(d.now) + ' · <button class="linkbtn" id="rf">Refresh</button></p>';
+      shell("today", html);
+      $("#rf").onclick = function () { S.d = null; todayView(); };
+      bindItems();
+      [].forEach.call(root.querySelectorAll("[data-f]"), function (a) { a.onclick = function () { S.filter = a.dataset.f; }; });
+    }).catch(function (e) { fail("today", e); });
+  }
+  function bookingItem(b) {
+    var past = b.start < new Date().toISOString();
+    return '<a class="item" href="#booking/' + b.row + '"><div class="when"><b>' + fmt(b.start, { day: "numeric" }) + "</b><small>" + fmt(b.start, { month: "short" }) + "</small></div>" +
+      '<div class="grow"><div class="t">' + esc(b.child) + " <span class=\"muted\" style=\"font-weight:400\">· " + esc(b.parent) + '</span></div><div class="s">' + fmt(b.start, { weekday: "short" }) + ", " + dTime(b.start) + (past ? " · past" : "") + "</div></div>" + statusPill(b.status) + "</a>";
+  }
+  function bindItems() {
+    [].forEach.call(root.querySelectorAll("[data-msg]"), function (b) { b.onclick = function (ev) { ev.preventDefault(); ev.stopPropagation(); composer(+b.dataset.msg); }; });
+  }
+
+  /* ── Bookings ── */
+  function bookingsView() {
+    loading("bookings");
+    load().then(function (d) {
+      var now = new Date().toISOString(), q = (S.bq || "").toLowerCase();
+      var f = S.filter;
+      var list = d.bookings.filter(function (b) {
+        if (f === "upcoming" && b.end < now) return false;
+        if (f === "past" && b.end >= now) return false;
+        if (f === "verify" && (b.status || "To verify") !== "To verify") return false;
+        if (f === "problem" && b.status !== "Problem") return false;
+        if (q && (b.child + " " + b.parent + " " + b.email + " " + b.phone).toLowerCase().indexOf(q) < 0) return false;
+        return true;
+      }).sort(function (a, b) { return f === "upcoming" ? (a.start < b.start ? -1 : 1) : (a.start < b.start ? 1 : -1); });
+      var chip = function (k, l) { return '<button class="chip' + (f === k ? " on" : "") + '" data-c="' + k + '">' + l + "</button>"; };
+      shell("bookings", '<h1 class="h1">Bookings</h1><p class="sub">' + d.bookings.length + " booked through the website</p>" +
+        '<div class="chips">' + chip("upcoming", "Upcoming") + chip("verify", "To verify") + chip("problem", "Problem") + chip("past", "Past") + chip("all", "All") + "</div>" +
+        '<input class="search" id="q" placeholder="Search child, parent, phone, email" value="' + esc(S.bq || "") + '" />' +
+        '<div id="list">' + (list.length ? list.map(bookingItem).join("") : '<p class="empty">No bookings here.</p>') + "</div>");
+      [].forEach.call(root.querySelectorAll("[data-c]"), function (c) { c.onclick = function () { S.filter = c.dataset.c; bookingsView(); }; });
+      var qi = $("#q"); qi.oninput = function () { S.bq = qi.value; clearTimeout(S.t); S.t = setTimeout(function () { bookingsView(); var n = $("#q"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); };
+    }).catch(function (e) { fail("bookings", e); });
+  }
+
+  function bookingView(row) {
+    loading("bookings");
+    load().then(function (d) {
+      var b = d.bookings.filter(function (x) { return x.row === row; })[0];
+      if (!b) throw new Error("Booking not found.");
+      var html = '<a class="back" href="#bookings">← Bookings</a><h1 class="h1">' + esc(b.child) + '</h1><p class="sub">' + dLong(b.start) + ", " + dTime(b.start) + " – " + dTime(b.end) + "</p>" +
+        '<div class="btns">' + (b.meet ? '<a class="btn p" href="' + esc(b.meet) + '" target="_blank" rel="noopener">Join Meet</a>' : "") +
+        '<button class="btn g" data-msg="' + b.row + '">WhatsApp / email parent</button>' + (b.fam ? '<a class="btn o" href="#family/' + encodeURIComponent(b.fam) + '">Family &amp; history</a>' : "") + "</div>" +
+        '<div class="grid two" style="margin-top:16px"><div class="card"><h3 style="font-size:20px;margin-bottom:10px">Payment</h3>' +
+        '<p>' + statusPill(b.status) + ' <span class="muted small">₹' + (d.fee || 1000).toLocaleString("en-IN") + " by UPI" + (b.upi ? " from " + esc(b.upi) : "") + "</span></p>" +
+        '<div class="btns" style="margin-top:12px">' + (b.hasShot ? '<button class="btn o sm" id="shot">View screenshot</button>' : '<span class="muted small">No screenshot</span>') + "</div>" +
+        '<div class="btns" style="margin-top:12px"><button class="btn sm ' + (b.status === "Verified" ? "p" : "o") + '" data-st="Verified">✓ Verified</button><button class="btn sm ' + (b.status === "Problem" ? "p" : "o") + '" data-st="Problem">Problem</button><button class="btn sm o" data-st="To verify">To verify</button></div></div>' +
+        '<div class="card"><h3 style="font-size:20px;margin-bottom:10px">Contact</h3><dl class="kv"><dt>Parent</dt><dd>' + esc(b.parent) + "</dd><dt>Child</dt><dd>" + esc(b.child) + (b.age ? ", " + esc(b.age) + (isNaN(b.age) ? "" : " yrs") : "") +
+        '</dd><dt>Phone</dt><dd><a href="tel:' + esc(b.phone) + '">' + esc(b.phone) + "</a></dd><dt>Email</dt><dd><a href=\"mailto:" + esc(b.email) + '">' + esc(b.email) + "</a></dd><dt>Booked</dt><dd>" + dDate(b.bookedAt) + ", " + dTime(b.bookedAt) + "</dd></dl>" +
+        (b.notes ? '<p class="small muted" style="margin-top:10px">Parent\'s note</p><p style="white-space:pre-wrap">' + esc(b.notes) + "</p>" : "") + "</div></div>";
+      shell("bookings", html);
+      bindItems();
+      if ($("#shot")) $("#shot").onclick = function () { showShot(b.row); };
+      [].forEach.call(root.querySelectorAll("[data-st]"), function (btn) {
+        btn.onclick = function () {
+          var st = btn.dataset.st; if (st === b.status) return;
+          [].forEach.call(root.querySelectorAll("[data-st]"), function (x) { x.disabled = true; });
+          api("setStatus", { row: b.row, status: st }).then(function (r) {
+            if (!r.ok) throw new Error(r.message);
+            b.status = st; bookingView(row); toast("Marked " + st);
+            if (st === "Verified") composer(b.row, "payment_ok"); else if (st === "Problem") composer(b.row, "payment_issue");
+          }).catch(function (e) { toast(e.message); bookingView(row); });
+        };
+      });
+    }).catch(function (e) { fail("bookings", e); });
+  }
+
+  function modal(inner) {
+    var m = document.createElement("div"); m.className = "modal";
+    m.innerHTML = '<div class="box"><button class="x" aria-label="Close">×</button>' + inner + "</div>";
+    m.onclick = function (e) { if (e.target === m || e.target.className === "x") m.remove(); };
+    document.body.appendChild(m); return m;
+  }
+  function showShot(row) {
+    var m = modal('<h2 style="font-size:22px">Payment screenshot</h2><div id="sb"><div class="spin"></div></div>');
+    api("screenshot", { row: row }).then(function (r) {
+      var sb = m.querySelector("#sb");
+      if (!r.ok) { sb.innerHTML = '<div class="err">' + esc(r.message) + "</div>"; return; }
+      sb.innerHTML = (/pdf/.test(r.type) ? '<p class="muted" style="margin-top:12px">This is a PDF.</p>' : '<img class="shot" alt="Payment screenshot" src="data:' + esc(r.type) + ";base64," + r.data + '" />') +
+        '<p style="margin-top:12px"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">Open in Google Drive</a></p>';
+    }).catch(function (e) { m.querySelector("#sb").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+  }
+
+  /* ── WhatsApp / email composer ── */
+  function fill(t, b) {
+    return String(t || "").replace(/\{(\w+)\}/g, function (_, k) {
+      return { parent: first(b.parent), child: first(b.child), date: fmt(b.start, { weekday: "long", day: "numeric", month: "long" }), time: dTime(b.start), meet: b.meet || "", fee: (S.d.fee || 1000).toLocaleString("en-IN") }[k] || "";
+    });
+  }
+  function composer(row, key) {
+    var b = S.d.bookings.filter(function (x) { return x.row === row; })[0]; if (!b) return;
+    var tpls = S.d.templates; var t = tpls.filter(function (x) { return x.key === key; })[0] || tpls[0];
+    var m = modal('<h2 style="font-size:22px">Message ' + esc(first(b.parent)) + "</h2><p class=\"muted small\">" + esc(b.phone) + " · " + esc(b.email) + "</p>" +
+      '<div class="field"><label for="tp">Template</label><select id="tp">' + tpls.map(function (x) { return '<option value="' + esc(x.key) + '"' + (x === t ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + "</select></div>" +
+      '<div class="field"><label for="sj">Email subject</label><input id="sj" /></div><div class="field"><label for="bd">Message</label><textarea id="bd"></textarea></div>' +
+      '<div class="btns" style="margin-top:16px"><a class="btn g" id="wa" target="_blank" rel="noopener">Open in WhatsApp</a><button class="btn p" id="em">Send email</button></div>' +
+      '<p class="small muted" style="margin-top:10px">WhatsApp opens with the message ready – just tap Send there.</p><div id="mm"></div>');
+    var sel = m.querySelector("#tp"), sj = m.querySelector("#sj"), bd = m.querySelector("#bd"), wa = m.querySelector("#wa");
+    function apply() { var x = tpls.filter(function (y) { return y.key === sel.value; })[0]; sj.value = fill(x.subject, b); bd.value = fill(x.body, b); upd(); }
+    function upd() { wa.href = "https://wa.me/" + waNumber(b.phone) + "?text=" + encodeURIComponent(bd.value); }
+    sel.onchange = apply; bd.oninput = upd; apply();
+    m.querySelector("#em").onclick = function () {
+      var btn = this; btn.disabled = true; btn.textContent = "Sending…";
+      api("sendEmail", { row: b.row, subject: sj.value, body: bd.value }).then(function (r) {
+        if (!r.ok) throw new Error(r.message); btn.textContent = "Sent ✓"; m.querySelector("#mm").innerHTML = '<div class="okmsg">' + esc(r.message) + "</div>";
+      }).catch(function (e) { btn.disabled = false; btn.textContent = "Send email"; m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+  }
+
+  /* ── Families ── */
+  function famName(f) { return (f.parents[0] || f.emails[0] || "Family") + (f.children.length ? " · " + f.children.join(", ") : ""); }
+  function familiesView() {
+    loading("families");
+    load().then(function (d) {
+      var q = (S.famQ || "").toLowerCase();
+      var list = d.families.filter(function (f) { return !q || (f.parents.concat(f.children, f.emails, f.phones).join(" ").toLowerCase().indexOf(q) >= 0); })
+        .sort(function (a, b) { return (b.next || b.last || "") > (a.next || a.last || "") ? 1 : -1; });
+      shell("families", '<h1 class="h1">Families</h1><p class="sub">' + d.families.length + " families from intake forms and bookings</p>" +
+        '<input class="search" id="q" placeholder="Search parent, child, phone, email" value="' + esc(S.famQ || "") + '" />' +
+        (list.length ? list.map(function (f) {
+          return '<a class="item" href="#family/' + encodeURIComponent(f.key) + '"><div class="grow"><div class="t">' + esc(f.children.join(", ") || "—") + ' <span class="muted" style="font-weight:400">· ' + esc(f.parents.join(", ")) + '</span></div><div class="s">' +
+            (f.next ? "Next: " + dDate(f.next) : f.last ? "Last: " + dDate(f.last) : "No sessions booked online") + " · " + f.bookings.length + " session" + (f.bookings.length === 1 ? "" : "s") + (f.intakes.length ? " · intake ✓" : "") + "</div></div></a>";
+        }).join("") : '<p class="empty">No families match.</p>'));
+      var qi = $("#q"); qi.oninput = function () { S.famQ = qi.value; clearTimeout(S.t); S.t = setTimeout(function () { familiesView(); var n = $("#q"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); };
+    }).catch(function (e) { fail("families", e); });
+  }
+
+  function familyView(key) {
+    loading("families");
+    Promise.all([load(), api("family", { key: key })]).then(function (res) {
+      var r = res[1]; if (!r.ok) throw new Error(r.message);
+      var f = r.family, ph = f.phones[0] || "";
+      var html = '<a class="back" href="#families">← Families</a><h1 class="h1">' + esc(f.children.join(", ") || f.parents[0]) + '</h1><p class="sub">' + esc(f.parents.join(", ")) + "</p>" +
+        '<div class="card"><dl class="kv"><dt>Phone</dt><dd>' + f.phones.map(function (p) { return '<a href="tel:' + esc(p) + '">' + esc(p) + "</a>"; }).join(", ") + "</dd><dt>Email</dt><dd>" +
+        f.emails.map(function (e) { return '<a href="mailto:' + esc(e) + '">' + esc(e) + "</a>"; }).join(", ") + '</dd></dl><div class="btns" style="margin-top:12px">' +
+        (ph ? '<a class="btn g sm" href="https://wa.me/' + waNumber(ph) + '?text=' + encodeURIComponent("Hi " + first(f.parents[0]) + ", this is Nidhi from Samhithe. ") + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn o sm" href="tel:' + esc(ph) + '">Call</a>' : "") + "</div></div>";
+      html += '<h2 class="sec">Sessions</h2>' + (r.bookings.length ? r.bookings.sort(function (a, b) { return a.start < b.start ? 1 : -1; }).map(bookingItem).join("") : '<p class="empty">No sessions booked through the website yet.</p>');
+      if (r.transcripts) {
+        html += '<h2 class="sec">Transcripts &amp; meeting notes</h2>' + (r.transcripts.length ? r.transcripts.map(tItem).join("") : '<p class="empty">No Gemini notes linked yet. You can link them from Transcripts.</p>');
+      }
+      if (r.intakes) {
+        html += '<h2 class="sec">Intake form' + (r.intakes.length > 1 ? "s" : "") + "</h2>" + (r.intakes.length ? r.intakes.map(function (x, i) {
+          return '<details class="acc"' + (i === 0 ? " open" : "") + "><summary><span>" + esc(x.child || "Child") + (x.age ? ", " + esc(x.age) : "") + '</span><span class="muted small">' + (x.at ? dDate(x.at) : "") + (x.source ? " · " + esc(x.source) : "") + "</span></summary>" +
+            '<div style="padding:4px 0 10px">' + x.answers.map(function (qa) { return '<div class="qa"><div class="q">' + esc(qa[0]) + '</div><div class="a">' + esc(qa[1]) + "</div></div>"; }).join("") + "</div></details>";
+        }).join("") : '<p class="empty">No intake form on file.</p>');
+      }
+      html += '<h2 class="sec">Private notes</h2><div class="card"><div class="field" style="margin-top:0"><textarea id="nt" placeholder="Add a note about this family (only visible in the portal)" style="min-height:90px"></textarea></div><div class="btns" style="margin-top:10px"><button class="btn p sm" id="an">Save note</button></div><div id="nl">' + notesHtml(r.notes) + "</div></div>";
+      shell("families", html);
+      bindItems();
+      $("#an").onclick = function () {
+        var t = $("#nt").value.trim(), b = this; if (!t) return; b.disabled = true;
+        api("addNote", { key: f.key, text: t }).then(function (x) { if (!x.ok) throw new Error(x.message); $("#nt").value = ""; $("#nl").innerHTML = notesHtml(x.notes); b.disabled = false; toast("Note saved"); })
+          .catch(function (e) { b.disabled = false; toast(e.message); });
+      };
+    }).catch(function (e) { fail("families", e); });
+  }
+  function notesHtml(ns) {
+    return (ns || []).map(function (n) { return '<div class="note"><div class="m">' + dDate(n.at) + ", " + dTime(n.at) + " · " + esc(n.by) + "</div><p>" + esc(n.text) + "</p></div>"; }).join("");
+  }
+
+  /* ── Transcripts ── */
+  function tItem(t) {
+    return '<a class="item" href="#transcript/' + encodeURIComponent(t.id) + '"><div class="when"><b>' + fmt(t.when, { day: "numeric" }) + "</b><small>" + fmt(t.when, { month: "short" }) + '</small></div><div class="grow"><div class="t">' + esc(t.meeting) +
+      '</div><div class="s">' + fmt(t.when, { weekday: "short", year: "numeric" }) + ", " + dTime(t.when) + "</div></div></a>";
+  }
+  function transcriptsView() {
+    loading("transcripts");
+    var p = S.cache.tr ? Promise.resolve(S.cache.tr) : api("transcripts").then(function (r) { if (!r.ok) throw new Error(r.message); S.cache.tr = r; return r; });
+    Promise.all([load(), p]).then(function (res) {
+      var r = res[1], all = r.transcripts, names = r.familyNames, f = S.tFilter;
+      var list = all.filter(function (t) {
+        if (S.tHits && S.tHits.indexOf(t.id) < 0) return false;
+        if (S.tHits) return true;
+        if (f === "linked") return !!t.fam; if (f === "unlinked") return !t.fam && !t.dismissed; if (f === "other") return t.dismissed; return true;
+      });
+      var chip = function (k, l, n) { return '<button class="chip' + (f === k && !S.tHits ? " on" : "") + '" data-c="' + k + '">' + l + (n != null ? " (" + n + ")" : "") + "</button>"; };
+      var html = '<h1 class="h1">Transcripts</h1><p class="sub">Google Meet "Notes by Gemini" from Nidhi\'s Drive. Read-only.</p>' +
+        '<form id="sf" class="row" style="gap:8px;margin-bottom:12px"><input class="search" id="q" style="margin:0" placeholder="Search inside transcripts, e.g. sleep" value="' + esc(S.tq) + '" /><button class="btn p">Search</button></form>' +
+        (S.tHits ? '<p style="margin-bottom:12px">' + list.length + ' result' + (list.length === 1 ? "" : "s") + ' for “' + esc(S.tq) + '” · <button class="linkbtn" id="clr">Clear</button></p>' :
+          '<div class="chips">' + chip("linked", "Linked to a family", all.filter(function (t) { return t.fam; }).length) + chip("unlinked", "To file", all.filter(function (t) { return !t.fam && !t.dismissed; }).length) + chip("other", "Not client sessions", all.filter(function (t) { return t.dismissed; }).length) + chip("all", "All", all.length) + "</div>");
+      if (!list.length) html += '<p class="empty">Nothing here.</p>';
+      var grouped = f === "linked" && !S.tHits;
+      if (grouped) {
+        var groups = {}; list.forEach(function (t) { (groups[t.fam] = groups[t.fam] || []).push(t); });
+        Object.keys(groups).forEach(function (k) { html += '<p class="small muted" style="margin:16px 2px 6px;font-weight:700">' + esc(names[k] || k) + ' · <a href="#family/' + encodeURIComponent(k) + '">family</a></p>' + groups[k].map(tItem).join(""); });
+      } else html += list.map(function (t) { return tItem(t).replace('<div class="s">', '<div class="s">' + (t.fam ? esc(names[t.fam] || "") + " · " : t.dismissed ? "Not a client session · " : '<b style="color:var(--warn)">Not filed</b> · ')); }).join("");
+      shell("transcripts", html);
+      [].forEach.call(root.querySelectorAll("[data-c]"), function (c) { c.onclick = function () { S.tFilter = c.dataset.c; transcriptsView(); }; });
+      $("#sf").onsubmit = function (ev) {
+        ev.preventDefault(); var q = $("#q").value.trim(); S.tq = q; if (!q) { S.tHits = null; transcriptsView(); return; }
+        var b = this.querySelector("button"); b.disabled = true; b.textContent = "Searching…";
+        api("searchTranscripts", { q: q }).then(function (x) { if (!x.ok) throw new Error(x.message); S.tHits = x.ids; transcriptsView(); }).catch(function (e) { b.disabled = false; b.textContent = "Search"; toast(e.message); });
+      };
+      if ($("#clr")) $("#clr").onclick = function () { S.tHits = null; S.tq = ""; transcriptsView(); };
+    }).catch(function (e) { fail("transcripts", e); });
+  }
+
+  function transcriptView(id) {
+    loading("transcripts");
+    var p = S.cache.tr ? Promise.resolve(S.cache.tr) : api("transcripts").then(function (r) { if (!r.ok) throw new Error(r.message); S.cache.tr = r; return r; });
+    Promise.all([p, api("transcript", { id: id })]).then(function (res) {
+      var idx = res[0], r = res[1]; if (!r.ok) throw new Error(r.message);
+      var t = r.transcript, info = idx.transcripts.filter(function (x) { return x.id === id; })[0] || t, names = idx.familyNames;
+      var opts = '<option value="">— Not filed —</option><option value="none"' + (info.dismissed ? " selected" : "") + ">Not a client session (school, partner, internal)</option>" +
+        Object.keys(names).sort(function (a, b) { return names[a] < names[b] ? -1 : 1; }).map(function (k) { return '<option value="' + esc(k) + '"' + (info.fam === k ? " selected" : "") + ">" + esc(names[k]) + "</option>"; }).join("");
+      var hl = S.tHits && S.tq ? new RegExp("(" + S.tq.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&") + ")", "gi") : null;
+      var html = '<a class="back" href="#transcripts">← Transcripts</a><h1 class="h1">' + esc(t.meeting) + '</h1><p class="sub">' + dLong(t.when) + ", " + dTime(t.when) + "</p>" +
+        '<div class="card"><div class="field" style="margin-top:0"><label for="lk">Family</label><select id="lk">' + opts + "</select></div>" +
+        '<div class="btns" style="margin-top:10px">' + (info.fam ? '<a class="btn o sm" href="#family/' + encodeURIComponent(info.fam) + '">Open family</a>' : "") + '<a class="btn o sm" href="' + esc(t.url) + '" target="_blank" rel="noopener">Open in Google Docs</a></div></div>' +
+        '<div class="tabs">' + r.tabs.map(function (x, i) { return '<button class="chip' + (i === 0 ? " on" : "") + '" data-t="' + i + '">' + esc(x.title) + "</button>"; }).join("") + "</div>" +
+        r.tabs.map(function (x, i) { var body = esc(x.text.trim() || "(empty)"); if (hl) body = body.replace(hl, "<mark>$1</mark>"); return '<div class="card tx" data-tb="' + i + '"' + (i ? " hidden" : "") + ">" + body + "</div>"; }).join("");
+      shell("transcripts", html);
+      [].forEach.call(root.querySelectorAll("[data-t]"), function (b) {
+        b.onclick = function () {
+          [].forEach.call(root.querySelectorAll("[data-t]"), function (x) { x.classList.toggle("on", x === b); });
+          [].forEach.call(root.querySelectorAll("[data-tb]"), function (x) { x.hidden = x.dataset.tb !== b.dataset.t; });
+        };
+      });
+      $("#lk").onchange = function () {
+        var v = this.value, sel = this; sel.disabled = true;
+        api("linkTranscript", { id: id, key: v }).then(function (x) {
+          if (!x.ok) throw new Error(x.message); delete S.cache.tr; S.d = null; toast(v ? "Filed" : "Unfiled"); transcriptView(id);
+        }).catch(function (e) { sel.disabled = false; toast(e.message); });
+      };
+    }).catch(function (e) { fail("transcripts", e); });
+  }
+
+  /* ── change password ── */
+  function changePw() {
+    var m = modal('<h2 style="font-size:22px">Change password</h2><form id="cp"><div class="field"><label>Current password</label><input id="c0" type="password" autocomplete="current-password" required /></div>' +
+      '<div class="field"><label>New password (10+ characters, letters and numbers)</label><input id="c1" type="password" autocomplete="new-password" required /></div>' +
+      '<button class="btn p" style="margin-top:16px">Save</button></form><div id="cm"></div>');
+    m.querySelector("#cp").onsubmit = function (ev) {
+      ev.preventDefault();
+      api("changePassword", { current: m.querySelector("#c0").value, password: m.querySelector("#c1").value }).then(function (r) {
+        m.querySelector("#cm").innerHTML = '<div class="' + (r.ok ? "okmsg" : "err") + '">' + esc(r.message) + "</div>";
+      }).catch(function (e) { m.querySelector("#cm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+  }
+
+  /* ── router ── */
+  function route() {
+    var h = location.hash.slice(1);
+    var rm = h.match(/^reset=([a-f0-9]{64})$/);
+    if (rm) return resetView(rm[1]);
+    if (!ADMIN_API) { authShell('<h1>Not connected</h1><p class="muted" style="text-align:center">The admin backend URL has not been set yet.</p>'); return; }
+    if (!S.token) return loginView();
+    document.querySelectorAll(".modal").forEach(function (m) { m.remove(); });
+    window.scrollTo(0, 0);
+    var p = h.split("/"), id = decodeURIComponent(p.slice(1).join("/"));
+    if (p[0] === "bookings") return bookingsView();
+    if (p[0] === "booking") return bookingView(+id);
+    if (p[0] === "families") return familiesView();
+    if (p[0] === "family") return familyView(id);
+    if (p[0] === "transcripts" && isAdmin()) return transcriptsView();
+    if (p[0] === "transcript" && isAdmin()) return transcriptView(id);
+    return todayView();
+  }
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+</body>
+</html>
