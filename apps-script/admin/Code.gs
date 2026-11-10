@@ -77,7 +77,7 @@ function doPost(e) {
 
 var API = {
   me:            { run: function (b, s) { return { ok: true, user: s }; } },
-  logout:        { run: function (b, s) { CacheService.getScriptCache().remove('s_' + b.token); audit_(s.u, 'logout', ''); return { ok: true }; } },
+  logout:        { run: function (b, s) { endSession_(b.token); audit_(s.u, 'logout', ''); return { ok: true }; } },
   data:          { run: data_ },
   screenshot:    { run: screenshot_ },
   setStatus:     { run: setStatus_ },
@@ -122,8 +122,11 @@ function login_(b) {
   setUser_(u, { 'Failed': 0, 'Locked Until': '', 'Last Login': new Date() });
   var token = rand_();
   var s = { u: u.username, name: u.name || u.username, role: u.role };
-  CacheService.getScriptCache().put('s_' + token, JSON.stringify(s), CFG.SESSION_HOURS * 3600);
-  audit_(u.username, 'login', '');
+  if (b.remember) {          // "Keep me signed in on this device": no expiry; ended by sign-out, password reset or deactivation
+    PropertiesService.getScriptProperties().setProperty('ps_' + sha_(token), JSON.stringify({ u: u.username, at: Date.now() }));
+    CacheService.getScriptCache().put('s_' + token, JSON.stringify(s), 600);
+  } else CacheService.getScriptCache().put('s_' + token, JSON.stringify(s), CFG.SESSION_HOURS * 3600);
+  audit_(u.username, 'login', b.remember ? 'remembered device' : '');
   var d = null;
   try { d = data_({}, s); } catch (x) { console.warn('login data: ' + x); }    // dashboard data in the same round trip
   return { ok: true, token: token, user: s, data: d };
@@ -133,9 +136,33 @@ function login_(b) {
 function session_(token) {
   if (!token || !/^[a-f0-9]{64}$/.test(String(token))) return null;
   var c = CacheService.getScriptCache(), raw = c.get('s_' + token);
+  var ps = PropertiesService.getScriptProperties().getProperty('ps_' + sha_(token));
+  if (ps) {                                                  // remembered device: re-check the user every 10 minutes
+    if (raw) return JSON.parse(raw);
+    var u = findUser_(JSON.parse(ps).u);
+    if (!u || !u.active) { endSession_(token); return null; }
+    var s = { u: u.username, name: u.name || u.username, role: u.role };
+    c.put('s_' + token, JSON.stringify(s), 600);
+    return s;
+  }
   if (!raw) return null;
   c.put('s_' + token, raw, CFG.SESSION_HOURS * 3600);
   return JSON.parse(raw);
+}
+
+function endSession_(token) {
+  CacheService.getScriptCache().remove('s_' + token);
+  PropertiesService.getScriptProperties().deleteProperty('ps_' + sha_(String(token)));
+}
+
+/** Ends every remembered device for a user (password reset/change, deactivation). */
+function endUserSessions_(username) {
+  var props = PropertiesService.getScriptProperties(), all = props.getProperties(), n = 0;
+  Object.keys(all).forEach(function (k) {
+    if (k.indexOf('ps_') !== 0) return;
+    try { if (JSON.parse(all[k]).u === username) { props.deleteProperty(k); n++; } } catch (x) { props.deleteProperty(k); }
+  });
+  return n;
 }
 
 function forgot_(b, byAdmin) {
@@ -180,8 +207,9 @@ function reset_(b) {
   props.deleteProperty(key);
   var salt = rand_().slice(0, 32);
   setUser_(u, { 'Salt': salt, 'Hash': hash_(pw, salt), 'Failed': 0, 'Locked Until': '' });
-  audit_(u.username, 'password-set', 'via email link');
-  return login_({ username: u.username, password: pw });
+  var ended = endUserSessions_(u.username);
+  audit_(u.username, 'password-set', 'via email link' + (ended ? '; signed out ' + ended + ' device(s)' : ''));
+  return login_({ username: u.username, password: pw, remember: b.remember !== false });
 }
 
 function changePassword_(b, s) {
@@ -191,7 +219,10 @@ function changePassword_(b, s) {
   if (bad) return { ok: false, message: bad };
   var salt = rand_().slice(0, 32);
   setUser_(u, { 'Salt': salt, 'Hash': hash_(String(b.password), salt) });
-  audit_(s.u, 'password-changed', '');
+  var keep = PropertiesService.getScriptProperties().getProperty('ps_' + sha_(String(b.token)));
+  endUserSessions_(u.username);
+  if (keep) PropertiesService.getScriptProperties().setProperty('ps_' + sha_(String(b.token)), keep);
+  audit_(s.u, 'password-changed', 'other devices signed out');
   return { ok: true, message: 'Password changed.' };
 }
 
@@ -736,6 +767,7 @@ function saveUser_(b, s) {
   var admins = all.filter(function (x) { return x.role === 'admin' && x.active && x.username !== username; }).length;
   if ((!active || role !== 'admin') && admins === 0) return { ok: false, message: 'There must always be at least one active admin.' };
   if (u) setUser_(u, { 'Name': name, 'Email': email, 'Role': role, 'Active': active });
+  if (u && !active) endUserSessions_(username);
   else tab_('Users', USER_HEADERS).appendRow([username, name, email, role, active, '', '', 0, '', '', new Date()]);
   audit_(s.u, b.isNew ? 'add-user' : 'update-user', username + ' (' + role + (active ? '' : ', inactive') + ')');
   return usersList_();

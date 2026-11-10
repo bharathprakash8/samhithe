@@ -177,7 +177,9 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
 
 (function () {
   var S = { token: null, user: null, d: null, cache: {}, filter: "upcoming", famQ: "", tq: "", tHits: null, tFilter: "linked" };
-  try { S.token = sessionStorage.getItem("sam_admin_t"); S.user = JSON.parse(sessionStorage.getItem("sam_admin_u") || "null"); } catch (e) {}
+  // Remembered devices keep the sign-in in localStorage (survives closing the home-screen app); otherwise sessionStorage.
+  function store() { try { return localStorage.getItem("sam_admin_t") ? localStorage : sessionStorage; } catch (e) { return sessionStorage; } }
+  try { var st0 = store(); S.token = st0.getItem("sam_admin_t"); S.user = JSON.parse(st0.getItem("sam_admin_u") || "null"); } catch (e) {}
   var root = document.getElementById("root");
 
   /* ── helpers ── */
@@ -229,11 +231,11 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     var fresh = api("data", force ? { fresh: 1 } : {}).then(function (r) {
       if (!r.ok) throw new Error(r.message);
       var changed = !S.d || JSON.stringify(strip(S.d)) !== JSON.stringify(strip(r));
-      S.d = r; try { sessionStorage.setItem("sam_admin_d", JSON.stringify(r)); } catch (e) {}
+      S.d = r; try { store().setItem("sam_admin_d", JSON.stringify(r)); } catch (e) {}
       return changed;
     });
     var cached = null;
-    if (!force) { try { cached = JSON.parse(sessionStorage.getItem("sam_admin_d") || "null"); } catch (e) {} }
+    if (!force) { try { cached = JSON.parse(store().getItem("sam_admin_d") || "null"); } catch (e) {} }
     if (cached && cached.ok) {
       S.d = cached;
       fresh.then(function (changed) { if (changed && !document.querySelector(".modal") && !document.querySelector(".main input:focus,.main textarea:focus")) route(); }).catch(function () {});
@@ -245,7 +247,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   function signOut(silent) {
     if (!silent && S.token) api("logout").catch(function () {});
     S.token = null; S.user = null; S.d = null; S.cache = {}; S.prefetched = false;
-    try { sessionStorage.removeItem("sam_admin_t"); sessionStorage.removeItem("sam_admin_u"); sessionStorage.removeItem("sam_admin_d"); } catch (e) {}
+    try { [localStorage, sessionStorage].forEach(function (x) { ["sam_admin_t", "sam_admin_u", "sam_admin_d"].forEach(function (k) { x.removeItem(k); }); }); } catch (e) {}
     if (!silent) location.hash = "";
     route();
   }
@@ -257,12 +259,14 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   function loginView(msg) {
     authShell('<h1>Sign in</h1><form id="f"><div class="field"><label for="u">Username</label><input id="u" autocomplete="username" autocapitalize="none" required /></div>' +
       '<div class="field"><label for="p">Password</label><input id="p" type="password" autocomplete="current-password" required /></div>' +
+      '<label class="check"><input type="checkbox" id="rm" checked /> <span>Keep me signed in on this device</span></label>' +
       '<button class="btn p" id="go">Sign in</button></form><p style="text-align:center;margin-top:16px"><button class="linkbtn" id="fg">Forgot password / set password</button></p>' +
       (msg ? '<div class="okmsg">' + esc(msg) + "</div>" : "") + '<div class="err" id="e" hidden></div>');
     $("#f").onsubmit = function (ev) {
       ev.preventDefault(); var b = $("#go"); b.disabled = true; b.textContent = "Signing in…"; $("#e").hidden = true;
-      api("login", { username: $("#u").value.trim(), password: $("#p").value }).then(function (r) {
-        if (!r.ok) throw new Error(r.message); signedIn(r);
+      var keep = $("#rm").checked;
+      api("login", { username: $("#u").value.trim(), password: $("#p").value, remember: keep }).then(function (r) {
+        if (!r.ok) throw new Error(r.message); signedIn(r, keep);
       }).catch(function (e) { b.disabled = false; b.textContent = "Sign in"; $("#e").textContent = e.message; $("#e").hidden = false; });
     };
     $("#fg").onclick = function () { forgotView($("#u").value.trim()); };
@@ -283,21 +287,27 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     authShell('<h1>Choose a password</h1><p class="muted" style="text-align:center;margin-top:6px">At least 10 characters, with letters and numbers.</p>' +
       '<form id="f"><div class="field"><label for="p">New password</label><input id="p" type="password" autocomplete="new-password" required minlength="10" /></div>' +
       '<div class="field"><label for="p2">Type it again</label><input id="p2" type="password" autocomplete="new-password" required /></div>' +
+      '<label class="check"><input type="checkbox" id="rm" checked /> <span>Keep me signed in on this device</span></label>' +
       '<button class="btn p" id="go">Save password and sign in</button></form><div class="err" id="e" hidden></div>');
     $("#f").onsubmit = function (ev) {
       ev.preventDefault(); var e = $("#e"); e.hidden = true;
       if ($("#p").value !== $("#p2").value) { e.textContent = "The two passwords don't match."; e.hidden = false; return; }
       var b = $("#go"); b.disabled = true; b.textContent = "Saving…";
-      api("reset", { resetToken: t, password: $("#p").value }).then(function (r) {
+      var keep = $("#rm").checked;
+      api("reset", { resetToken: t, password: $("#p").value, remember: keep }).then(function (r) {
         if (!r.ok) throw new Error(r.message);
-        history.replaceState(null, "", location.pathname + "#today"); signedIn(r); toast("Password saved");
+        history.replaceState(null, "", location.pathname + "#today"); signedIn(r, keep); toast("Password saved");
       }).catch(function (x) { b.disabled = false; b.textContent = "Save password and sign in"; e.textContent = x.message; e.hidden = false; });
     };
   }
-  function signedIn(r) {
+  function signedIn(r, keep) {
     S.token = r.token; S.user = r.user;
-    if (r.data && r.data.ok) { S.d = r.data; try { sessionStorage.setItem("sam_admin_d", JSON.stringify(r.data)); } catch (e) {} }
-    try { sessionStorage.setItem("sam_admin_t", r.token); sessionStorage.setItem("sam_admin_u", JSON.stringify(r.user)); } catch (e) {}
+    try {
+      [localStorage, sessionStorage].forEach(function (x) { ["sam_admin_t", "sam_admin_u", "sam_admin_d"].forEach(function (k) { x.removeItem(k); }); });
+      var st = keep ? localStorage : sessionStorage;
+      st.setItem("sam_admin_t", r.token); st.setItem("sam_admin_u", JSON.stringify(r.user));
+      if (r.data && r.data.ok) { S.d = r.data; st.setItem("sam_admin_d", JSON.stringify(r.data)); }
+    } catch (e) { if (r.data && r.data.ok) S.d = r.data; }
     if (!location.hash || /reset=/.test(location.hash)) location.hash = "#today"; else route();
   }
 
@@ -458,7 +468,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
           [].forEach.call(root.querySelectorAll("[data-st]"), function (x) { x.disabled = true; });
           api("setStatus", { row: b.row, status: st }).then(function (r) {
             if (!r.ok) throw new Error(r.message);
-            b.status = st; delete S.cache["f:" + b.fam]; try { sessionStorage.setItem("sam_admin_d", JSON.stringify(S.d)); } catch (e) {} bookingView(row); toast("Marked " + st);
+            b.status = st; delete S.cache["f:" + b.fam]; try { store().setItem("sam_admin_d", JSON.stringify(S.d)); } catch (e) {} bookingView(row); toast("Marked " + st);
             if (st === "Verified") composer(b.row, "payment_ok"); else if (st === "Problem") composer(b.row, "payment_issue");
           }).catch(function (e) { toast(e.message); bookingView(row); });
         };

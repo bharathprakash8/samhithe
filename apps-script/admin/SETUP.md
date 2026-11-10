@@ -23,3 +23,4 @@ Live copy of the code: `Code.gs` in this folder. The page is `admin/index.html` 
 - v3 – Phase 1 final: 30-min transcript cache, better name matching, test helpers removed
 - v4 – Phase 2+3: availability, reschedule/cancel with emails, school enquiries, templates, users, speed cache
 - v5 – Speed: dashboard data returned with sign-in, single-write user updates
+- v6 – Remembered devices: "Keep me signed in" sessions with no expiry, ended by sign-out, password reset/change or deactivation (deploy pending)
