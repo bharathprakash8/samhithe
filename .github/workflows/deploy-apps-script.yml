@@ -1,0 +1,73 @@
+# Deploys the Google Apps Script backends whenever their code changes on main, so no laptop is needed.
+#   apps-script/admin/**   → "Samhithe Admin"   (www.samhithe.in/admin)
+#   apps-script/booking/** → "Samhithe Booking" (www.samhithe.in/booking)
+# The web-app URLs never change: each deploy updates the existing deployment to a new version,
+# using the commit message as the version description.
+# After deploying it runs a health check and saves the result to the "ops-status" branch.
+# One-time setup: see ops/SETUP-AUTODEPLOY.md (needs the CLASPRC_JSON repository secret).
+name: Deploy Apps Script
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps-script/admin/**", "apps-script/booking/**"]
+  workflow_dispatch:
+
+concurrency: { group: apps-script-deploy, cancel-in-progress: false }
+
+permissions: { contents: write }
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+
+      - name: Work out what changed
+        id: what
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "admin=true" >> $GITHUB_OUTPUT; echo "booking=true" >> $GITHUB_OUTPUT; exit 0; fi
+          CH=$(git diff --name-only HEAD~1 HEAD || true)
+          echo "$CH"
+          echo "admin=$(echo "$CH" | grep -q '^apps-script/admin/' && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "booking=$(echo "$CH" | grep -q '^apps-script/booking/' && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Install clasp and credentials
+        id: clasp
+        env: { CLASPRC_JSON: "${{ secrets.CLASPRC_JSON }}" }
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then echo "::notice::Auto-deploy not set up yet (CLASPRC_JSON secret missing) – see ops/SETUP-AUTODEPLOY.md"; echo "ready=false" >> $GITHUB_OUTPUT; exit 0; fi
+          echo "ready=true" >> $GITHUB_OUTPUT
+          npm i -g @google/clasp@2.4.2
+          printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+
+      - name: Deploy Samhithe Admin
+        if: steps.what.outputs.admin == 'true' && steps.clasp.outputs.ready == 'true'
+        working-directory: apps-script/admin
+        run: |
+          echo '{"scriptId":"1E04ByI_ODgtkHqUoqnwyAmn_PxUs_Bh0_4M6YEwpw4sabakhwJJWzIx8","rootDir":"."}' > .clasp.json
+          printf 'SETUP.md\n.clasp.json\n' > .claspignore
+          clasp push -f
+          DESC=$(git log -1 --format=%s | cut -c1-95)
+          clasp deploy -i AKfycbzHIlWBg_k_9V4DE3zYat7ltuOKWCysWc083ZGYLuuhh0L6g94lFztofkKt-GYrJiIM -d "$DESC"
+
+      - name: Deploy Samhithe Booking
+        if: steps.what.outputs.booking == 'true' && steps.clasp.outputs.ready == 'true'
+        working-directory: apps-script/booking
+        run: |
+          echo '{"scriptId":"1Zh3s4h18SBgAuk03JRTwdbw1nDxu37KoEM7H_q7HK1J0MgRQPeGfwPF8","rootDir":"."}' > .clasp.json
+          printf 'SETUP.md\n.clasp.json\n' > .claspignore
+          clasp push -f
+          DESC=$(git log -1 --format=%s | cut -c1-95)
+          clasp deploy -i AKfycbzw67eOs-JR0uudjn1Yu_Z9pp0Zy5-k7r59Glr8W9PoYSTGnGGId2N3mtlUqFlnoMc2 -d "$DESC"
+
+      - name: Health check
+        if: always()
+        env: { READY: "${{ steps.clasp.outputs.ready }}", STATUS: "${{ job.status }}" }
+        run: |
+          WHAT=$([ "$READY" = "true" ] && echo "deploy" || echo "deploy skipped (not set up)")
+          bash ops/health-check.sh "$WHAT, $STATUS - $(git log -1 --format=%s | cut -c1-70)"

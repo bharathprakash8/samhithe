@@ -1,0 +1,19 @@
+# Checks the live booking and admin backends and saves a report to the "ops-status" branch
+# (ops/status.md there). Runs every 6 hours, on demand, and whenever ops/check-request.txt changes.
+name: Health check
+
+on:
+  schedule: [{ cron: "17 */6 * * *" }]
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["ops/check-request.txt"]
+
+permissions: { contents: write }
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash ops/health-check.sh "$(cat ops/check-request.txt 2>/dev/null | head -1 | cut -c1-80)"
