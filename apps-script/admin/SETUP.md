@@ -23,4 +23,7 @@ Live copy of the code: `Code.gs` in this folder. The page is `admin/index.html` 
 - v3 – Phase 1 final: 30-min transcript cache, better name matching, test helpers removed
 - v4 – Phase 2+3: availability, reschedule/cancel with emails, school enquiries, templates, users, speed cache
 - v5 – Speed: dashboard data returned with sign-in, single-write user updates
-- v6 – Remembered devices: "Keep me signed in" sessions with no expiry, ended by sign-out, password reset/change or deactivation (deploy pending)
+- v6 – Remembered devices: "Keep me signed in" sessions with no expiry, ended by sign-out, password reset/change or deactivation (deployed automatically by the Samhithe Deployer)
+
+## Deploying changes
+Push changes to `apps-script/admin/` on `main`. Within about 5 minutes the **Samhithe Deployer** (an Apps Script project in nidhi@samhithe.in's account, see `apps-script/deployer/`) creates a new version named after the latest commit title and moves the existing web-app deployment to it, so the URL never changes. No laptop or manual deploy is needed.
