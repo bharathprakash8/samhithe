@@ -1,24 +1,23 @@
 # Samhithe health check
 
-**When:** Fri 13 Nov 2026, 06:42 PM IST  
+**When:** Sat 14 Nov 2026, 12:27 AM IST  
 **Trigger:** fix: admin session check
 
 | Check | Result |
 |---|---|
-| Booking engine (slots) | OK · 1235 ms |
-| Admin backend | OK · 1236 ms |
+| Booking engine (slots) | OK · 1296 ms |
+| Admin backend | OK · 1878 ms |
 | Admin rejects bad session | OK |
-| www.samhithe.in/ | OK 200 · 0.109949s |
-| www.samhithe.in/booking/ | OK 200 · 0.075839s |
-| www.samhithe.in/admin/ | OK 200 · 0.064228s |
-| www.samhithe.in/admin/sw.js | OK 200 · 0.053121s |
+| www.samhithe.in/ | OK 200 · 0.150154s |
+| www.samhithe.in/booking/ | OK 200 · 0.052418s |
+| www.samhithe.in/admin/ | OK 200 · 0.049690s |
+| www.samhithe.in/admin/sw.js | OK 200 · 0.072611s |
 
 ## Bookable days (next 31 days) – session 60 min, ₹1000
 
 | Date | Day | Free slots |
 |---|---|---|
-| 2026-11-13 | Fri | **Full / not available** |
-| 2026-11-14 | Sat | 11:00 AM, 12:15 PM |
+| 2026-11-14 | Sat | **Full / not available** |
 | 2026-11-15 | Sun | **Full / not available** |
 | 2026-11-16 | Mon | 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-11-17 | Tue | **Full / not available** |
@@ -48,3 +47,4 @@
 | 2026-12-11 | Fri | 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-12-12 | Sat | 11:00 AM, 12:15 PM |
 | 2026-12-13 | Sun | **Full / not available** |
+| 2026-12-14 | Mon | 6:00 PM, 7:15 PM, 8:30 PM |
