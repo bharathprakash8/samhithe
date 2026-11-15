@@ -1,17 +1,17 @@
 # Samhithe health check
 
-**When:** Sun 15 Nov 2026, 06:27 PM IST  
-**Trigger:** fix: admin session check
+**When:** Sun 15 Nov 2026, 09:52 PM IST  
+**Trigger:** deploy skipped (not set up), success - Admin v7 – CRM: client documents in Drive, pipeline, schools, reminder
 
 | Check | Result |
 |---|---|
-| Booking engine (slots) | OK · 1003 ms |
-| Admin backend | OK · 1179 ms |
+| Booking engine (slots) | OK · 1225 ms |
+| Admin backend | OK · 1267 ms |
 | Admin rejects bad session | OK |
-| www.samhithe.in/ | OK 200 · 0.192657s |
-| www.samhithe.in/booking/ | OK 200 · 0.130296s |
-| www.samhithe.in/admin/ | OK 200 · 0.122993s |
-| www.samhithe.in/admin/sw.js | OK 200 · 0.115277s |
+| www.samhithe.in/ | OK 200 · 0.205343s |
+| www.samhithe.in/booking/ | OK 200 · 0.113807s |
+| www.samhithe.in/admin/ | OK 200 · 0.122669s |
+| www.samhithe.in/admin/sw.js | OK 200 · 0.104066s |
 
 ## Bookable days (next 31 days) – session 60 min, ₹1000
 
