@@ -383,7 +383,16 @@ function families_(bk, intakes) {
     if (p) byPhone[p] = k;
     return k;
   };
-  var addU = function (arr, v) { if (v && arr.indexOf(v) < 0) arr.push(v); };
+  var addU = function (arr, v) {
+    v = String(v || '').trim(); if (!v) return;
+    var lv = v.toLowerCase();
+    for (var i = 0; i < arr.length; i++) {
+      var la = String(arr[i]).toLowerCase();
+      if (la === lv || (la.length > 2 && lv.indexOf(la + ' ') === 0)) { if (v.length > arr[i].length) arr[i] = v; return; }   // "Shubhadha" → "Shubhadha Mathad"
+      if (lv.length > 2 && la.indexOf(lv + ' ') === 0) return;
+    }
+    arr.push(v);
+  };
   intakes.forEach(function (x) {
     if (!x.email && phoneKey_(x.phone).length < 10) return;
     var f = fams[keyFor(x.email, x.phone)];
@@ -587,8 +596,22 @@ function manualLinks_() {
 function transcripts_(b, s) {
   var fam = families_(bookings_(), intakeRows_());
   var names = {};
-  fam.list.forEach(function (f) { names[f.key] = (f.parents[0] || f.emails[0] || f.key) + (f.children.length ? ' · ' + f.children.join(', ') : ''); });
-  return { ok: true, transcripts: tIndex_(fam), familyNames: names };
+  fam.list.forEach(function (f) { names[f.key] = (f.children.length ? f.children.join(', ') + ' · ' : '') + (f.parents[0] || f.emails[0] || f.key); });
+  var list = tIndex_(fam), c = CacheService.getScriptCache(), n = 0;
+  list.forEach(function (t) {                                // a peek at unfiled ones, so "Meeting started" isn't a mystery
+    if (t.fam || t.dismissed || n >= 25) return;
+    var k = 'tpv_' + t.id, hit = c.get(k);
+    if (!hit) {
+      n++;
+      var txt = ''; try { var d = DocumentApp.openById(t.id), tabs = d.getTabs(); txt = tabs.length ? tabs[0].asDocumentTab().getBody().getText() : d.getBody().getText(); } catch (x) {}
+      var empty = /summary wasn't produced|wasn't enough conversation/i.test(txt);
+      var m = txt.match(/Summary\s*\n([\s\S]{0,400})/), peek = empty ? '' : (m ? m[1] : txt.slice(0, 300)).replace(/\s+/g, ' ').trim().slice(0, 220);
+      hit = JSON.stringify({ empty: empty, peek: peek }); try { c.put(k, hit, 21600); } catch (x) {}
+    }
+    var o = JSON.parse(hit); t.empty = o.empty; t.peek = o.peek;
+    if (!o.empty) { var g = guessClient_(t.meeting + ' ' + o.peek, fam); if (g) t.suggest = g.f.key; }   // name in title or summary
+  });
+  return { ok: true, transcripts: list, familyNames: names };
 }
 
 function transcript_(b, s) {
@@ -613,6 +636,8 @@ function transcript_(b, s) {
 function linkTranscript_(b, s) {
   var id = String(b.id || ''), key = String(b.key || '');
   if (!tIndex_().some(function (x) { return x.id === id; })) return { ok: false, message: 'Transcript not found.' };
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
   var sh = tab_('Transcript links', LINK_HEADERS), n = sh.getLastRow() - 1;
   if (n > 0) {
     var ids = sh.getRange(2, 1, n, 1).getValues().map(function (r) { return String(r[0]); });
@@ -620,6 +645,7 @@ function linkTranscript_(b, s) {
     if (i >= 0) sh.deleteRow(i + 2);
   }
   if (key) sh.appendRow([id, key, s.u, new Date()]);
+  } finally { lock.releaseLock(); }
   bust_();
   audit_(s.u, 'link-transcript', id + ' → ' + (key || 'auto'));
   return { ok: true };
@@ -1541,7 +1567,13 @@ function search_(b, s) {
     });
     var tr = tIndex_(fam), tHits = {};
     try { var it3 = DriveApp.searchFiles("fullText contains '" + qq + "' and title contains 'Notes by Gemini' and trashed = false"), j = 0; while (it3.hasNext() && j < 100) { tHits[it3.next().getId()] = 1; j++; } } catch (x) {}
-    tr.forEach(function (t) { if (tHits[t.id] || has(t.meeting)) res.push({ type: 'Transcript', title: t.meeting, sub: Utilities.formatDate(new Date(t.when), tz_(), 'd MMM yyyy') + (t.fam ? ' · ' + (famName[t.fam] || '') : ' · not filed'), href: '#transcript/' + encodeURIComponent(t.id) }); });
+    var later = [];
+    tr.forEach(function (t) {
+      if (!(tHits[t.id] || has(t.meeting))) return;
+      var o = { type: 'Transcript', title: t.meeting, sub: Utilities.formatDate(new Date(t.when), tz_(), 'd MMM yyyy') + (t.fam ? ' · ' + (famName[t.fam] || '') : t.dismissed ? ' · not a client session' : ' · not filed'), href: '#transcript/' + encodeURIComponent(t.id) };
+      (t.dismissed ? later : res).push(o);
+    });
+    res = res.concat(later);
   }
   audit_(s.u, 'search', q);
   return { ok: true, q: q, results: res.slice(0, 120) };
@@ -1565,7 +1597,8 @@ function prep_(b, s) {
   L.push('Child: ' + childLabel + (bk[0] && bk[0].age ? ', age ' + bk[0].age : ''));
   if (on('names', true)) L.push('Parents: ' + f.parents.join(', '));
   if (v.school) L.push('School: ' + v.school);
-  L.push('Stage: ' + v.stage + ' · sessions so far: ' + past.length + (next ? ' · next session: ' + fmt(next.start) + ' (session ' + (past.length + 1) + ')' : ''));
+  var held = Math.max(past.length, tr.length);
+  L.push('Stage: ' + v.stage + ' · sessions so far: ' + held + (next ? ' · next session: ' + fmt(next.start) + ' (session ' + (held + 1) + ')' : ''));
   if (v.tags.length) L.push('Tags: ' + v.tags.join(', '));
   if (on('contact', false)) L.push('Contact: ' + f.phones.concat(f.emails).join(', '));
   var intake = intakeRows_().filter(function (x) { return f.intakes.indexOf(x.row) >= 0; })[0];
@@ -1574,7 +1607,7 @@ function prep_(b, s) {
     intake.answers.forEach(function (qa) { L.push('- ' + qa[0] + ': ' + String(qa[1]).replace(/\s+/g, ' ').slice(0, 600)); });
   }
   var catLabel = {}; CLIENT_CATS.forEach(function (c) { catLabel[c[0]] = c[1].replace(/^\d /, ''); });
-  if (on('docs', true)) {
+  if (on('docs', true) && files.some(function (x) { return x.template !== 'prep'; })) {
     L.push(''); L.push('DOCUMENTS (Google Drive – open these links)');
     CLIENT_CATS.forEach(function (c) {
       var fs = files.filter(function (x) { return x.cat === c[0] && x.template !== 'prep'; });
@@ -1586,6 +1619,15 @@ function prep_(b, s) {
   if (on('transcripts', true) && tr.length) {
     L.push(''); L.push('SESSION TRANSCRIPTS (Gemini meeting notes)');
     tr.slice(0, 6).forEach(function (t) { L.push('  • ' + Utilities.formatDate(new Date(t.when), tz_(), 'd MMM yyyy') + ': ' + t.url); });
+  }
+  if (on('summaries', true) && tr.length) {                   // Gemini summaries of the last 2 sessions, so Claude has the content even without Drive access
+    L.push(''); L.push('WHAT HAPPENED IN RECENT SESSIONS (Gemini summaries)');
+    tr.slice(0, 2).forEach(function (t) {
+      var txt = ''; try { var d = DocumentApp.openById(t.id), tabs = d.getTabs(); txt = tabs.length ? tabs[0].asDocumentTab().getBody().getText() : d.getBody().getText(); } catch (x) {}
+      var m = txt.match(/Summary\s*\n([\s\S]*?)(\n\s*(Details|Next steps|Suggested next steps)\b|$)/i), body = (m ? m[1] : txt).replace(/\n{2,}/g, '\n').trim();
+      if (/summary wasn't produced/i.test(body) || !body) return;
+      L.push(''); L.push('— ' + Utilities.formatDate(new Date(t.when), tz_(), 'd MMM yyyy') + ' —'); L.push(body.slice(0, 2500));
+    });
   }
   var notes = notesFor_(f.key, aliasesOf_(fam, f.key)).slice(0, 8);
   if (on('notes', true) && notes.length) {

@@ -1,7 +1,7 @@
 /* Samhithe Admin – service worker.
    Caches only the app shell (this page, icons, logo, fonts) so the portal opens instantly and installs to the home screen.
    It never caches or touches the data requests to Google (script.google.com) – families' data is not stored here. */
-var CACHE = "sam-admin-v5";
+var CACHE = "sam-admin-v6";
 var SHELL = ["./", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/apple-touch-icon.png", "../blog/assets/mark.webp"];
 
 self.addEventListener("install", function (e) {
@@ -19,13 +19,11 @@ self.addEventListener("fetch", function (e) {
   if (req.method !== "GET") return;
   if (/(^|\.)google\.com$|googleusercontent\.com$/.test(url.hostname) && !/^fonts\./.test(url.hostname)) return;   // data: always live, never cached
 
-  // The page itself: show the cached copy instantly, refresh it in the background for next time.
+  // The page itself: always the latest version when online (so updates show at once); the saved copy only when offline.
   if (req.mode === "navigate" && url.origin === location.origin) {
     e.respondWith(caches.open(CACHE).then(function (c) {
-      return c.match("./").then(function (hit) {
-        var net = fetch(req).then(function (r) { if (r.ok) c.put("./", r.clone()); return r; });
-        return hit ? (e.waitUntil(net.catch(function () {})), hit) : net;
-      });
+      return fetch(req, { cache: "no-store" }).then(function (r) { if (r.ok) c.put("./", r.clone()); return r; })
+        .catch(function () { return c.match("./").then(function (hit) { return hit || Response.error(); }); });
     }));
     return;
   }

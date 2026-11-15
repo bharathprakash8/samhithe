@@ -63,7 +63,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.2}
 .grid>.card+.card{margin-top:0}
 @media(max-width:699px){.grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.grid.three .stat{padding:12px 10px}.grid.three .stat b{font-size:24px}.grid.three .stat span{font-size:12px;line-height:1.3;display:block}}
 .row[style*="flex-wrap"]>.grow{flex:1 1 240px}
-.chips{scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chips{scrollbar-width:none;margin-top:8px}.chips::-webkit-scrollbar{display:none}
 .kmove{margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:12.5px;padding:4px 6px;width:100%;color:var(--ink-2)}
 .item .grow{flex:1;min-width:0}
 .grid{display:grid;gap:12px}
@@ -192,6 +192,7 @@ mark{background:#FFE9A8;padding:0 2px;border-radius:3px}
 .kcard .t{font-weight:600;color:var(--ink);text-decoration:none}.kcard .t:hover{color:var(--clay)}.kcard .s{font-size:12.5px;color:var(--ink-2)}
 .kcard .pill{align-self:flex-start}
 .kcard.drag{opacity:.4}
+@media(max-width:699px){.kanban{grid-auto-flow:row;grid-auto-columns:auto;overflow:visible}.kcol{min-height:0}.kcol:not(:has(.kcard)){padding:8px 10px}}
 .grid-c{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.3fr;gap:6px;margin-top:6px}
 .grid-c input,.grid-file select{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--paper);font-size:14.5px;width:100%;min-width:0}
 .grid-file{display:grid;grid-template-columns:1.6fr 1fr auto auto;gap:8px;align-items:center;margin-top:12px}
@@ -628,7 +629,13 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
       if (action && isAdmin()) {               // deep links from reminders: #family/<key>/new-hypotheses, #family/<key>/new-session/<yyyy-mm-dd>
         var r0 = S.cache[ck], nm = r0.family.children.join(", ") || r0.family.parents[0];
         history.replaceState(null, "", "#family/" + encodeURIComponent(key));
-        uploadModal(r0.family.key, { name: nm, sessions: sessionOptions(r0), session: arg || "", cat: action === "new-session" ? "notes" : "intake", onDone: function () { delete S.cache[ck]; S.crm = null; familyView(key); } });
+        var tpl = action === "new-session" ? "session" : "hypotheses", when = arg ? ymdLabel(arg) : "";
+        var mm = modal('<h2 style="font-size:22px">' + (tpl === "session" ? "Session notes for " + esc(nm) + (when ? " – " + esc(when) : "") : "Hypotheses for " + esc(nm)) + "</h2>" +
+          '<p class="muted" style="margin-top:6px">' + (tpl === "session" ? "Creates a Google Doc in " + esc(nm) + "’s Session notes folder, with the Gemini notes from that session already copied in." : "Creates a Google Doc in " + esc(nm) + "’s Intake & hypotheses folder, pre-filled with the intake answers.") +
+          " If it already exists, the same doc opens.</p>" +
+          '<div class="btns" style="margin-top:16px"><button class="btn p" id="mk">Create Google Doc</button><button class="btn o" id="alt">Upload a file instead</button></div>');
+        mm.querySelector("#mk").onclick = function () { createDocFlow(r0.family.key, tpl, arg || "", this, function () { mm.remove(); delete S.cache[ck]; S.crm = null; familyView(key); }); };
+        mm.querySelector("#alt").onclick = function () { mm.remove(); uploadModal(r0.family.key, { name: nm, sessions: sessionOptions(r0), session: arg || "", cat: tpl === "session" ? "notes" : "intake", onDone: function () { delete S.cache[ck]; S.crm = null; familyView(key); } }); };
       }
       if (had) fresh.then(function (changed) {
         if (changed && location.hash === "#family/" + encodeURIComponent(key) && !document.querySelector(".main textarea:focus,.modal")) renderFamily(S.cache[ck]);
@@ -691,13 +698,17 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   }
 
   /* ── Transcripts ── */
+  function trIndex() {                       // transcript list + family names, refreshed every 3 minutes
+    if (S.cache.tr && Date.now() - (S.cache.trAt || 0) < 180000) return Promise.resolve(S.cache.tr);
+    return api("transcripts").then(function (r) { if (!r.ok) throw new Error(r.message); S.cache.tr = r; S.cache.trAt = Date.now(); return r; });
+  }
   function tItem(t) {
     return '<a class="item" href="#transcript/' + encodeURIComponent(t.id) + '"><div class="when"><b>' + fmt(t.when, { day: "numeric" }) + "</b><small>" + fmt(t.when, { month: "short" }) + '</small></div><div class="grow"><div class="t">' + esc(t.meeting) +
       '</div><div class="s">' + fmt(t.when, { weekday: "short", year: "numeric" }) + ", " + dTime(t.when) + "</div></div></a>";
   }
   function transcriptsView() {
     loading("transcripts");
-    var p = S.cache.tr ? Promise.resolve(S.cache.tr) : api("transcripts").then(function (r) { if (!r.ok) throw new Error(r.message); S.cache.tr = r; return r; });
+    var p = trIndex();
     Promise.all([load(), p]).then(function (res) {
       var r = res[1], all = r.transcripts, names = r.familyNames, f = S.tFilter;
       var list = all.filter(function (t) {
@@ -715,7 +726,11 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
       if (grouped) {
         var groups = {}; list.forEach(function (t) { (groups[t.fam] = groups[t.fam] || []).push(t); });
         Object.keys(groups).forEach(function (k) { html += '<p class="small muted" style="margin:16px 2px 6px;font-weight:700">' + esc(names[k] || k) + ' · <a href="#family/' + encodeURIComponent(k) + '">family</a></p>' + groups[k].map(tItem).join(""); });
-      } else html += list.map(function (t) { return tItem(t).replace('<div class="s">', '<div class="s">' + (t.fam ? esc(names[t.fam] || "") + " · " : t.dismissed ? "Not a client session · " : '<b style="color:var(--warn)">Not filed</b> · ')); }).join("");
+      } else html += list.map(function (t) {
+        var extra = !t.fam && !t.dismissed ? (t.empty ? '<div class="s"><b>Empty recording</b> – Gemini captured nothing</div>' : (t.peek ? '<div class="s" style="white-space:normal">' + esc(t.peek) + "</div>" : "") +
+          (t.suggest && names[t.suggest] ? '<div class="s" style="color:var(--leaf);font-weight:600">Looks like: ' + esc(names[t.suggest]) + "</div>" : "")) : "";
+        return tItem(t).replace('<div class="s">', '<div class="s">' + (t.fam ? esc(names[t.fam] || "") + " · " : t.dismissed ? "Not a client session · " : '<b style="color:var(--warn)">Not filed</b> · ')).replace("</div></div></a>", "</div>" + extra + "</div></a>");
+      }).join("");
       shell("transcripts", html);
       [].forEach.call(root.querySelectorAll("[data-c]"), function (c) { c.onclick = function () { S.tFilter = c.dataset.c; transcriptsView(); }; });
       $("#sf").onsubmit = function (ev) {
@@ -729,16 +744,18 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
 
   function transcriptView(id) {
     loading("transcripts");
-    var p = S.cache.tr ? Promise.resolve(S.cache.tr) : api("transcripts").then(function (r) { if (!r.ok) throw new Error(r.message); S.cache.tr = r; return r; });
+    var p = trIndex();
     var tk = "t:" + id, tp = S.cache[tk] ? Promise.resolve(S.cache[tk]) : api("transcript", { id: id }).then(function (r) { if (r.ok) S.cache[tk] = r; return r; });
     Promise.all([p, tp]).then(function (res) {
       var idx = res[0], r = res[1]; if (!r.ok) throw new Error(r.message);
       var t = r.transcript, info = idx.transcripts.filter(function (x) { return x.id === id; })[0] || t, names = idx.familyNames;
       var opts = '<option value="">— Not filed —</option><option value="none"' + (info.dismissed ? " selected" : "") + ">Not a client session (school, partner, internal)</option>" +
-        Object.keys(names).sort(function (a, b) { return names[a] < names[b] ? -1 : 1; }).map(function (k) { return '<option value="' + esc(k) + '"' + (info.fam === k ? " selected" : "") + ">" + esc(names[k]) + "</option>"; }).join("");
+        Object.keys(names).sort(function (a, b) { return names[a].toLowerCase() < names[b].toLowerCase() ? -1 : 1; }).map(function (k) { return '<option value="' + esc(k) + '"' + (info.fam === k ? " selected" : "") + ">" + esc(names[k]) + "</option>"; }).join("");
       var hl = S.tHits && S.tq ? new RegExp("(" + S.tq.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&") + ")", "gi") : null;
       var html = '<a class="back" href="#transcripts">← Transcripts</a><h1 class="h1">' + esc(t.meeting) + '</h1><p class="sub">' + dLong(t.when) + ", " + dTime(t.when) + "</p>" +
         '<div class="card"><div class="field" style="margin-top:0"><label for="lk">Family</label><select id="lk">' + opts + "</select></div>" +
+        (!info.fam && !info.dismissed && info.suggest && names[info.suggest] ? '<p class="small" style="margin-top:8px">Looks like <b>' + esc(names[info.suggest]) + '</b> · <button class="linkbtn" id="sg">File it there</button></p>' : "") +
+        (!info.fam && !info.dismissed && info.empty ? '<p class="small" style="margin-top:8px">Gemini captured nothing in this meeting · <button class="linkbtn" id="nc0">Mark as not a client session</button></p>' : "") +
         '<div class="btns" style="margin-top:10px">' + (info.fam ? '<a class="btn o sm" href="#family/' + encodeURIComponent(info.fam) + '">Open family</a>' : "") + '<a class="btn o sm" href="' + esc(t.url) + '" target="_blank" rel="noopener">Open in Google Docs</a></div></div>' +
         '<div class="tabs">' + r.tabs.map(function (x, i) { return '<button class="chip' + (i === 0 ? " on" : "") + '" data-t="' + i + '">' + esc(x.title) + "</button>"; }).join("") + "</div>" +
         r.tabs.map(function (x, i) { var body = esc(x.text.trim() || "(empty)"); if (hl) body = body.replace(hl, "<mark>$1</mark>"); return '<div class="card tx" data-tb="' + i + '"' + (i ? " hidden" : "") + ">" + body + "</div>"; }).join("");
@@ -749,12 +766,20 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
           [].forEach.call(root.querySelectorAll("[data-tb]"), function (x) { x.hidden = x.dataset.tb !== b.dataset.t; });
         };
       });
-      $("#lk").onchange = function () {
-        var v = this.value, sel = this; sel.disabled = true;
+      var fileAs = function (v) {
+        var sel = $("#lk"); sel.disabled = true;
+        // update our copy at once, then jump to the next unfiled transcript (no full reload)
+        idx.transcripts.forEach(function (x) { if (x.id === id) { x.fam = v && v !== "none" ? v : null; x.dismissed = v === "none"; } });
+        var next = (S.tFilter === "unlinked" || !info.fam) ? idx.transcripts.filter(function (x) { return !x.fam && !x.dismissed && x.id !== id; })[0] : null;
         api("linkTranscript", { id: id, key: v }).then(function (x) {
-          if (!x.ok) throw new Error(x.message); delete S.cache.tr; S.d = null; toast(v ? "Filed" : "Unfiled"); transcriptView(id);
-        }).catch(function (e) { sel.disabled = false; toast(e.message); });
+          if (!x.ok) throw new Error(x.message); S.d = null; S.crm = null; delete S.cache["f:" + v];
+        }).catch(function (e) { delete S.cache.tr; toast(e.message); });
+        toast(v ? (v === "none" ? "Marked not a client session" : "Filed") + (next ? " · next one" : "") : "Unfiled");
+        if (v && next) location.hash = "#transcript/" + encodeURIComponent(next.id); else transcriptView(id);
       };
+      $("#lk").onchange = function () { fileAs(this.value); };
+      if ($("#sg")) $("#sg").onclick = function () { fileAs(info.suggest); };
+      if ($("#nc0")) $("#nc0").onclick = function () { fileAs("none"); };
     }).catch(function (e) { fail("transcripts", e); });
   }
 
@@ -1089,7 +1114,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
 
   /* ── Prep with Claude ── */
   function prepModal(key, name) {
-    var opts = [["names", "Names (child and parents)", true], ["intake", "Intake form answers", true], ["docs", "Links to all documents", true], ["transcripts", "Transcript links", true],
+    var opts = [["names", "Names (child and parents)", true], ["intake", "Intake form answers", true], ["docs", "Links to all documents", true], ["summaries", "What happened in the last 2 sessions (Gemini summaries)", true], ["transcripts", "Transcript links", true],
       ["notes", "My recent notes", true], ["fulltext", "Full text of hypotheses & session notes (longer)", false], ["contact", "Phone and email", false]];
     var m = modal('<h2 style="font-size:22px">Prep the next session with Claude</h2><p class="small muted">Collects ' + esc(name) + '’s basics and links to every document, ready to paste into Claude. Claude can open the Drive links only if Google Drive is connected in Nidhi’s Claude account – otherwise tick “Full text”.</p>' +
       '<div class="stack" style="margin-top:12px">' + opts.map(function (o) { return '<label class="check" style="margin-top:4px"><input type="checkbox" data-o="' + o[0] + '"' + (o[2] ? " checked" : "") + " /> <span>" + esc(o[1]) + "</span></label>"; }).join("") + "</div>" +
