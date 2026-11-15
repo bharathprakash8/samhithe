@@ -33,3 +33,10 @@ Preview the flow with sample data at `/booking/?demo=1`.
 2. At your domain registrar, add A records for `@` → `185.199.108.153`, `185.199.109.153`,
    `185.199.110.153`, `185.199.111.153`, and a CNAME for `www` → `bharathprakash8.github.io`.
 3. Once DNS resolves, tick **Enforce HTTPS**.
+
+## Admin portal (www.samhithe.in/admin)
+`admin/index.html` + the Apps Script in `apps-script/admin/` (see its `SETUP.md`). Besides bookings, availability and
+transcripts it is a small CRM for Nidhi: client profiles with every document in Drive, a pipeline with follow-ups,
+school accounts, reminders, smart search, an Inbox folder that files documents automatically, and a
+"Prep next session with Claude" pack. Documents are never stored twice in Drive.
+

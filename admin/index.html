@@ -31,7 +31,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.2}
 .small{font-size:13.5px}
 
 /* layout */
-.shell{display:grid;grid-template-columns:1fr;min-height:100vh}
+.shell{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
 .side{display:none}
 .top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;background:rgba(253,248,245,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
@@ -46,7 +46,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.2}
 .bnav a.on,.side a.on{color:var(--clay);background:var(--clay-soft)}
 .bnav svg,.side svg{width:22px;height:22px}
 @media(min-width:900px){
-  .shell{grid-template-columns:230px 1fr}
+  .shell{grid-template-columns:230px minmax(0,1fr)}
   .side{display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;padding:18px 14px;border-right:1px solid var(--line);background:#fff}
   .side .brand{margin:0 6px 20px}
   .side a{flex-direction:row;gap:12px;font-size:15px;padding:11px 14px;justify-content:flex-start}
@@ -60,6 +60,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.2}
 .sub{color:var(--ink-2);margin-bottom:18px}
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
 .card+.card,.stack>*+*{margin-top:12px}
+.grid>.card+.card{margin-top:0}
+.item .grow{flex:1;min-width:0}
 .grid{display:grid;gap:12px}
 @media(min-width:700px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
 .sec{font-family:var(--serif);font-size:21px;margin:26px 0 10px}
@@ -161,6 +163,35 @@ mark{background:#FFE9A8;padding:0 2px;border-radius:3px}
 .pill.x{background:#EEE7E1;color:#7c6f66;text-decoration:line-through}
 .menu a{display:flex;align-items:center;gap:14px}
 .menu svg{width:22px;height:22px;color:var(--clay);flex:none}
+.ftype{flex:none;min-width:46px;height:36px;padding:0 6px;border-radius:10px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:var(--ink-2);letter-spacing:.02em}
+.sub3{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);margin:18px 2px 8px}
+.folderc{display:flex;align-items:center;gap:12px;width:100%;margin:0!important;cursor:pointer}
+.folderc:hover{border-color:#d9c6b6}
+.nudge .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--ink-2)}
+.nudge.bad .dot{background:var(--bad)}.nudge.wait .dot{background:var(--warn)}.nudge.blue .dot{background:#2F6DB5}.nudge.ok .dot{background:var(--leaf)}
+.nudge .xbtn{flex:none}
+.crmbar .field input,.crmbar .field select{padding:9px 12px;font-size:15px}
+.drop{display:block;margin-top:14px;border:2px dashed #D9C6B6;border-radius:16px;padding:26px 16px;text-align:center;background:var(--paper);cursor:pointer}
+.drop.on{border-color:var(--clay);background:var(--clay-soft)}
+.tl{padding:6px 18px}
+.tli{display:flex;gap:14px;padding:11px 0;border-top:1px solid var(--line)}
+.tli:first-child{border-top:0}
+.tld{flex:none;width:92px;font-size:13px;color:var(--ink-2);padding-top:2px}
+.kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(165px,1fr);gap:12px;overflow-x:auto;padding-bottom:10px}
+.kcol{background:var(--paper-2);border-radius:16px;padding:10px;min-height:300px;display:flex;flex-direction:column;gap:8px}
+.kcol.over{outline:2px dashed var(--clay);outline-offset:-4px}
+.kcol h2{font-family:var(--sans);font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px;padding:4px 4px 2px}
+.kcol h2 .pill{background:#fff}
+.kcard{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-decoration:none;color:var(--ink);cursor:grab}
+.kcard .t{font-weight:600}.kcard .s{font-size:12.5px;color:var(--ink-2)}
+.kcard .pill{align-self:flex-start}
+.kcard.drag{opacity:.4}
+.grid-c{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.3fr;gap:6px;margin-top:6px}
+.grid-c input,.grid-file select{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--paper);font-size:14.5px;width:100%;min-width:0}
+.grid-file{display:grid;grid-template-columns:1.6fr 1fr auto auto;gap:8px;align-items:center;margin-top:12px}
+@media(max-width:620px){.grid-c{grid-template-columns:1fr 1fr}.grid-file{grid-template-columns:1fr 1fr}.grid-file select{grid-column:1/-1}}
+.item.tplb{border:1px solid var(--line);cursor:pointer;font:inherit;color:inherit}
+.item.tplb:hover{border-color:var(--clay)}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:60;box-shadow:0 8px 30px rgba(0,0,0,.2)}
 @media(min-width:900px){.toast{bottom:30px}}
 </style>
@@ -214,6 +245,11 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     availability: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     enquiries: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg>',
     templates: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    pipeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/></svg>',
+    schools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c1.6 1.6 3.6 2.5 6 2.5s4.4-.9 6-2.5v-4.5"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+    tofile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg>',
+    drivecheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
     users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>'
   };
 
@@ -246,7 +282,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   function strip(d) { var x = Object.assign({}, d); delete x.now; return x; }
   function signOut(silent) {
     if (!silent && S.token) api("logout").catch(function () {});
-    S.token = null; S.user = null; S.d = null; S.cache = {}; S.prefetched = false;
+    S.token = null; S.user = null; S.d = null; S.cache = {}; S.prefetched = false; S.crm = null; S.sRes = null;
     try { [localStorage, sessionStorage].forEach(function (x) { ["sam_admin_t", "sam_admin_u", "sam_admin_d"].forEach(function (k) { x.removeItem(k); }); }); } catch (e) {}
     if (!silent) location.hash = "";
     route();
@@ -313,14 +349,18 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
 
   /* ── app shell ── */
   function navItems(full) {
-    var items = [["today", "Today"], ["bookings", "Bookings"], ["families", "Families"]];
+    var items = [["today", "Today"], ["families", "Clients"]];
+    if (full) items.push(["pipeline", "Pipeline"], ["schools", "Schools"]);
+    items.push(["bookings", "Bookings"]);
     if (isAdmin()) items.push(["transcripts", "Transcripts"]);
     if (!full) { items.push(["more", "More"]); return items; }
+    items.push(["search", "Search"]);
+    if (isAdmin()) items.push(["tofile", "To file"]);
     items.push(["availability", "Availability"], ["enquiries", "School enquiries"]);
-    if (isAdmin()) items.push(["templates", "Message templates"], ["users", "Users"]);
+    if (isAdmin()) items.push(["templates", "Message templates"], ["users", "Users"], ["drivecheck", "Drive check"]);
     return items;
   }
-  var MORE = ["more", "availability", "enquiries", "templates", "users"];
+  var MORE = ["more", "pipeline", "schools", "search", "tofile", "availability", "enquiries", "templates", "users", "drivecheck"];
   function nav(cur, full) {
     return navItems(full).map(function (i) {
       var on = cur === i[0] || (!full && i[0] === "more" && MORE.indexOf(cur) >= 0);
@@ -330,7 +370,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     var brand = '<a class="brand" href="#today"><img src="../blog/assets/mark.webp" alt="" /><span><b>Samhithe</b><span>ADMIN</span></span></a>';
     root.innerHTML = '<div class="shell"><aside class="side">' + brand + nav(cur, true) +
       '<div class="foot">Signed in as <b>' + esc(S.user.name) + '</b><br><button class="linkbtn" data-act="pw">Change password</button> · <button class="linkbtn" data-act="out">Sign out</button></div></aside>' +
-      '<div><header class="top">' + brand + '<span class="sp"></span><span class="who">' + esc(first(S.user.name)) + '</span><button class="btn o sm" data-act="out">Sign out</button></header>' +
+      '<div><header class="top">' + brand + '<span class="sp"></span><a class="btn o sm" href="#search" aria-label="Search">' + ICON.search.replace("<svg", '<svg width="18" height="18"') + '</a><span class="who">' + esc(first(S.user.name)) + '</span><button class="btn o sm" data-act="out">Sign out</button></header>' +
       '<main class="main" id="main">' + inner + '</main></div></div><nav class="bnav" style="grid-template-columns:repeat(' + navItems(false).length + ',1fr)">' + nav(cur, false) + "</nav>";
     [].forEach.call(root.querySelectorAll('[data-act="out"]'), function (b) { b.onclick = function () { signOut(); }; });
     [].forEach.call(root.querySelectorAll('[data-act="pw"]'), function (b) { b.onclick = changePw; });
@@ -366,6 +406,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
         '<a class="card stat" href="#bookings" data-f="upcoming"><b>' + todays.length + "</b><span>Sessions today</span></a>" +
         (isAdmin() ? '<a class="card stat" href="#transcripts"><b>' + (d.unlinkedTranscripts || 0) + "</b><span>Transcripts to file</span></a>" :
           '<div class="card stat"><b>' + newEnq.length + "</b><span>New school enquiries</span></div>") + "</div>";
+      html += '<div id="nz"></div>';
       if (toVerify.length || problems.length) {
         html += '<h2 class="sec">Payments to check</h2>' + problems.concat(toVerify).map(bookingItem).join("");
       }
@@ -391,6 +432,18 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
       $("#rf").onclick = function () { var b = this; b.textContent = "Refreshing…"; load(true).then(function () { todayView(); }).catch(function (e) { toast(e.message); }); };
       bindItems();
       [].forEach.call(root.querySelectorAll("[data-f]"), function (a) { a.onclick = function () { S.filter = a.dataset.f; }; });
+      var nz = function (c) {
+        var box = $("#nz"); if (!box || location.hash.replace("#", "") !== "today" && location.hash) return;
+        var list = c.nudges.filter(function (n) { return n.icon !== "rupee" || !/^Payment unverified/.test(n.title); });   // payments have their own list below
+        var td = today10(), due = c.clients.filter(function (x) { return x.followUp && x.followUp <= td && x.stage !== "Closed"; }).length + c.schools.filter(function (x) { return x.followUp && x.followUp <= td; }).length;
+        box.innerHTML = '<div class="grid three" style="margin-top:12px"><a class="card stat" href="#pipeline"><b' + (due ? ' style="color:var(--bad)"' : "") + ">" + due + "</b><span>Follow-ups due</span></a>" +
+          '<a class="card stat" href="#pipeline"><b>' + c.clients.filter(function (x) { return x.stage === "Ongoing" || x.stage === "First session"; }).length + "</b><span>Active clients</span></a>" +
+          (isAdmin() ? '<a class="card stat" href="#tofile"><b' + (c.toFile ? ' style="color:var(--warn)"' : "") + ">" + c.toFile + "</b><span>Files to file</span></a>" : '<a class="card stat" href="#schools"><b>' + c.schools.length + "</b><span>Schools</span></a>") + "</div>" +
+          (list.length ? '<h2 class="sec">Needs your attention</h2><div class="stack">' + list.slice(0, 12).map(nudgeHtml).join("") + "</div>" + (list.length > 12 ? '<p class="small muted" style="margin-top:8px">+ ' + (list.length - 12) + " more – see Pipeline and Schools.</p>" : "") : "");
+        bindNudges();
+      };
+      crmLoad().then(nz).catch(function () {});
+      crmSync().then(function (r) { if (r && !r.skipped && (r.filed || r.indexed || r.pending)) crmLoad(true).then(nz).catch(function () {}); });
       setTimeout(prefetch, 400);
     }).catch(function (e) { fail("today", e); });
   }
@@ -527,60 +580,105 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   function famName(f) { return (f.parents[0] || f.emails[0] || "Family") + (f.children.length ? " · " + f.children.join(", ") : ""); }
   function familiesView() {
     loading("families");
-    load().then(function (d) {
-      var q = (S.famQ || "").toLowerCase();
-      var list = d.families.filter(function (f) { return !q || (f.parents.concat(f.children, f.emails, f.phones).join(" ").toLowerCase().indexOf(q) >= 0); })
-        .sort(function (a, b) { return (b.next || b.last || "") > (a.next || a.last || "") ? 1 : -1; });
-      shell("families", '<h1 class="h1">Families</h1><p class="sub">' + d.families.length + " families from intake forms and bookings</p>" +
-        '<input class="search" id="q" placeholder="Search parent, child, phone, email" value="' + esc(S.famQ || "") + '" />' +
+    Promise.all([load(), crmLoad().catch(function () { return null; })]).then(function (res) {
+      var d = res[0], c = res[1], q = (S.famQ || "").toLowerCase(), st = S.famStage || "Active", info = {};
+      if (c) c.clients.forEach(function (x) { info[x.key] = x; });
+      var fams = (c ? c.clients.map(function (x) { return { key: x.key, children: x.child ? x.child.split(", ") : [], parents: x.parent ? x.parent.split(", ") : [], emails: [], phones: [], next: x.next, last: x.last, bookings: { length: x.sessions }, intakes: { length: x.intake ? 1 : 0 } }; }) : d.families);
+      if (!c) fams = d.families;
+      var all = d.families.reduce(function (m, f) { m[f.key] = f; return m; }, {});
+      var list = fams.filter(function (f) {
+        var x = info[f.key] || {}, full = all[f.key] || f;
+        if (q && (full.parents.concat(full.children, full.emails || [], full.phones || [], [x.school || ""], x.tags || []).join(" ").toLowerCase().indexOf(q) < 0)) return false;
+        if (st === "Active" && (x.stage === "Closed" || x.stage === "Paused")) return false;
+        if (st !== "Active" && st !== "All" && x.stage !== st) return false;
+        return true;
+      }).sort(function (a, b) { return (b.next || b.last || "") > (a.next || a.last || "") ? 1 : -1; });
+      var chip = function (k) { return '<button class="chip' + (st === k ? " on" : "") + '" data-st="' + esc(k) + '">' + esc(k) + "</button>"; };
+      shell("families", '<div class="row" style="flex-wrap:wrap"><div class="grow"><h1 class="h1">Clients</h1><p class="sub" style="margin-bottom:8px">' + fams.length + " families from intake forms, bookings and enquiries</p></div>" + (c ? '<button class="btn p sm" id="nc">+ New client</button>' : "") + "</div>" +
+        (c ? '<div class="chips">' + ["Active"].concat(c.stages, ["All"]).map(chip).join("") + "</div>" : "") +
+        '<input class="search" id="q" placeholder="Search parent, child, phone, email, school, tag" value="' + esc(S.famQ || "") + '" />' +
         (list.length ? list.map(function (f) {
+          var x = info[f.key] || {}, td = today10();
           return '<a class="item" href="#family/' + encodeURIComponent(f.key) + '"><div class="grow"><div class="t">' + esc(f.children.join(", ") || "—") + ' <span class="muted" style="font-weight:400">· ' + esc(f.parents.join(", ")) + '</span></div><div class="s">' +
-            (f.next ? "Next: " + dDate(f.next) : f.last ? "Last: " + dDate(f.last) : "No sessions booked online") + " · " + f.bookings.length + " session" + (f.bookings.length === 1 ? "" : "s") + (f.intakes.length ? " · intake ✓" : "") + "</div></div></a>";
-        }).join("") : '<p class="empty">No families match.</p>'));
+            (f.next ? "Next: " + dDate(f.next) : f.last ? "Last: " + dDate(f.last) : "No sessions booked online") + " · " + f.bookings.length + " session" + (f.bookings.length === 1 ? "" : "s") + (f.intakes.length ? " · intake ✓" : "") + (x.files ? " · " + x.files + " doc" + (x.files === 1 ? "" : "s") : "") + (x.school ? " · " + esc(x.school) : "") + "</div></div>" +
+            (x.followUp && x.followUp <= td ? '<span class="pill bad">Follow up</span>' : "") + (x.stage ? stagePill(x.stage) : "") + "</a>";
+        }).join("") : '<p class="empty">No clients match.</p>'));
+      if ($("#nc")) $("#nc").onclick = newClientModal;
+      [].forEach.call(root.querySelectorAll("[data-st]"), function (b) { b.onclick = function () { S.famStage = b.dataset.st; familiesView(); }; });
       var qi = $("#q"); qi.oninput = function () { S.famQ = qi.value; clearTimeout(S.t); S.t = setTimeout(function () { familiesView(); var n = $("#q"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); };
     }).catch(function (e) { fail("families", e); });
   }
 
-  function familyView(key) {
+  function familyView(key, action, arg) {
     var ck = "f:" + key, had = S.cache[ck];
+    if (S.famKey !== key) { S.famKey = key; S.famTab = "overview"; }
     if (!had) loading("families");
     var fresh = api("family", { key: key }).then(function (r) {
       if (!r.ok) throw new Error(r.message);
       var changed = JSON.stringify(r) !== JSON.stringify(S.cache[ck]); S.cache[ck] = r; return changed;
     });
-    Promise.all([load(), had ? Promise.resolve() : fresh]).then(function () {
+    Promise.all([load(), had ? Promise.resolve() : fresh, crmLoad().catch(function () {})]).then(function () {
       renderFamily(S.cache[ck]);
+      if (action && isAdmin()) {               // deep links from reminders: #family/<key>/new-hypotheses, #family/<key>/new-session/<yyyy-mm-dd>
+        var r0 = S.cache[ck], nm = r0.family.children.join(", ") || r0.family.parents[0];
+        history.replaceState(null, "", "#family/" + encodeURIComponent(key));
+        uploadModal(r0.family.key, { name: nm, sessions: sessionOptions(r0), session: arg || "", cat: action === "new-session" ? "notes" : "intake", onDone: function () { delete S.cache[ck]; S.crm = null; familyView(key); } });
+      }
       if (had) fresh.then(function (changed) {
         if (changed && location.hash === "#family/" + encodeURIComponent(key) && !document.querySelector(".main textarea:focus,.modal")) renderFamily(S.cache[ck]);
       }).catch(function () {});
     }).catch(function (e) { fail("families", e); });
   }
   function renderFamily(r) {
-    (function () {
-      var f = r.family, ph = f.phones[0] || "";
-      var html = '<a class="back" href="#families">← Families</a><h1 class="h1">' + esc(f.children.join(", ") || f.parents[0]) + '</h1><p class="sub">' + esc(f.parents.join(", ")) + "</p>" +
-        '<div class="card"><dl class="kv"><dt>Phone</dt><dd>' + f.phones.map(function (p) { return '<a href="tel:' + esc(p) + '">' + esc(p) + "</a>"; }).join(", ") + "</dd><dt>Email</dt><dd>" +
-        f.emails.map(function (e) { return '<a href="mailto:' + esc(e) + '">' + esc(e) + "</a>"; }).join(", ") + '</dd></dl><div class="btns" style="margin-top:12px">' +
+    var f = r.family, ph = f.phones[0] || "", c = r.crm || {}, tab = S.famTab || "overview";
+    var name = f.children.join(", ") || f.parents[0] || "Client";
+    var tabs = [["overview", "Overview"]];
+    if (isAdmin()) tabs.push(["docs", "Documents" + (r.files ? " (" + r.files.filter(function (x) { return x.template !== "prep"; }).length + ")" : "")]);
+    tabs.push(["timeline", "Timeline"], ["sessions", "Sessions (" + r.bookings.length + ")"]);
+    if (r.intakes) tabs.push(["intake", "Intake form"]);
+    tabs.push(["notes", "Notes (" + (r.notes || []).length + ")"]);
+    if (!tabs.some(function (t) { return t[0] === tab; })) tab = "overview";
+    var html = '<a class="back" href="#families">← Clients</a><div class="row" style="flex-wrap:wrap;align-items:flex-end"><div class="grow"><h1 class="h1">' + esc(name) + '</h1><p class="sub" style="margin-bottom:6px">' + esc(f.parents.join(", ")) +
+      (c.stage ? " " + stagePill(c.stage) : "") + (c.school ? ' <span class="pill n">' + esc(c.school) + "</span>" : "") + (c.tags || []).map(function (t) { return ' <span class="pill n">' + esc(t) + "</span>"; }).join("") + "</p></div>" +
+      '<div class="btns">' + (isAdmin() ? '<button class="btn o sm" id="up">Upload / new doc</button>' + (c.folderUrl ? '<a class="btn o sm" href="' + esc(c.folderUrl) + '" target="_blank" rel="noopener">Drive folder</a>' : "") +
+        '<button class="btn p sm" id="pp">Prep next session with Claude</button>' : "") + "</div></div>" +
+      '<div class="chips" style="margin-top:12px">' + tabs.map(function (t) { return '<button class="chip' + (t[0] === tab ? " on" : "") + '" data-tab="' + t[0] + '">' + esc(t[1]) + "</button>"; }).join("") + "</div>";
+    if (tab === "overview") {
+      var nextB = r.bookings.filter(function (b) { return b.state !== "Cancelled" && b.start > new Date().toISOString(); }).sort(function (a, b) { return a.start < b.start ? -1 : 1; })[0];
+      html += (nextB ? '<div class="card" style="border-color:var(--clay)"><div class="small muted">Next session</div><div class="t" style="font-size:17px">' + dLong(nextB.start) + ", " + dTime(nextB.start) + "</div>" +
+        '<div class="btns" style="margin-top:8px">' + (nextB.meet ? '<a class="btn o sm" href="' + esc(nextB.meet) + '" target="_blank" rel="noopener">Meet link</a>' : "") + '<a class="btn o sm" href="#booking/' + nextB.row + '">Booking</a></div></div>' : "") +
+        clientHeader(r) +
+        '<div class="card" style="margin-top:12px"><dl class="kv"><dt>Phone</dt><dd>' + (f.phones.map(function (p) { return '<a href="tel:' + esc(p) + '">' + esc(p) + "</a>"; }).join(", ") || "—") + "</dd><dt>Email</dt><dd>" +
+        (f.emails.map(function (e) { return '<a href="mailto:' + esc(e) + '">' + esc(e) + "</a>"; }).join(", ") || "—") + '</dd></dl><div class="btns" style="margin-top:12px">' +
         (ph ? '<a class="btn g sm" href="https://wa.me/' + waNumber(ph) + '?text=' + encodeURIComponent("Hi " + first(f.parents[0]) + ", this is Nidhi from Samhithe. ") + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn o sm" href="tel:' + esc(ph) + '">Call</a>' : "") + "</div></div>";
-      html += '<h2 class="sec">Sessions</h2>' + (r.bookings.length ? r.bookings.sort(function (a, b) { return a.start < b.start ? 1 : -1; }).map(bookingItem).join("") : '<p class="empty">No sessions booked through the website yet.</p>');
-      if (r.transcripts) {
-        html += '<h2 class="sec">Transcripts &amp; meeting notes</h2>' + (r.transcripts.length ? r.transcripts.map(tItem).join("") : '<p class="empty">No Gemini notes linked yet. You can link them from Transcripts.</p>');
+      if (isAdmin()) {
+        var recent = (r.files || []).filter(function (x) { return x.template !== "prep"; }).slice(0, 4);
+        html += '<h2 class="sec">Documents</h2>' + filesHtml(r).split('<h3 class="sub3"')[0] + (recent.length ? recent.map(function (x) { return fileRow(x, (CATS.filter(function (cc) { return cc[0] === x.cat; })[0] || ["", ""])[1]); }).join("") +
+          '<p style="margin-top:8px"><button class="linkbtn" data-tab="docs">All documents</button></p>' : '<p class="empty">No documents yet. Use “Upload / new doc” – hypotheses, session notes and materials all go into this client’s Drive folder.</p>');
       }
-      if (r.intakes) {
-        html += '<h2 class="sec">Intake form' + (r.intakes.length > 1 ? "s" : "") + "</h2>" + (r.intakes.length ? r.intakes.map(function (x, i) {
-          return '<details class="acc"' + (i === 0 ? " open" : "") + "><summary><span>" + esc(x.child || "Child") + (x.age ? ", " + esc(x.age) : "") + '</span><span class="muted small">' + (x.at ? dDate(x.at) : "") + (x.source ? " · " + esc(x.source) : "") + "</span></summary>" +
-            '<div style="padding:4px 0 10px">' + x.answers.map(function (qa) { return '<div class="qa"><div class="q">' + esc(qa[0]) + '</div><div class="a">' + esc(qa[1]) + "</div></div>"; }).join("") + "</div></details>";
-        }).join("") : '<p class="empty">No intake form on file.</p>');
-      }
-      html += '<h2 class="sec">Private notes</h2><div class="card"><div class="field" style="margin-top:0"><textarea id="nt" placeholder="Add a note about this family (only visible in the portal)" style="min-height:90px"></textarea></div><div class="btns" style="margin-top:10px"><button class="btn p sm" id="an">Save note</button></div><div id="nl">' + notesHtml(r.notes) + "</div></div>";
-      shell("families", html);
-      bindItems();
-      $("#an").onclick = function () {
-        var t = $("#nt").value.trim(), b = this; if (!t) return; b.disabled = true;
-        api("addNote", { key: f.key, text: t }).then(function (x) { if (!x.ok) throw new Error(x.message); r.notes = x.notes; $("#nt").value = ""; $("#nl").innerHTML = notesHtml(x.notes); b.disabled = false; toast("Note saved"); })
-          .catch(function (e) { b.disabled = false; toast(e.message); });
-      };
-    })();
+      html += '<h2 class="sec">Latest note</h2>' + ((r.notes || []).length ? notesHtml(r.notes.slice(0, 1)) + '<p style="margin-top:8px"><button class="linkbtn" data-tab="notes">All notes</button></p>' : '<p class="empty">No notes yet.</p>');
+    } else if (tab === "docs") html += filesHtml(r);
+    else if (tab === "timeline") html += timelineHtml(r);
+    else if (tab === "sessions") html += (r.bookings.length ? r.bookings.sort(function (a, b) { return a.start < b.start ? 1 : -1; }).map(bookingItem).join("") : '<p class="empty">No sessions booked through the website yet.</p>');
+    else if (tab === "intake") html += (r.intakes.length ? r.intakes.map(function (x, i) {
+        return '<details class="acc"' + (i === 0 ? " open" : "") + "><summary><span>" + esc(x.child || "Child") + (x.age ? ", " + esc(x.age) : "") + '</span><span class="muted small">' + (x.at ? dDate(x.at) : "") + (x.source ? " · " + esc(x.source) : "") + "</span></summary>" +
+          '<div style="padding:4px 0 10px">' + x.answers.map(function (qa) { return '<div class="qa"><div class="q">' + esc(qa[0]) + '</div><div class="a">' + esc(qa[1]) + "</div></div>"; }).join("") + "</div></details>";
+      }).join("") : '<p class="empty">No intake form on file.</p>');
+    else if (tab === "notes") html += '<div class="card"><div class="field" style="margin-top:0"><textarea id="nt" placeholder="Add a private note about this family (only visible in the portal)" style="min-height:90px"></textarea></div><div class="btns" style="margin-top:10px"><button class="btn p sm" id="an">Save note</button></div><div id="nl">' + notesHtml(r.notes) + "</div></div>";
+    shell("families", html);
+    bindItems();
+    var rer = function () { renderFamily(r); };
+    [].forEach.call(root.querySelectorAll("[data-tab]"), function (b) { b.onclick = function () { S.famTab = b.dataset.tab; rer(); window.scrollTo(0, 0); }; });
+    [].forEach.call(root.querySelectorAll("[data-jump]"), function (b) { b.onclick = function () { S.famTab = "docs"; rer(); var el = document.getElementById("cat-" + b.dataset.jump); if (el) el.scrollIntoView(); }; });
+    if ($("#cs")) bindClientHeader(r, rer);
+    var reload = function () { delete S.cache["f:" + f.key]; S.crm = null; familyView(f.key); };
+    if ($("#up")) $("#up").onclick = function () { uploadModal(f.key, { name: name, sessions: sessionOptions(r), onDone: reload }); };
+    if ($("#pp")) $("#pp").onclick = function () { prepModal(f.key, name); };
+    if ($("#an")) $("#an").onclick = function () {
+      var t = $("#nt").value.trim(), b = this; if (!t) return; b.disabled = true;
+      api("addNote", { key: f.key, text: t }).then(function (x) { if (!x.ok) throw new Error(x.message); r.notes = x.notes; $("#nt").value = ""; $("#nl").innerHTML = notesHtml(x.notes); b.disabled = false; toast("Note saved"); })
+        .catch(function (e) { b.disabled = false; toast(e.message); });
+    };
   }
   function notesHtml(ns) {
     return (ns || []).map(function (n) { return '<div class="note"><div class="m">' + dDate(n.at) + ", " + dTime(n.at) + " · " + esc(n.by) + "</div><p>" + esc(n.text) + "</p></div>"; }).join("");
@@ -790,9 +888,12 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
             (q["Children & Ages"] ? "<dt>Children</dt><dd>" + esc(q["Children & Ages"]) + "</dd>" : "") + (q["Interested In"] ? "<dt>Interested in</dt><dd>" + esc(q["Interested In"]) + "</dd>" : "") +
             "<dt>Best time</dt><dd>" + esc(q["Best Time to Call"] || "Any time") + "</dd>" + (q.Message ? "<dt>Message</dt><dd style=\"white-space:pre-wrap\">" + esc(q.Message) + "</dd>" : "") + "</dl>" +
             '<div class="btns" style="margin-top:12px"><a class="btn g sm" target="_blank" rel="noopener" href="https://wa.me/' + waNumber(q.Phone) + "?text=" + encodeURIComponent("Hi " + first(q["Contact Person"]) + ", this is Nidhi from Samhithe. Thank you for your enquiry for " + q.School + ". ") + '">WhatsApp</a>' +
-            '<a class="btn o sm" href="tel:' + esc(q.Phone) + '">Call</a>' + (q.Email ? '<a class="btn o sm" href="mailto:' + esc(q.Email) + '">Email</a>' : "") + "</div></div>";
+            '<a class="btn o sm" href="tel:' + esc(q.Phone) + '">Call</a>' + (q.Email ? '<a class="btn o sm" href="mailto:' + esc(q.Email) + '">Email</a>' : "") + '<button class="btn o sm" data-mk="' + q.row + '">Open as school account</button></div></div>';
         }).join("") : '<p class="empty">No enquiries yet.</p>');
       shell("enquiries", html);
+      [].forEach.call(root.querySelectorAll("[data-mk]"), function (b) {
+        b.onclick = function () { b.disabled = true; api("schoolFromEnquiry", { row: +b.dataset.mk }).then(function (r) { if (!r.ok) throw new Error(r.message); S.crm = null; location.hash = "#school/" + r.key; }).catch(function (e) { b.disabled = false; toast(e.message); }); };
+      });
       [].forEach.call(root.querySelectorAll("[data-q]"), function (sel) {
         sel.onchange = function () { sel.disabled = true; api("setEnquiry", { row: +sel.dataset.q, status: sel.value }).then(function (r) { if (!r.ok) throw new Error(r.message); sel.disabled = false; toast("Marked " + sel.value); S.d = null; }).catch(function (e) { sel.disabled = false; toast(e.message); }); };
       });
@@ -864,6 +965,426 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     };
   }
 
+  /* ════════════════════════ CRM ════════════════════════ */
+  var CATS = [["intake", "Intake & hypotheses"], ["notes", "Session notes"], ["materials", "Materials"], ["reports", "Reports & letters"]];
+  var SCATS = [["agreements", "Agreements"], ["workshops", "Workshops"], ["invoices", "Invoices"], ["other", "Other"]];
+  var TPLS = [["hypotheses", "Hypotheses", "Pre-filled with the intake answers"], ["session", "Session notes from transcript", "Copies in the Gemini notes for that session"],
+    ["parent", "Parent summary", "Plain-language recap to share"], ["school", "Letter to school", "Uses the school on file"]];
+  var STAGE_PILL = { "Enquiry": "n", "Intake received": "wait", "First session": "wait", "Ongoing": "ok", "Paused": "n", "Closed": "x" };
+  function stagePill(st) { return '<span class="pill ' + (STAGE_PILL[st] || "n") + '">' + esc(st) + "</span>"; }
+  function today10() { return dayKey(new Date().toISOString()).split("/").reverse().join("-"); }    // yyyy-mm-dd in India time
+  function ymdLabel(ymd) { return ymd ? fmt(ymd + "T12:00:00+05:30", { day: "numeric", month: "short", year: "numeric" }) : ""; }
+  function crmLoad(force) {
+    if (S.crm && !force) return Promise.resolve(S.crm);
+    return api("crm", force ? { fresh: 1 } : {}).then(function (r) { if (!r.ok) throw new Error(r.message); S.crm = r; return r; });
+  }
+  function crmSync(force) {          // background: auto-file the Drive Inbox + notice files added in Drive (server runs it at most every 10 min)
+    if (!isAdmin() || S.syncing) return Promise.resolve(null);
+    S.syncing = true;
+    return api("sync", force ? { force: 1 } : {}).then(function (r) { S.syncing = false; if (r && r.ok && !r.skipped && (r.filed || r.indexed)) { S.crm = null; S.cache = {}; } return r; }, function () { S.syncing = false; return null; });
+  }
+  function fileIcon(mime) { return /document/.test(mime) ? "Doc" : /spreadsheet/.test(mime) ? "Sheet" : /presentation/.test(mime) ? "Slides" : /pdf/.test(mime) ? "PDF" : /image/.test(mime) ? "Image" : /audio/.test(mime) ? "Audio" : /video/.test(mime) ? "Video" : "File"; }
+  function fileRow(f, catLabel) {
+    return '<div class="item"><span class="ftype">' + fileIcon(f.mime) + '</span><div class="grow"><div class="t">' + esc(f.title) + '</div><div class="s">' + (catLabel ? esc(catLabel) + " · " : "") +
+      dDate(f.at) + (f.session ? " · session " + ymdLabel(f.session) : "") + (f.source === "auto-filed" ? " · auto-filed" : f.by && f.by !== "drive" ? " · " + esc(f.by) : "") + (f.note ? " · " + esc(f.note) : "") + "</div></div>" +
+      '<a class="btn o sm" href="' + esc(f.url) + '" target="_blank" rel="noopener">Open</a></div>';
+  }
+  function nudgeHtml(n) {
+    return '<div class="item nudge ' + esc(n.kind) + '"><span class="dot" aria-hidden="true"></span><div class="grow"><div class="t">' + esc(n.title) + '</div><div class="s">' + esc(n.sub) + "</div></div>" +
+      '<a class="btn o sm" href="' + esc(n.href) + '">' + esc(n.act) + '</a><button class="xbtn" data-dis="' + esc(n.id) + '" aria-label="Hide this reminder" title="Not needed – hide">×</button></div>';
+  }
+  function bindNudges(after) {
+    [].forEach.call(root.querySelectorAll("[data-dis]"), function (b) {
+      b.onclick = function () { var row = b.closest(".item"); row.style.opacity = ".4"; api("dismiss", { id: b.dataset.dis }).then(function () { S.crm.nudges = S.crm.nudges.filter(function (n) { return n.id !== b.dataset.dis; }); row.remove(); if (after) after(); }).catch(function (e) { row.style.opacity = ""; toast(e.message); }); };
+    });
+  }
+  function readFile(file) {
+    return new Promise(function (ok, no) { var r = new FileReader(); r.onload = function () { ok(String(r.result).split(",")[1] || ""); }; r.onerror = function () { no(new Error("Couldn't read " + file.name)); }; r.readAsDataURL(file); });
+  }
+
+  /* ── New client ── */
+  function newClientModal() {
+    var m = modal('<h2 style="font-size:22px">New client</h2><p class="small muted">For enquiries by phone or WhatsApp. If this family books or fills the intake form later (same phone or email), it stays one client.</p>' +
+      '<form id="nc"><div class="grid two"><div class="field"><label for="n1">Child’s name</label><input id="n1" /></div><div class="field"><label for="n2">Parent’s name</label><input id="n2" /></div>' +
+      '<div class="field"><label for="n3">Phone</label><input id="n3" type="tel" /></div><div class="field"><label for="n4">Email</label><input id="n4" type="email" /></div>' +
+      '<div class="field"><label for="n5">Stage</label><select id="n5">' + S.crm.stages.map(function (x) { return "<option>" + esc(x) + "</option>"; }).join("") + '</select></div><div class="field"><label for="n6">Follow up on</label><input id="n6" type="date" /></div></div>' +
+      '<div class="field"><label for="n7">Note</label><textarea id="n7" style="min-height:80px" placeholder="What they asked about, how they found Samhithe…"></textarea></div>' +
+      '<div class="btns" style="margin-top:16px"><button class="btn p">Add client</button></div></form><div id="mm"></div>');
+    m.querySelector("#nc").onsubmit = function (ev) {
+      ev.preventDefault(); var b = this.querySelector("button"); b.disabled = true; b.textContent = "Adding…";
+      var v = function (id) { return m.querySelector(id).value.trim(); };
+      api("newClient", { child: v("#n1"), parent: v("#n2"), phone: v("#n3"), email: v("#n4"), stage: v("#n5"), followUp: v("#n6"), note: v("#n7") }).then(function (r) {
+        if (!r.ok) throw new Error(r.message); S.d = null; S.crm = null; m.remove(); if (r.message) toast(r.message); location.hash = "#family/" + encodeURIComponent(r.key);
+      }).catch(function (e) { b.disabled = false; b.textContent = "Add client"; m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+  }
+
+  /* ── Upload + templates ── */
+  function uploadModal(owner, opts) {
+    opts = opts || {};
+    var cats = opts.school ? SCATS : CATS, cat = opts.cat || (opts.school ? "agreements" : "materials");
+    var sessions = (opts.sessions || []);
+    var m = modal('<h2 style="font-size:22px">Add to ' + esc(opts.name || "the file") + '</h2><p class="small muted">Saved straight into ' + (opts.school ? "the school’s" : "this client’s") + ' folder in Nidhi’s Google Drive. A file that is already saved anywhere in Samhithe CRM is not added twice.</p>' +
+      '<p class="t" style="margin-top:14px">What is it?</p><div class="chips" id="uc">' + cats.map(function (c) { return '<button type="button" class="chip' + (c[0] === cat ? " on" : "") + '" data-cat="' + c[0] + '">' + esc(c[1]) + "</button>"; }).join("") + "</div>" +
+      (sessions.length ? '<div class="field" style="margin-top:4px"><label for="us">For which session? <span class="muted">(optional)</span></label><select id="us"><option value="">—</option>' + sessions.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === opts.session ? " selected" : "") + ">" + esc(s[1]) + "</option>"; }).join("") + "</select></div>" : "") +
+      '<label class="drop" id="dz"><input type="file" id="uf" multiple hidden /><b>Choose files</b> or drop them here<br><span class="small muted">PDF, Word, images, audio · up to 25 MB each</span></label>' +
+      '<div class="field"><label for="un">Short note <span class="muted">(optional)</span></label><input id="un" placeholder="e.g. worksheet sent home after session 3" /></div>' +
+      '<div id="ul"></div><div class="btns" style="margin-top:14px"><button class="btn p" id="ug" disabled>Upload</button></div>' +
+      (opts.school ? "" : '<h3 style="font-size:19px;margin-top:22px">Or start a Google Doc from a template</h3><p class="small muted">Made once per client (and per session for notes) – asking again opens the same doc.</p><div class="stack" style="margin-top:10px">' +
+        TPLS.map(function (t) { return '<button type="button" class="item tplb" data-tpl="' + t[0] + '" style="width:100%;text-align:left"><span class="ftype">Doc</span><span class="grow"><span class="t" style="display:block">' + esc(t[1]) + '</span><span class="s" style="display:block">' + esc(t[2]) + "</span></span></button>"; }).join("") + "</div>") +
+      '<div id="mm"></div>');
+    var picked = [], busy = false;
+    function show() {
+      m.querySelector("#ul").innerHTML = picked.map(function (p, i) { return '<div class="small" style="margin-top:6px">' + (p.state === "ok" ? "✓ " : p.state === "dup" ? "• " : p.state === "err" ? "✗ " : p.state === "up" ? "… " : "") + esc(p.f.name) + ' <span class="muted">' + (p.msg ? esc(p.msg) : Math.ceil(p.f.size / 1024) + " KB") + "</span></div>"; }).join("");
+      m.querySelector("#ug").disabled = busy || !picked.some(function (p) { return !p.state; });
+    }
+    function add(list) { [].forEach.call(list, function (f) { if (!picked.some(function (p) { return p.f.name === f.name && p.f.size === f.size; })) picked.push({ f: f, state: f.size > 25 * 1048576 ? "err" : "", msg: f.size > 25 * 1048576 ? "over 25 MB – add it in Drive" : "" }); }); show(); }
+    [].forEach.call(m.querySelectorAll("[data-cat]"), function (c) { c.onclick = function () { cat = c.dataset.cat; [].forEach.call(m.querySelectorAll("[data-cat]"), function (x) { x.classList.toggle("on", x === c); }); }; });
+    m.querySelector("#uf").onchange = function () { add(this.files); this.value = ""; };
+    var dz = m.querySelector("#dz");
+    dz.ondragover = function (e) { e.preventDefault(); dz.classList.add("on"); }; dz.ondragleave = function () { dz.classList.remove("on"); };
+    dz.ondrop = function (e) { e.preventDefault(); dz.classList.remove("on"); add(e.dataTransfer.files); };
+    m.querySelector("#ug").onclick = function () {
+      busy = true; show();
+      var sess = m.querySelector("#us") ? m.querySelector("#us").value : "", note = m.querySelector("#un").value.trim(), done = 0;
+      var queue = picked.filter(function (p) { return !p.state; });
+      (function next() {
+        var p = queue.shift();
+        if (!p) { busy = false; show(); if (done) { toast(done + " file" + (done === 1 ? "" : "s") + " saved to Drive"); if (opts.onDone) opts.onDone(); } return; }
+        p.state = "up"; p.msg = "uploading…"; show();
+        readFile(p.f).then(function (data) {
+          return api("upload", { owner: owner, cat: cat, session: sess, name: p.f.name, mime: p.f.type || "application/octet-stream", data: data, note: note });
+        }).then(function (r) {
+          if (!r.ok) throw new Error(r.message);
+          if (r.duplicate) { p.state = "dup"; p.msg = r.message; } else { p.state = "ok"; p.msg = "saved"; done++; }
+        }).catch(function (e) { p.state = "err"; p.msg = e.message; }).then(next);
+      })();
+    };
+    [].forEach.call(m.querySelectorAll("[data-tpl]"), function (b) {
+      b.onclick = function () {
+        var tpl = b.dataset.tpl, sess = m.querySelector("#us") ? m.querySelector("#us").value : "";
+        if (tpl === "session" && !sess) { m.querySelector("#mm").innerHTML = '<div class="err">Pick the session above first.</div>'; if (m.querySelector("#us")) m.querySelector("#us").focus(); return; }
+        createDocFlow(owner, tpl, sess, b, function () { m.remove(); if (opts.onDone) opts.onDone(); });
+      };
+    });
+    show();
+    return m;
+  }
+  function createDocFlow(owner, tpl, sess, btn, done) {
+    var w = window.open("", "_blank");                    // open the tab now (pop-up blockers), point it at the doc when ready
+    if (w) w.document.write('<p style="font-family:sans-serif;padding:24px">Preparing the Google Doc…</p>');
+    if (btn) btn.disabled = true;
+    api("createDoc", { owner: owner, template: tpl, session: sess }).then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      if (w) w.location = r.file.url; else window.open(r.file.url, "_blank");
+      toast(r.existing ? "Opened the existing doc" : "Doc created in Drive"); if (done) done();
+    }).catch(function (e) { if (w) w.close(); if (btn) btn.disabled = false; toast(e.message); });
+  }
+
+  /* ── Prep with Claude ── */
+  function prepModal(key, name) {
+    var opts = [["names", "Names (child and parents)", true], ["intake", "Intake form answers", true], ["docs", "Links to all documents", true], ["transcripts", "Transcript links", true],
+      ["notes", "My recent notes", true], ["fulltext", "Full text of hypotheses & session notes (longer)", false], ["contact", "Phone and email", false]];
+    var m = modal('<h2 style="font-size:22px">Prep the next session with Claude</h2><p class="small muted">Collects ' + esc(name) + '’s basics and links to every document, ready to paste into Claude. Claude can open the Drive links only if Google Drive is connected in Nidhi’s Claude account – otherwise tick “Full text”.</p>' +
+      '<div class="stack" style="margin-top:12px">' + opts.map(function (o) { return '<label class="check" style="margin-top:4px"><input type="checkbox" data-o="' + o[0] + '"' + (o[2] ? " checked" : "") + " /> <span>" + esc(o[1]) + "</span></label>"; }).join("") + "</div>" +
+      '<div class="field"><label for="pt">Prep pack <span class="muted">(you can edit it)</span></label><textarea id="pt" style="min-height:240px;font-family:ui-monospace,Menlo,monospace;font-size:13px">Loading…</textarea></div>' +
+      '<div class="btns" style="margin-top:14px"><button class="btn p" id="po">Copy &amp; open Claude</button><button class="btn o" id="pc">Copy</button><button class="btn o" id="ps">Save as Google Doc</button></div><div id="mm"></div>');
+    var ta = m.querySelector("#pt");
+    function inc() { var o = {}; [].forEach.call(m.querySelectorAll("[data-o]"), function (c) { o[c.dataset.o] = c.checked; }); return o; }
+    function refresh() { ta.value = "Loading…"; api("prep", { key: key, include: inc() }).then(function (r) { if (!r.ok) throw new Error(r.message); ta.value = r.text; }).catch(function (e) { ta.value = ""; m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; }); }
+    [].forEach.call(m.querySelectorAll("[data-o]"), function (c) { c.onchange = refresh; });
+    function copy() { var t = ta.value; return (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).catch(function () { ta.select(); document.execCommand("copy"); }); }
+    m.querySelector("#pc").onclick = function () { copy().then(function () { toast("Copied"); }); };
+    m.querySelector("#po").onclick = function () {
+      var t = ta.value, url = t.length < 6000 ? "https://claude.ai/new?q=" + encodeURIComponent(t) : "https://claude.ai/new";
+      copy().then(function () { toast(t.length < 6000 ? "Copied · opening Claude" : "Copied · paste it into Claude (Ctrl/⌘+V)"); });
+      window.open(url, "_blank", "noopener");
+    };
+    m.querySelector("#ps").onclick = function () {
+      var b = this; b.disabled = true; b.textContent = "Saving…";
+      api("prep", { key: key, include: inc(), save: 1 }).then(function (r) {
+        if (!r.ok) throw new Error(r.message); b.disabled = false; b.textContent = "Save as Google Doc";
+        m.querySelector("#mm").innerHTML = '<div class="okmsg">Saved (one prep doc per client, updated each time). <a href="' + esc(r.file.url) + '" target="_blank" rel="noopener">Open it</a></div>';
+      }).catch(function (e) { b.disabled = false; b.textContent = "Save as Google Doc"; m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+    refresh();
+  }
+
+  /* ── Client profile (extends the family page) ── */
+  function clientHeader(r) {
+    var f = r.family, c = r.crm || {}, stages = (S.crm && S.crm.stages) || ["Enquiry", "Intake received", "First session", "Ongoing", "Paused", "Closed"];
+    var fu = c.followUp, due = fu && fu <= today10();
+    return '<div class="card crmbar"><div class="grid two">' +
+      '<div class="field" style="margin-top:0"><label for="cs">Stage</label><select id="cs">' + stages.map(function (x) { return "<option" + (x === c.stage ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select>" +
+      (c.stageSet ? "" : '<span class="small muted">Worked out from bookings – choose one to set it</span>') + "</div>" +
+      '<div class="field" style="margin-top:0"><label for="cf">Next follow-up</label><div class="row" style="gap:8px"><input id="cf" type="date" value="' + esc(fu || "") + '" style="flex:1" />' +
+      (fu ? '<button class="btn o sm" id="fd">Done</button>' : "") + '</div><input id="cn" placeholder="What to follow up on" value="' + esc(c.followNote || "") + '" style="margin-top:6px" />' +
+      (due ? '<span class="small" style="color:var(--bad);font-weight:600">' + (fu < today10() ? "Overdue" : "Due today") + "</span>" : "") + "</div>" +
+      '<div class="field" style="margin-top:0"><label for="cl">School</label><input id="cl" list="schl" value="' + esc(c.school || "") + '" placeholder="e.g. Shaala" /><datalist id="schl">' + ((S.crm && S.crm.schools) || []).map(function (s) { return '<option value="' + esc(s.name) + '">'; }).join("") + "</datalist></div>" +
+      '<div class="field" style="margin-top:0"><label for="ct">Tags</label><input id="ct" value="' + esc((c.tags || []).join(", ")) + '" placeholder="e.g. anxiety, transitions" /></div></div>' +
+      '<div class="btns" style="margin-top:10px"><button class="btn p sm" id="csv" hidden>Save changes</button></div></div>';
+  }
+  function bindClientHeader(r, rerender) {
+    var f = r.family, dirty = function () { $("#csv").hidden = false; };
+    ["#cs", "#cf", "#cn", "#cl", "#ct"].forEach(function (id) { var el = $(id); if (el) el.oninput = el.onchange = dirty; });
+    var save = function (extra) {
+      var body = Object.assign({ key: f.key, stage: $("#cs").value, followUp: $("#cf").value, followNote: $("#cn").value, school: $("#cl").value, tags: $("#ct").value }, extra || {});
+      return api("saveClient", body).then(function (x) { if (!x.ok) throw new Error(x.message); r.crm = x.crm; r.notes = x.notes; S.crm = null; rerender(); toast("Saved"); }).catch(function (e) { toast(e.message); });
+    };
+    $("#csv").onclick = function () { this.disabled = true; save(); };
+    if ($("#fd")) $("#fd").onclick = function () { this.disabled = true; save({ followUp: "", followNote: "", done: true, doneNote: $("#cn").value }); };
+  }
+  function filesHtml(r) {
+    if (!isAdmin()) return "";
+    var files = (r.files || []).filter(function (x) { return x.template !== "prep"; }), prepDoc = (r.files || []).filter(function (x) { return x.template === "prep"; })[0];
+    var html = '<div class="grid two" style="margin-bottom:12px">' + CATS.map(function (c) {
+      var n = files.filter(function (x) { return x.cat === c[0]; }), last = n[0];
+      return '<button class="card folderc" data-jump="' + c[0] + '"><span class="ftype">' + n.length + '</span><span class="grow" style="text-align:left"><span class="t" style="display:block">' + esc(c[1]) + '</span><span class="s" style="display:block">' + (last ? esc(last.title) + " · " + dDate(last.at) : "Nothing yet") + "</span></span></button>";
+    }).join("") + "</div>";
+    CATS.forEach(function (c) {
+      var n = files.filter(function (x) { return x.cat === c[0]; });
+      html += '<h3 class="sub3" id="cat-' + c[0] + '">' + esc(c[1]) + "</h3>" + (n.length ? n.map(function (x) { return fileRow(x); }).join("") : '<p class="empty">Nothing here yet.</p>');
+    });
+    if (r.transcripts) html += '<h3 class="sub3">Transcripts (Gemini notes, linked – not copied)</h3>' + (r.transcripts.length ? r.transcripts.map(tItem).join("") : '<p class="empty">None linked yet.</p>');
+    if (prepDoc) html += '<p class="small muted" style="margin-top:12px">Claude prep pack: <a href="' + esc(prepDoc.url) + '" target="_blank" rel="noopener">' + esc(prepDoc.title) + "</a> (updated " + dDate(prepDoc.updated) + ")</p>";
+    return html;
+  }
+  function timelineHtml(r) {
+    var ev = [];
+    r.bookings.forEach(function (b) { ev.push({ at: b.start, t: (b.state === "Cancelled" ? "Session cancelled" : b.start > new Date().toISOString() ? "Session booked" : "Session held"), s: dTime(b.start) + (b.state === "Rescheduled" ? " · moved" : "") }); });
+    (r.notes || []).forEach(function (n) { ev.push({ at: n.at, t: "Note · " + n.by, s: n.text.length > 140 ? n.text.slice(0, 140) + "…" : n.text }); });
+    (r.files || []).forEach(function (f) { if (f.template !== "prep") ev.push({ at: f.at, t: (f.source === "template" ? "Doc created: " : f.source === "auto-filed" ? "Auto-filed: " : "File added: ") + f.title, s: (CATS.filter(function (c) { return c[0] === f.cat; })[0] || ["", ""])[1], url: f.url }); });
+    (r.transcripts || []).forEach(function (t) { ev.push({ at: t.when, t: "Transcript: " + t.meeting, s: "Gemini notes", href: "#transcript/" + encodeURIComponent(t.id) }); });
+    (r.intakes || []).forEach(function (x) { if (x.at) ev.push({ at: x.at, t: "Intake form received", s: x.source || "" }); });
+    ev.sort(function (a, b) { return a.at < b.at ? 1 : -1; });
+    return ev.length ? '<div class="card tl">' + ev.map(function (e) {
+      return '<div class="tli"><div class="tld">' + dDate(e.at) + '</div><div class="grow"><div class="t">' + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.t) + "</a>" : e.href ? '<a href="' + e.href + '">' + esc(e.t) + "</a>" : esc(e.t)) + '</div><div class="s">' + esc(e.s) + "</div></div></div>";
+    }).join("") + "</div>" : '<p class="empty">Nothing yet.</p>';
+  }
+  function sessionOptions(r) {
+    return r.bookings.filter(function (b) { return b.state !== "Cancelled"; }).sort(function (a, b) { return a.start < b.start ? 1 : -1; })
+      .map(function (b) { var d = dayKey(b.start).split("/").reverse().join("-"); return [d, dDate(b.start) + ", " + dTime(b.start) + (b.start > new Date().toISOString() ? " (upcoming)" : "")]; });
+  }
+
+  /* ── Pipeline ── */
+  function pipelineView() {
+    loading("pipeline");
+    crmLoad().then(function (c) {
+      var q = (S.pq || "").toLowerCase(), only = S.pOnly || "all", td = today10();
+      var list = c.clients.filter(function (x) {
+        if (q && (x.child + " " + x.parent + " " + x.school + " " + (x.tags || []).join(" ")).toLowerCase().indexOf(q) < 0) return false;
+        if (only === "due" && !(x.followUp && x.followUp <= td)) return false;
+        return true;
+      });
+      var chip = function (k, l) { return '<button class="chip' + (only === k ? " on" : "") + '" data-p="' + k + '">' + l + "</button>"; };
+      var html = '<div class="row" style="flex-wrap:wrap"><div class="grow"><h1 class="h1">Pipeline</h1><p class="sub" style="margin-bottom:8px">Every client by stage. Drag a card to another column (or open it to change the stage).</p></div><button class="btn p sm" id="nc">+ New client</button></div>' +
+        '<div class="chips">' + chip("all", "All clients") + chip("due", "Follow-up due") + '</div><input class="search" id="q" placeholder="Search name, school, tag" value="' + esc(S.pq || "") + '" />' +
+        '<div class="kanban">' + c.stages.map(function (st) {
+          var cards = list.filter(function (x) { return x.stage === st; }).sort(function (a, b) { return (a.followUp || "9") < (b.followUp || "9") ? -1 : 1; });
+          return '<section class="kcol" data-stage="' + esc(st) + '"><h2>' + esc(st) + ' <span class="pill n">' + cards.length + "</span></h2>" + cards.map(function (x) {
+            var due = x.followUp && x.followUp <= td;
+            return '<a class="kcard" draggable="true" data-key="' + esc(x.key) + '" href="#family/' + encodeURIComponent(x.key) + '"><span class="t">' + esc(x.child || "—") + '</span><span class="s">' + esc(x.parent) + "</span>" +
+              '<span class="s">' + (x.next ? "Next " + dDate(x.next) : x.last ? "Last " + dDate(x.last) : x.intake ? "Intake received" : "No sessions yet") + (x.school ? " · " + esc(x.school) : "") + "</span>" +
+              (x.followUp ? '<span class="pill ' + (due ? "bad" : "n") + '" style="margin-top:6px">Follow up ' + ymdLabel(x.followUp) + "</span>" : "") + "</a>";
+          }).join("") + "</section>";
+        }).join("") + "</div>";
+      shell("pipeline", html);
+      $("#nc").onclick = newClientModal;
+      [].forEach.call(root.querySelectorAll("[data-p]"), function (b) { b.onclick = function () { S.pOnly = b.dataset.p; pipelineView(); }; });
+      var qi = $("#q"); qi.oninput = function () { S.pq = qi.value; clearTimeout(S.t); S.t = setTimeout(function () { pipelineView(); var n = $("#q"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); };
+      var dragKey = null;
+      [].forEach.call(root.querySelectorAll(".kcard"), function (k) { k.ondragstart = function (e) { dragKey = k.dataset.key; e.dataTransfer.setData("text/plain", dragKey); k.classList.add("drag"); }; k.ondragend = function () { k.classList.remove("drag"); }; });
+      [].forEach.call(root.querySelectorAll(".kcol"), function (col) {
+        col.ondragover = function (e) { e.preventDefault(); col.classList.add("over"); }; col.ondragleave = function () { col.classList.remove("over"); };
+        col.ondrop = function (e) {
+          e.preventDefault(); col.classList.remove("over"); var key = dragKey || e.dataTransfer.getData("text/plain"), st = col.dataset.stage;
+          var cl = c.clients.filter(function (x) { return x.key === key; })[0]; if (!cl || cl.stage === st) return;
+          var was = cl.stage; cl.stage = st; pipelineView();
+          api("saveClient", { key: key, stage: st }).then(function (r) { if (!r.ok) throw new Error(r.message); toast((cl.child || "Client") + " → " + st); delete S.cache["f:" + key]; })
+            .catch(function (er) { cl.stage = was; pipelineView(); toast(er.message); });
+        };
+      });
+    }).catch(function (e) { fail("pipeline", e); });
+  }
+
+  /* ── Schools ── */
+  function schoolsView() {
+    loading("schools");
+    api("schools").then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      var html = '<div class="row" style="flex-wrap:wrap"><div class="grow"><h1 class="h1">Schools</h1><p class="sub" style="margin-bottom:8px">Partner schools and preschools: contacts, workshops, invoices and documents.</p></div><button class="btn p sm" id="ns">+ Add school</button></div>';
+      var td = today10();
+      html += r.schools.length ? r.schools.sort(function (a, b) { return a.name < b.name ? -1 : 1; }).map(function (s) {
+        return '<a class="item" href="#school/' + esc(s.key) + '"><div class="grow"><div class="t">' + esc(s.name) + '</div><div class="s">' + esc(s.status) + (s.city ? " · " + esc(s.city) : "") + " · " + s.workshops + " workshop" + (s.workshops === 1 ? "" : "s") +
+          (s.outstanding ? " · ₹" + s.outstanding.toLocaleString("en-IN") + " outstanding" : "") + "</div></div>" + (s.followUp ? '<span class="pill ' + (s.followUp <= td ? "bad" : "n") + '">Follow up ' + ymdLabel(s.followUp) + "</span>" : "") + "</a>";
+      }).join("") : '<p class="empty">No schools yet. Add one, or turn a school enquiry into a school (More → School enquiries).</p>';
+      shell("schools", html);
+      $("#ns").onclick = function () { schoolForm(null); };
+    }).catch(function (e) { fail("schools", e); });
+  }
+  function schoolForm(sc) {
+    sc = sc || { contacts: [], status: "Lead" };
+    var contacts = (sc.contacts && sc.contacts.length ? sc.contacts : [{}]).concat([{}]);
+    var m = modal('<h2 style="font-size:22px">' + (sc.key ? "Edit school" : "Add a school") + '</h2><form id="sf"><div class="grid two"><div class="field"><label for="s1">Name</label><input id="s1" required value="' + esc(sc.name || "") + '" /></div>' +
+      '<div class="field"><label for="s2">Type</label><input id="s2" placeholder="Preschool, K-5…" value="' + esc(sc.type || "") + '" /></div><div class="field"><label for="s3">Area / city</label><input id="s3" value="' + esc(sc.city || "") + '" /></div>' +
+      '<div class="field"><label for="s4">Status</label><select id="s4">' + ["Lead", "In talks", "Partner", "Past"].map(function (x) { return "<option" + (x === sc.status ? " selected" : "") + ">" + x + "</option>"; }).join("") + '</select></div>' +
+      '<div class="field"><label for="s5">Partner since</label><input id="s5" type="date" value="' + esc(sc.since || "") + '" /></div></div>' +
+      '<p class="t" style="margin-top:16px">Contacts</p>' + contacts.map(function (c, i) {
+        return '<div class="grid-c" data-c="' + i + '"><input placeholder="Name" data-k="name" value="' + esc(c.name || "") + '" /><input placeholder="Role" data-k="role" value="' + esc(c.role || "") + '" /><input placeholder="Phone" data-k="phone" value="' + esc(c.phone || "") + '" /><input placeholder="Email" data-k="email" value="' + esc(c.email || "") + '" /></div>';
+      }).join("") +
+      '<div class="field"><label for="s6">Notes</label><textarea id="s6" style="min-height:90px">' + esc(sc.notes || "") + '</textarea></div><div class="btns" style="margin-top:14px"><button class="btn p">Save</button></div></form><div id="mm"></div>');
+    m.querySelector("#sf").onsubmit = function (ev) {
+      ev.preventDefault(); var b = this.querySelector("button.p"); b.disabled = true;
+      var cs = [].map.call(m.querySelectorAll("[data-c]"), function (row) { var o = {}; [].forEach.call(row.querySelectorAll("input"), function (i) { o[i.dataset.k] = i.value.trim(); }); return o; });
+      var v = function (id) { return m.querySelector(id).value.trim(); };
+      api("saveSchool", { key: sc.key, name: v("#s1"), type: v("#s2"), city: v("#s3"), status: v("#s4"), since: v("#s5"), notes: v("#s6"), contacts: cs }).then(function (r) {
+        if (!r.ok) throw new Error(r.message); m.remove(); S.crm = null; if (r.message) toast(r.message); else toast("Saved");
+        if (location.hash === "#school/" + r.key) schoolView(r.key); else location.hash = "#school/" + r.key;
+      }).catch(function (e) { b.disabled = false; m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+  }
+  function workshopForm(sk, w, statuses, after) {
+    w = w || { status: "Planned" };
+    var m = modal('<h2 style="font-size:22px">' + (w.id ? "Edit workshop" : "Log a workshop") + '</h2><form id="wf"><div class="grid two"><div class="field"><label for="w1">Date</label><input id="w1" type="date" required value="' + esc(w.date || "") + '" /></div>' +
+      '<div class="field"><label for="w2">Title</label><input id="w2" required value="' + esc(w.title || "") + '" placeholder="e.g. Co-regulation for teachers" /></div>' +
+      '<div class="field"><label for="w3">Teachers / participants</label><input id="w3" type="number" min="0" value="' + esc(w.teachers || "") + '" /></div>' +
+      '<div class="field"><label for="w4">Status</label><select id="w4">' + statuses.map(function (x) { return "<option" + (x === w.status ? " selected" : "") + ">" + x + "</option>"; }).join("") + "</select></div>" +
+      '<div class="field"><label for="w5">Fee (₹)</label><input id="w5" type="number" min="0" value="' + esc(w.fee || "") + '" /></div></div>' +
+      '<label class="check"><input type="checkbox" id="w6"' + (w.paid ? " checked" : "") + ' /> <span>Paid</span></label><div class="field"><label for="w7">Notes</label><textarea id="w7" style="min-height:80px">' + esc(w.notes || "") + "</textarea></div>" +
+      '<div class="btns" style="margin-top:14px"><button class="btn p">Save</button>' + (w.id ? '<button type="button" class="btn o" id="wd" style="color:var(--bad)">Delete</button>' : "") + '</div></form><div id="mm"></div>');
+    var send = function (extra) {
+      var v = function (id) { return m.querySelector(id).value.trim(); };
+      return api("saveWorkshop", Object.assign({ school: sk, id: w.id, date: v("#w1"), title: v("#w2"), teachers: v("#w3"), status: v("#w4"), fee: v("#w5"), paid: m.querySelector("#w6").checked, notes: v("#w7") }, extra || {}))
+        .then(function (r) { if (!r.ok) throw new Error(r.message); m.remove(); S.crm = null; toast("Saved"); after(r); })
+        .catch(function (e) { m.querySelector("#mm").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+    m.querySelector("#wf").onsubmit = function (ev) { ev.preventDefault(); send(); };
+    if (m.querySelector("#wd")) m.querySelector("#wd").onclick = function () { if (confirmBtn(this)) send({ remove: true }); };
+  }
+  function confirmBtn(b) { if (b.dataset.sure) return true; b.dataset.sure = 1; b.textContent = "Tap again to confirm"; return false; }
+  function schoolView(key) {
+    loading("schools");
+    api("school", { key: key }).then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      var sc = r.school, td = today10();
+      function draw() {
+        var html = '<a class="back" href="#schools">← Schools</a><div class="row" style="flex-wrap:wrap;align-items:flex-end"><div class="grow"><h1 class="h1">' + esc(sc.name) + '</h1><p class="sub" style="margin-bottom:6px">' +
+          [sc.type, sc.city, sc.since ? "partner since " + ymdLabel(sc.since) : ""].filter(String).map(esc).join(" · ") + "</p></div>" +
+          '<div class="btns">' + (isAdmin() ? '<button class="btn o sm" id="up">Upload</button>' : "") + '<button class="btn o sm" id="ed">Edit</button><button class="btn p sm" id="aw">+ Log workshop</button></div></div>' +
+          '<div class="grid three" style="margin-top:12px"><div class="card stat"><b>' + esc(sc.status) + '</b><span>Status</span></div><div class="card stat"><b>' + r.workshops.length + '</b><span>Workshops · ' + r.workshops.reduce(function (a, w) { return a + w.teachers; }, 0) + ' people reached</span></div>' +
+          '<div class="card stat"><b>₹' + sc.outstanding.toLocaleString("en-IN") + '</b><span>Outstanding of ₹' + sc.invoiced.toLocaleString("en-IN") + " invoiced</span></div></div>" +
+          '<div class="card" style="margin-top:12px"><div class="grid two"><div class="field" style="margin-top:0"><label for="sfu">Next follow-up</label><input type="date" id="sfu" value="' + esc(sc.followUp || "") + '" /></div>' +
+          '<div class="field" style="margin-top:0"><label for="sfn">About</label><input id="sfn" value="' + esc(sc.followNote || "") + '" placeholder="e.g. send the November report" /></div></div>' +
+          '<div class="btns" style="margin-top:10px"><button class="btn p sm" id="sfs">Save follow-up</button>' + (sc.followUp ? '<button class="btn o sm" id="sfd">Done</button>' : "") + (sc.followUp && sc.followUp <= td ? '<span class="pill bad">' + (sc.followUp < td ? "Overdue" : "Due today") + "</span>" : "") + "</div></div>" +
+          '<h2 class="sec">Workshops</h2>' + (r.workshops.length ? r.workshops.map(function (w, i) {
+            return '<button class="item" data-w="' + i + '" style="width:100%;text-align:left"><div class="when"><b>' + fmt(w.date + "T12:00:00+05:30", { day: "numeric" }) + "</b><small>" + fmt(w.date + "T12:00:00+05:30", { month: "short" }) + '</small></div><div class="grow"><div class="t">' + esc(w.title) + '</div><div class="s">' +
+              (w.teachers ? w.teachers + " people · " : "") + (w.fee ? "₹" + w.fee.toLocaleString("en-IN") + (w.paid ? " paid" : " unpaid") : "no fee") + "</div></div>" + '<span class="pill ' + (w.status === "Report sent" ? "ok" : w.status === "Held" ? "wait" : w.status === "Cancelled" ? "x" : "n") + '">' + esc(w.status) + "</span></button>";
+          }).join("") : '<p class="empty">No workshops logged yet.</p>') +
+          '<h2 class="sec">Contacts</h2>' + (sc.contacts.length ? '<div class="card">' + sc.contacts.map(function (c) {
+            return '<div class="qa"><div class="t">' + esc(c.name) + (c.role ? ' <span class="muted" style="font-weight:400">· ' + esc(c.role) + "</span>" : "") + '</div><div class="small">' + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a> · <a href="https://wa.me/' + waNumber(c.phone) + '" target="_blank" rel="noopener">WhatsApp</a>' : "") + (c.email ? ' · <a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>" : "") + "</div></div>";
+          }).join("") + "</div>" : '<p class="empty">No contacts yet – use Edit.</p>') +
+          (isAdmin() ? '<h2 class="sec">Documents</h2>' + (sc.folderUrl ? '<p class="small" style="margin-bottom:8px"><a href="' + esc(sc.folderUrl) + '" target="_blank" rel="noopener">Open the school’s Drive folder</a></p>' : "") +
+            SCATS.map(function (c) { var n = r.files.filter(function (x) { return x.cat === c[0]; }); return n.length ? '<h3 class="sub3">' + esc(c[1]) + "</h3>" + n.map(function (x) { return fileRow(x); }).join("") : ""; }).join("") + (r.files.length ? "" : '<p class="empty">No documents yet.</p>') : "") +
+          (r.children.length ? '<h2 class="sec">Children from this school</h2>' + r.children.map(function (c) { return '<a class="item" href="#family/' + encodeURIComponent(c.key) + '"><div class="grow t">' + esc(c.name) + "</div></a>"; }).join("") : "") +
+          (sc.notes ? '<h2 class="sec">Notes</h2><div class="card tx">' + esc(sc.notes) + "</div>" : "");
+        shell("schools", html);
+        $("#ed").onclick = function () { schoolForm(sc); };
+        $("#aw").onclick = function () { workshopForm(sc.key, null, r.workshopStatuses, function (x) { r = x; sc = x.school; draw(); }); };
+        [].forEach.call(root.querySelectorAll("[data-w]"), function (b) { b.onclick = function () { workshopForm(sc.key, r.workshops[+b.dataset.w], r.workshopStatuses, function (x) { r = x; sc = x.school; draw(); }); }; });
+        if ($("#up")) $("#up").onclick = function () { uploadModal("school:" + sc.key, { school: true, name: sc.name, onDone: function () { schoolView(key); } }); };
+        var fsave = function (extra) { return api("schoolFollow", Object.assign({ key: sc.key, followUp: $("#sfu").value, followNote: $("#sfn").value }, extra || {})).then(function (x) { if (!x.ok) throw new Error(x.message); r = x; sc = x.school; S.crm = null; draw(); toast("Saved"); }).catch(function (e) { toast(e.message); }); };
+        $("#sfs").onclick = function () { this.disabled = true; fsave(); };
+        if ($("#sfd")) $("#sfd").onclick = function () { this.disabled = true; fsave({ followUp: "", followNote: "", done: true }); };
+      }
+      draw();
+    }).catch(function (e) { fail("schools", e); });
+  }
+
+  /* ── Smart search ── */
+  function searchView() {
+    var q = S.sq || "";
+    var html = '<h1 class="h1">Search</h1><p class="sub">Clients, schools, notes, documents (titles and the text inside) and transcripts.</p>' +
+      '<form id="gf" class="row" style="gap:8px;margin-bottom:12px"><input class="search" id="gq" style="margin:0" placeholder="e.g. wednesday drop-off, Shaala, 98450…" value="' + esc(q) + '" autofocus /><button class="btn p">Search</button></form><div id="gr"></div>';
+    shell("search", html);
+    var draw = function (r) {
+      var types = ["Client", "School", "Note", "Document", "Transcript"], f = S.sFilter || "All", list = r.results.filter(function (x) { return f === "All" || x.type === f; });
+      var hl = new RegExp("(" + r.q.split(/\s+/).filter(Boolean).map(function (w) { return w.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&"); }).join("|") + ")", "gi");
+      var mark = function (s) { return esc(s).replace(hl, "<mark>$1</mark>"); };
+      $("#gr").innerHTML = '<div class="chips">' + ["All"].concat(types).map(function (t) { var n = t === "All" ? r.results.length : r.results.filter(function (x) { return x.type === t; }).length; return n || t === "All" ? '<button class="chip' + (t === f ? " on" : "") + '" data-sf="' + t + '">' + t + " (" + n + ")</button>" : ""; }).join("") + "</div>" +
+        (list.length ? list.map(function (x) {
+          return '<a class="item" href="' + esc(x.href) + '"' + (x.external ? ' target="_blank" rel="noopener"' : "") + '><span class="pill n" style="flex:none">' + esc(x.type) + '</span><div class="grow"><div class="t">' + mark(x.title) + '</div><div class="s">' + mark(x.sub || "") + "</div></div>" + (x.owner ? '<span class="small muted">↗</span>' : "") + "</a>";
+        }).join("") : '<p class="empty">Nothing found for “' + esc(r.q) + "”.</p>");
+      [].forEach.call(root.querySelectorAll("[data-sf]"), function (b) { b.onclick = function () { S.sFilter = b.dataset.sf; draw(r); }; });
+    };
+    var run = function () {
+      var v = $("#gq").value.trim(); S.sq = v; if (v.length < 2) { $("#gr").innerHTML = ""; return; }
+      $("#gr").innerHTML = '<div class="spin"></div>'; S.sFilter = "All";
+      api("search", { q: v }).then(function (r) { if (!r.ok) throw new Error(r.message); S.sRes = r; draw(r); }).catch(function (e) { $("#gr").innerHTML = '<div class="err">' + esc(e.message) + "</div>"; });
+    };
+    $("#gf").onsubmit = function (ev) { ev.preventDefault(); run(); };
+    if (S.sRes && S.sRes.q === q) draw(S.sRes); else if (q) run();
+  }
+
+  /* ── To file (Drive Inbox) ── */
+  function toFileView() {
+    loading("tofile");
+    crmSync().then(function () { return api("inbox"); }).then(function (r) {
+      if (!r.ok) throw new Error(r.message);
+      var opts = function (sel) {
+        var o = function (c) { return '<option value="' + esc(c.key) + '"' + (c.key === sel ? " selected" : "") + ">" + esc(c.name) + "</option>"; };
+        return '<option value="">Choose client or school…</option><optgroup label="Clients">' + r.clients.map(o).join("") + "</optgroup>" +
+          (r.schools.length ? '<optgroup label="Schools">' + r.schools.map(o).join("") + "</optgroup>" : "");
+      };
+      var catOpts = function (sel) { return CATS.concat(SCATS).map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === sel ? " selected" : "") + ">" + esc(c[1]) + "</option>"; }).join(""); };
+      var html = '<h1 class="h1">To file</h1><p class="sub">Drop files into the <a href="' + esc(r.inboxUrl) + '" target="_blank" rel="noopener">Samhithe CRM Inbox folder</a> in Drive (or save them there from your phone). Files whose name clearly includes a client’s full name are moved to that client automatically; the rest wait here. Files are moved, never copied.</p>' +
+        '<p class="small muted" style="margin-bottom:12px">' + (r.lastSync ? "Last checked " + dDate(r.lastSync) + ", " + dTime(r.lastSync) : "Not checked yet") + ' · <button class="linkbtn" id="sn">Check now</button>' + (S.crm && S.crm.unlinkedTranscripts ? ' · <a href="#transcripts">' + S.crm.unlinkedTranscripts + " transcript(s) to file</a>" : "") + "</p>" +
+        (r.pending.length ? r.pending.map(function (p) {
+          if (p.dup) return '<div class="card"><div class="t">' + esc(p.title) + '</div><p class="small" style="color:var(--warn);font-weight:600;margin-top:4px">Duplicate – the same file is already in ' + esc(p.dup.ownerName) + "’s folder (“" + esc(p.dup.title) + '”).</p><div class="btns" style="margin-top:10px"><button class="btn p sm" data-trash="' + esc(p.id) + '">Move this copy to Trash</button><a class="btn o sm" href="' + esc(p.url) + '" target="_blank" rel="noopener">Open</a><button class="btn o sm" data-ign="' + esc(p.id) + '">Keep, ignore</button></div></div>';
+          return '<div class="card" data-item="' + esc(p.id) + '"><div class="row"><div class="grow"><div class="t">' + esc(p.title) + '</div><div class="small muted">' + (p.guess ? "Best guess: " + esc(p.guess.name) : "No match found in the name") + '</div></div><a class="btn o sm" href="' + esc(p.url) + '" target="_blank" rel="noopener">Open</a></div>' +
+            '<div class="grid-file"><select data-own aria-label="Client or school">' + opts(p.guess ? p.guess.key : "") + '</select><select data-cat aria-label="Folder">' + catOpts(p.cat || "materials") + '</select><button class="btn p sm" data-file>File it</button><button class="btn o sm" data-ign="' + esc(p.id) + '">Ignore</button></div></div>';
+        }).join("") : '<div class="card"><p class="t">All filed ✓</p><p class="small muted">Nothing is waiting in the Inbox.</p></div>');
+      shell("tofile", html);
+      var after = function () { S.crm = null; S.cache = {}; toFileView(); };
+      $("#sn").onclick = function () { this.textContent = "Checking…"; crmSync(true).then(function (x) { if (x && x.filed) toast(x.filed + " file(s) auto-filed"); after(); }); };
+      [].forEach.call(root.querySelectorAll("[data-file]"), function (b) {
+        b.onclick = function () {
+          var card = b.closest("[data-item]"), own = card.querySelector("[data-own]").value, cat = card.querySelector("[data-cat]").value;
+          if (!own) { toast("Choose a client or school"); return; }
+          var schoolCat = SCATS.some(function (c) { return c[0] === cat; }), isS = own.indexOf("school:") === 0;
+          if (isS !== schoolCat) cat = isS ? "other" : "materials";
+          b.disabled = true; b.textContent = "Filing…";
+          api("fileItem", { id: card.dataset.item, owner: own, cat: cat }).then(function (x) { if (!x.ok) throw new Error(x.message); toast("Filed"); after(); }).catch(function (e) { b.disabled = false; b.textContent = "File it"; toast(e.message); });
+        };
+      });
+      [].forEach.call(root.querySelectorAll("[data-ign]"), function (b) { b.onclick = function () { b.disabled = true; api("fileItem", { id: b.dataset.ign, ignore: 1 }).then(function (x) { if (!x.ok) throw new Error(x.message); after(); }).catch(function (e) { b.disabled = false; toast(e.message); }); }; });
+      [].forEach.call(root.querySelectorAll("[data-trash]"), function (b) { b.onclick = function () { if (!confirmBtn(b)) return; b.disabled = true; api("fileItem", { id: b.dataset.trash, trash: 1 }).then(function (x) { if (!x.ok) throw new Error(x.message); toast("Moved to Drive Trash"); after(); }).catch(function (e) { b.disabled = false; toast(e.message); }); }; });
+    }).catch(function (e) { fail("tofile", e); });
+  }
+
+  /* ── Drive check (duplicates) ── */
+  function driveCheckView() {
+    shell("drivecheck", '<h1 class="h1">Drive check</h1><p class="sub">Looks through every folder in “Samhithe CRM” for duplicate copies: identical files (same content, even with a different name) and Google Docs with the same name in the same folder. Nothing is removed unless you choose to.</p>' +
+      '<div class="btns"><button class="btn p" id="dc">Check for duplicates</button></div><div id="dr" style="margin-top:16px"></div>');
+    var show = function (r) {
+      var html = '<p class="small muted">Checked ' + r.scanned + ' files · <a href="' + esc(r.rootUrl) + '" target="_blank" rel="noopener">Open Samhithe CRM in Drive</a></p>';
+      if (!r.groups.length) html += '<div class="okmsg">No duplicates found ✓</div>';
+      else {
+        html += r.groups.map(function (g) {
+          return '<div class="card"><p class="small muted">' + (g.kind === "identical" ? "Identical files" : "Same name in the same folder") + '</p><p><b>Keep:</b> <a href="' + esc(g.keep.url) + '" target="_blank" rel="noopener">' + esc(g.keep.title) + '</a> <span class="small muted">' + esc(g.keep.path) + "</span></p>" +
+            g.extra.map(function (x) { return '<label class="check" style="margin-top:8px"><input type="checkbox" data-x="' + esc(x.id) + '" checked /> <span>Extra copy: <a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a> <span class="small muted">' + esc(x.path) + "</span></span></label>"; }).join("") + "</div>";
+        }).join("") + '<div class="btns" style="margin-top:14px"><button class="btn p" id="dt">Move ticked copies to Drive Trash</button></div><p class="small muted" style="margin-top:8px">Items in Drive’s Trash can be restored for 30 days.</p>';
+      }
+      if (r.trashed) html = '<div class="okmsg">' + r.trashed + " extra cop" + (r.trashed === 1 ? "y" : "ies") + " moved to Trash.</div>" + html;
+      $("#dr").innerHTML = html;
+      if ($("#dt")) $("#dt").onclick = function () {
+        var ids = [].map.call(root.querySelectorAll("[data-x]:checked"), function (c) { return c.dataset.x; }); if (!ids.length) return;
+        if (!confirmBtn(this)) return; this.disabled = true; this.textContent = "Moving…";
+        api("trashDupes", { ids: ids }).then(function (x) { if (!x.ok) throw new Error(x.message); show(x); }).catch(function (e) { toast(e.message); });
+      };
+    };
+    $("#dc").onclick = function () { var b = this; b.disabled = true; b.textContent = "Checking… (can take a minute)"; api("driveCheck").then(function (r) { if (!r.ok) throw new Error(r.message); b.disabled = false; b.textContent = "Check again"; show(r); }).catch(function (e) { b.disabled = false; b.textContent = "Check for duplicates"; toast(e.message); }); };
+  }
+
   /* ── router ── */
   function route() {
     var h = location.hash.slice(1);
@@ -877,7 +1398,13 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     if (p[0] === "bookings") return bookingsView();
     if (p[0] === "booking") return bookingView(+id);
     if (p[0] === "families") return familiesView();
-    if (p[0] === "family") return familyView(id);
+    if (p[0] === "family") return familyView(decodeURIComponent(p[1] || ""), p[2], p[3]);
+    if (p[0] === "pipeline") return pipelineView();
+    if (p[0] === "schools") return schoolsView();
+    if (p[0] === "school") return schoolView(id);
+    if (p[0] === "search") return searchView();
+    if (p[0] === "tofile" && isAdmin()) return toFileView();
+    if (p[0] === "drivecheck" && isAdmin()) return driveCheckView();
     if (p[0] === "transcripts" && isAdmin()) return transcriptsView();
     if (p[0] === "transcript" && isAdmin()) return transcriptView(id);
     if (p[0] === "more") return moreView();
