@@ -1,23 +1,22 @@
 # Samhithe health check
 
-**When:** Sun 15 Nov 2026, 11:46 PM IST  
-**Trigger:** deploy skipped (not set up), success - Docs: manual deploy steps while the Deployer is down
+**When:** Mon 16 Nov 2026, 12:21 AM IST  
+**Trigger:** fix: admin session check
 
 | Check | Result |
 |---|---|
-| Booking engine (slots) | OK · 991 ms |
-| Admin backend | OK · 1452 ms |
+| Booking engine (slots) | OK · 1223 ms |
+| Admin backend | OK · 1160 ms |
 | Admin rejects bad session | OK |
-| www.samhithe.in/ | OK 200 · 0.262070s |
-| www.samhithe.in/booking/ | OK 200 · 0.179717s |
-| www.samhithe.in/admin/ | OK 200 · 0.166939s |
-| www.samhithe.in/admin/sw.js | OK 200 · 0.103989s |
+| www.samhithe.in/ | OK 200 · 0.167170s |
+| www.samhithe.in/booking/ | OK 200 · 0.129243s |
+| www.samhithe.in/admin/ | OK 200 · 0.156199s |
+| www.samhithe.in/admin/sw.js | OK 200 · 0.129761s |
 
 ## Bookable days (next 31 days) – session 60 min, ₹1000
 
 | Date | Day | Free slots |
 |---|---|---|
-| 2026-11-15 | Sun | **Full / not available** |
 | 2026-11-16 | Mon | 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-11-17 | Tue | **Full / not available** |
 | 2026-11-18 | Wed | 6:00 PM, 7:15 PM, 8:30 PM |
@@ -48,3 +47,4 @@
 | 2026-12-13 | Sun | **Full / not available** |
 | 2026-12-14 | Mon | 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-12-15 | Tue | 11:00 AM, 12:15 PM, 4:30 PM, 6:00 PM, 7:15 PM, 8:30 PM |
+| 2026-12-16 | Wed | 6:00 PM, 7:15 PM, 8:30 PM |
