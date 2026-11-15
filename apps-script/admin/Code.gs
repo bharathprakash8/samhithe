@@ -501,10 +501,12 @@ function family_(b, s) {
   var f = famGet_(fam, b.key);
   if (!f) return { ok: false, message: 'Family not found.' };
   var out = { ok: true, family: f, bookings: bk.filter(function (x) { return x.fam === f.key; }).map(function (x) { var y = Object.assign({}, x); delete y.shot; y.hasShot = !!x.shot; return y; }),
-    notes: notesFor_(f.key, aliasesOf_(fam, f.key)), crm: clientView_(clientFor_(f), f) };
+    notes: notesFor_(f.key, aliasesOf_(fam, f.key)) };
+  var famTr = tIndex_(fam).filter(function (t) { return t.fam === f.key; });
+  out.crm = clientView_(clientFor_(f), f, famTr.map(function (t) { return t.when; }).sort().pop() || '');
   if (s.role === 'admin') {
     out.intakes = intakes.filter(function (x) { return f.intakes.indexOf(x.row) >= 0; });
-    out.transcripts = tIndex_(fam).filter(function (t) { return t.fam === f.key; });
+    out.transcripts = famTr;
     out.files = ownerFiles_(f.key, clientFor_(f));
     audit_(s.u, 'view-family', f.key);
   }
@@ -899,16 +901,16 @@ function clientFor_(f) {
 function aliasesOf_(fam, key) { return Object.keys(fam.alias || {}).filter(function (k) { return fam.alias[k] === key; }); }
 
 /** Stage: the one Nidhi chose, otherwise worked out from bookings and intake. */
-function stageOf_(f, c, now) {
+function stageOf_(f, c, lastTr) {
   if (c && c.stage) return c.stage;
-  var past = f.last, next = f.next;
+  var past = f.last || lastTr, next = f.next;
   if (past) return 'Ongoing';
   if (next) return 'First session';
   if (f.intakes && f.intakes.length) return 'Intake received';
   return 'Enquiry';
 }
-function clientView_(c, f) {
-  return { stage: stageOf_(f, c), stageSet: !!(c && c.stage), followUp: c ? c.followUp : '', followNote: c ? c.followNote : '', school: c ? c.school : '',
+function clientView_(c, f, lastTr) {
+  return { stage: stageOf_(f, c, lastTr), stageSet: !!(c && c.stage), followUp: c ? c.followUp : '', followNote: c ? c.followNote : '', school: c ? c.school : '',
     tags: c ? c.tags : [], folderUrl: c && c.folderId ? 'https://drive.google.com/drive/folders/' + c.folderId : '' };
 }
 
@@ -1336,12 +1338,14 @@ function crm_(b, s) {
   if (!b.fresh) { var hit = c.get(key); if (hit) return JSON.parse(hit); }
   var bk = bookings_(), fam = families_(bk, intakeRows_()), today = ymdStr_(new Date()), nowIso = new Date().toISOString();
   var files = fileRows_().filter(function (x) { return !x.status; });
-  var tr = s.role === 'admin' ? tIndex_(fam) : [];
+  var trAll = tIndex_(fam), tr = s.role === 'admin' ? trAll : [], trBy = {};
+  trAll.forEach(function (t) { if (t.fam) (trBy[t.fam] = trBy[t.fam] || []).push(t.when); });   // sessions held outside online booking
   var intakeAt = {}; intakeRows_().forEach(function (x) { intakeAt[x.row] = x.at; });
   var clients = fam.list.map(function (f) {
-    var cr = clientFor_(f), v = clientView_(cr, f);
+    var ts = (trBy[f.key] || []).sort(), lastTr = ts.length ? ts[ts.length - 1] : '';
+    var cr = clientFor_(f), v = clientView_(cr, f, lastTr);
     return { key: f.key, child: f.children.join(', '), parent: f.parents.join(', '), stage: v.stage, followUp: v.followUp, followNote: v.followNote, school: v.school, tags: v.tags,
-      last: f.last, next: f.next, sessions: f.bookings.length, intake: f.intakes.length > 0,
+      last: (f.last > lastTr ? f.last : lastTr) || '', next: f.next, sessions: Math.max(f.bookings.length, ts.length), transcripts: ts.length, intake: f.intakes.length > 0,
       intakeAt: f.intakes.map(function (r) { return intakeAt[r] || ''; }).sort().pop() || '', files: files.filter(function (x) { return x.owner === f.key; }).length, manual: !!f.manual };
   });
   var nudges = [], add = function (o) { nudges.push(o); };
@@ -1354,7 +1358,8 @@ function crm_(b, s) {
     var recentIntake = cl.intakeAt && (Date.now() - new Date(cl.intakeAt).getTime()) < 21 * 86400000;   // old, never-booked intakes stay quiet
     if (cl.intake && (cl.next || recentIntake) && !mine.some(function (x) { return x.cat === 'intake' && x.template !== 'prep'; }) && ['Enquiry', 'Intake received', 'First session'].indexOf(cl.stage) >= 0)
       add({ kind: 'wait', icon: 'doc', key: cl.key, title: 'No hypotheses yet for ' + (cl.child || cl.parent), sub: 'Intake form received' + (cl.next ? ' · first session ' + dl_(cl.next) : ''), act: 'Start hypotheses', href: '#family/' + encodeURIComponent(cl.key) + '/new-hypotheses', sort: 2 });
-    if (cl.stage === 'Ongoing' && !cl.next && cl.last && (Date.now() - new Date(cl.last).getTime()) > 30 * 86400000)
+    var quiet = cl.last ? (Date.now() - new Date(cl.last).getTime()) / 86400000 : 0;
+    if (cl.stage === 'Ongoing' && !cl.next && cl.last && quiet > 30 && quiet < 120)
       add({ kind: 'blue', icon: 'alert', key: cl.key, title: (cl.child || cl.parent) + ' has had no session in ' + Math.round((Date.now() - new Date(cl.last).getTime()) / 86400000) + ' days', sub: 'Nothing booked yet. Check in, or mark Paused / Closed.', act: 'Check in', href: '#family/' + encodeURIComponent(cl.key), sort: 4 });
   });
   if (s.role === 'admin') {
@@ -1516,6 +1521,12 @@ function search_(b, s) {
       var i = txt.toLowerCase().indexOf(words[0]);
       res.push({ type: 'Note', title: 'Note · ' + (r[0] instanceof Date ? Utilities.formatDate(r[0], tz_(), 'd MMM yyyy') : '') + ' · ' + (f.children[0] || f.parents[0] || ''), sub: (i > 40 ? '…' : '') + txt.slice(Math.max(0, i - 40), i + 120), href: '#family/' + encodeURIComponent(f.key), at: iso_(r[0]) });
     });
+    intakeRows_().forEach(function (x) {                       // intake form answers
+      var hit = x.answers.filter(function (qa) { return has(qa[1]) || has(qa[0] + ' ' + qa[1]); })[0];
+      if (!hit) return;
+      var f = fam.list.filter(function (ff) { return ff.intakes.indexOf(x.row) >= 0; })[0]; if (!f) return;
+      res.push({ type: 'Intake', title: 'Intake · ' + (x.child || x.parent || ''), sub: hit[0] + ': ' + String(hit[1]).slice(0, 140), href: '#family/' + encodeURIComponent(f.key) });
+    });
     var files = fileRows_().filter(function (x) { return !x.status; }), byId = {};
     files.forEach(function (x) { byId[x.id] = x; });
     var hitIds = {};
@@ -1593,6 +1604,14 @@ function prep_(b, s) {
   L.push('4. List questions to ask the parents, and anything to share with them or the school.');
   L.push('If you cannot open a link, tell me which one and I will paste it in.');
   var text = L.join('\n');
+  if (!on('names', true)) {                                   // names off: also mask them inside document titles and notes
+    f.children.concat(f.parents).filter(function (n) { return n && n.length > 1; }).forEach(function (n) {
+      var firstName = n.trim().split(/\s+/)[0];
+      [n.trim()].concat(firstName.length > 2 && firstName !== n.trim() ? [firstName] : []).forEach(function (w) {   // full name, then first name
+        text = text.replace(new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi'), f.children.indexOf(n) >= 0 ? '[child]' : '[parent]');
+      });
+    });
+  }
   audit_(s.u, 'prep-pack', f.key + (b.save ? ' (saved to Drive)' : ''));
   if (!b.save) return { ok: true, text: text };
   // Save: ONE prep doc per client, rewritten each time (never a new copy).

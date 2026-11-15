@@ -61,6 +61,10 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.2}
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
 .card+.card,.stack>*+*{margin-top:12px}
 .grid>.card+.card{margin-top:0}
+@media(max-width:699px){.grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.grid.three .stat{padding:12px 10px}.grid.three .stat b{font-size:24px}.grid.three .stat span{font-size:12px;line-height:1.3;display:block}}
+.row[style*="flex-wrap"]>.grow{flex:1 1 240px}
+.chips{scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.kmove{margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:12.5px;padding:4px 6px;width:100%;color:var(--ink-2)}
 .item .grow{flex:1;min-width:0}
 .grid{display:grid;gap:12px}
 @media(min-width:700px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
@@ -170,6 +174,8 @@ mark{background:#FFE9A8;padding:0 2px;border-radius:3px}
 .nudge .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--ink-2)}
 .nudge.bad .dot{background:var(--bad)}.nudge.wait .dot{background:var(--warn)}.nudge.blue .dot{background:#2F6DB5}.nudge.ok .dot{background:var(--leaf)}
 .nudge .xbtn{flex:none}
+.nudge .t,.nudge .s{white-space:normal}
+@media(max-width:560px){.nudge{flex-wrap:wrap}.nudge .grow{flex:1 1 calc(100% - 60px)}.nudge .btn{margin-left:22px}}
 .crmbar .field input,.crmbar .field select{padding:9px 12px;font-size:15px}
 .drop{display:block;margin-top:14px;border:2px dashed #D9C6B6;border-radius:16px;padding:26px 16px;text-align:center;background:var(--paper);cursor:pointer}
 .drop.on{border-color:var(--clay);background:var(--clay-soft)}
@@ -183,7 +189,7 @@ mark{background:#FFE9A8;padding:0 2px;border-radius:3px}
 .kcol h2{font-family:var(--sans);font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px;padding:4px 4px 2px}
 .kcol h2 .pill{background:#fff}
 .kcard{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-decoration:none;color:var(--ink);cursor:grab}
-.kcard .t{font-weight:600}.kcard .s{font-size:12.5px;color:var(--ink-2)}
+.kcard .t{font-weight:600;color:var(--ink);text-decoration:none}.kcard .t:hover{color:var(--clay)}.kcard .s{font-size:12.5px;color:var(--ink-2)}
 .kcard .pill{align-self:flex-start}
 .kcard.drag{opacity:.4}
 .grid-c{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.3fr;gap:6px;margin-top:6px}
@@ -583,7 +589,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
     Promise.all([load(), crmLoad().catch(function () { return null; })]).then(function (res) {
       var d = res[0], c = res[1], q = (S.famQ || "").toLowerCase(), st = S.famStage || "Active", info = {};
       if (c) c.clients.forEach(function (x) { info[x.key] = x; });
-      var fams = (c ? c.clients.map(function (x) { return { key: x.key, children: x.child ? x.child.split(", ") : [], parents: x.parent ? x.parent.split(", ") : [], emails: [], phones: [], next: x.next, last: x.last, bookings: { length: x.sessions }, intakes: { length: x.intake ? 1 : 0 } }; }) : d.families);
+      var fams = (c ? c.clients.map(function (x) { return { key: x.key, children: x.child ? x.child.split(", ") : [], parents: x.parent ? x.parent.split(", ") : [], emails: [], phones: [], next: x.next, last: x.last, bookings: { length: x.sessions }, transcripts: x.transcripts, intakes: { length: x.intake ? 1 : 0 } }; }) : d.families);
       if (!c) fams = d.families;
       var all = d.families.reduce(function (m, f) { m[f.key] = f; return m; }, {});
       var list = fams.filter(function (f) {
@@ -600,7 +606,7 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
         (list.length ? list.map(function (f) {
           var x = info[f.key] || {}, td = today10();
           return '<a class="item" href="#family/' + encodeURIComponent(f.key) + '"><div class="grow"><div class="t">' + esc(f.children.join(", ") || "—") + ' <span class="muted" style="font-weight:400">· ' + esc(f.parents.join(", ")) + '</span></div><div class="s">' +
-            (f.next ? "Next: " + dDate(f.next) : f.last ? "Last: " + dDate(f.last) : "No sessions booked online") + " · " + f.bookings.length + " session" + (f.bookings.length === 1 ? "" : "s") + (f.intakes.length ? " · intake ✓" : "") + (x.files ? " · " + x.files + " doc" + (x.files === 1 ? "" : "s") : "") + (x.school ? " · " + esc(x.school) : "") + "</div></div>" +
+            (f.next ? "Next: " + dDate(f.next) : f.last ? "Last: " + dDate(f.last) : "No sessions yet") + " · " + f.bookings.length + " session" + (f.bookings.length === 1 ? "" : "s") + (f.intakes.length ? " · intake ✓" : "") + (x.files ? " · " + x.files + " doc" + (x.files === 1 ? "" : "s") : "") + (x.school ? " · " + esc(x.school) : "") + "</div></div>" +
             (x.followUp && x.followUp <= td ? '<span class="pill bad">Follow up</span>' : "") + (x.stage ? stagePill(x.stage) : "") + "</a>";
         }).join("") : '<p class="empty">No clients match.</p>'));
       if ($("#nc")) $("#nc").onclick = newClientModal;
@@ -1177,31 +1183,39 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
         return true;
       });
       var chip = function (k, l) { return '<button class="chip' + (only === k ? " on" : "") + '" data-p="' + k + '">' + l + "</button>"; };
-      var html = '<div class="row" style="flex-wrap:wrap"><div class="grow"><h1 class="h1">Pipeline</h1><p class="sub" style="margin-bottom:8px">Every client by stage. Drag a card to another column (or open it to change the stage).</p></div><button class="btn p sm" id="nc">+ New client</button></div>' +
+      var html = '<div class="row" style="flex-wrap:wrap"><div class="grow"><h1 class="h1">Pipeline</h1><p class="sub" style="margin-bottom:8px">Every client by stage. Drag a card to another column, or use “Move to…” on the card.</p></div><button class="btn p sm" id="nc">+ New client</button></div>' +
         '<div class="chips">' + chip("all", "All clients") + chip("due", "Follow-up due") + '</div><input class="search" id="q" placeholder="Search name, school, tag" value="' + esc(S.pq || "") + '" />' +
         '<div class="kanban">' + c.stages.map(function (st) {
           var cards = list.filter(function (x) { return x.stage === st; }).sort(function (a, b) { return (a.followUp || "9") < (b.followUp || "9") ? -1 : 1; });
           return '<section class="kcol" data-stage="' + esc(st) + '"><h2>' + esc(st) + ' <span class="pill n">' + cards.length + "</span></h2>" + cards.map(function (x) {
             var due = x.followUp && x.followUp <= td;
-            return '<a class="kcard" draggable="true" data-key="' + esc(x.key) + '" href="#family/' + encodeURIComponent(x.key) + '"><span class="t">' + esc(x.child || "—") + '</span><span class="s">' + esc(x.parent) + "</span>" +
+            return '<div class="kcard" draggable="true" data-key="' + esc(x.key) + '"><a class="t" href="#family/' + encodeURIComponent(x.key) + '">' + esc(x.child || "—") + '</a><span class="s">' + esc(x.parent) + "</span>" +
               '<span class="s">' + (x.next ? "Next " + dDate(x.next) : x.last ? "Last " + dDate(x.last) : x.intake ? "Intake received" : "No sessions yet") + (x.school ? " · " + esc(x.school) : "") + "</span>" +
-              (x.followUp ? '<span class="pill ' + (due ? "bad" : "n") + '" style="margin-top:6px">Follow up ' + ymdLabel(x.followUp) + "</span>" : "") + "</a>";
+              (x.followUp ? '<span class="pill ' + (due ? "bad" : "n") + '" style="margin-top:6px">Follow up ' + ymdLabel(x.followUp) + "</span>" : "") +
+              '<select class="kmove" data-move="' + esc(x.key) + '" aria-label="Move ' + esc(x.child || "client") + ' to another stage"><option value="">Move to…</option>' +
+              c.stages.filter(function (o) { return o !== st; }).map(function (o) { return "<option>" + esc(o) + "</option>"; }).join("") + "</select></div>";
           }).join("") + "</section>";
         }).join("") + "</div>";
       shell("pipeline", html);
       $("#nc").onclick = newClientModal;
       [].forEach.call(root.querySelectorAll("[data-p]"), function (b) { b.onclick = function () { S.pOnly = b.dataset.p; pipelineView(); }; });
       var qi = $("#q"); qi.oninput = function () { S.pq = qi.value; clearTimeout(S.t); S.t = setTimeout(function () { pipelineView(); var n = $("#q"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); };
+      var moveTo = function (key, st) {
+        var cl = c.clients.filter(function (x) { return x.key === key; })[0]; if (!cl || cl.stage === st) return;
+        var was = cl.stage; cl.stage = st; pipelineView();
+        api("saveClient", { key: key, stage: st }).then(function (r) { if (!r.ok) throw new Error(r.message); toast((cl.child || "Client") + " → " + st); delete S.cache["f:" + key]; })
+          .catch(function (er) { cl.stage = was; pipelineView(); toast(er.message); });
+      };
+      [].forEach.call(root.querySelectorAll("[data-move]"), function (sel) {
+        sel.onchange = function () { if (sel.value) moveTo(sel.dataset.move, sel.value); };
+      });
       var dragKey = null;
       [].forEach.call(root.querySelectorAll(".kcard"), function (k) { k.ondragstart = function (e) { dragKey = k.dataset.key; e.dataTransfer.setData("text/plain", dragKey); k.classList.add("drag"); }; k.ondragend = function () { k.classList.remove("drag"); }; });
       [].forEach.call(root.querySelectorAll(".kcol"), function (col) {
         col.ondragover = function (e) { e.preventDefault(); col.classList.add("over"); }; col.ondragleave = function () { col.classList.remove("over"); };
         col.ondrop = function (e) {
           e.preventDefault(); col.classList.remove("over"); var key = dragKey || e.dataTransfer.getData("text/plain"), st = col.dataset.stage;
-          var cl = c.clients.filter(function (x) { return x.key === key; })[0]; if (!cl || cl.stage === st) return;
-          var was = cl.stage; cl.stage = st; pipelineView();
-          api("saveClient", { key: key, stage: st }).then(function (r) { if (!r.ok) throw new Error(r.message); toast((cl.child || "Client") + " → " + st); delete S.cache["f:" + key]; })
-            .catch(function (er) { cl.stage = was; pipelineView(); toast(er.message); });
+          moveTo(key, st);
         };
       });
     }).catch(function (e) { fail("pipeline", e); });
@@ -1303,11 +1317,11 @@ var BOOKING_API = "https://script.google.com/macros/s/AKfycbzw67eOs-JR0uudjn1Yu_
   /* ── Smart search ── */
   function searchView() {
     var q = S.sq || "";
-    var html = '<h1 class="h1">Search</h1><p class="sub">Clients, schools, notes, documents (titles and the text inside) and transcripts.</p>' +
+    var html = '<h1 class="h1">Search</h1><p class="sub">Clients, schools, intake answers, notes, documents (titles and the text inside) and transcripts.</p>' +
       '<form id="gf" class="row" style="gap:8px;margin-bottom:12px"><input class="search" id="gq" style="margin:0" placeholder="e.g. wednesday drop-off, Shaala, 98450…" value="' + esc(q) + '" autofocus /><button class="btn p">Search</button></form><div id="gr"></div>';
     shell("search", html);
     var draw = function (r) {
-      var types = ["Client", "School", "Note", "Document", "Transcript"], f = S.sFilter || "All", list = r.results.filter(function (x) { return f === "All" || x.type === f; });
+      var types = ["Client", "School", "Intake", "Note", "Document", "Transcript"], f = S.sFilter || "All", list = r.results.filter(function (x) { return f === "All" || x.type === f; });
       var hl = new RegExp("(" + r.q.split(/\s+/).filter(Boolean).map(function (w) { return w.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&"); }).join("|") + ")", "gi");
       var mark = function (s) { return esc(s).replace(hl, "<mark>$1</mark>"); };
       $("#gr").innerHTML = '<div class="chips">' + ["All"].concat(types).map(function (t) { var n = t === "All" ? r.results.length : r.results.filter(function (x) { return x.type === t; }).length; return n || t === "All" ? '<button class="chip' + (t === f ? " on" : "") + '" data-sf="' + t + '">' + t + " (" + n + ")</button>" : ""; }).join("") + "</div>" +
