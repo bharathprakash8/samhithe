@@ -1121,10 +1121,12 @@ function createDoc_(b, s) {
     var have = fileRows_().filter(function (x) { return x.owner === t.owner && x.template === b.template && x.session === (tpl.needsSession ? session : x.session) && !x.status; });
     for (var i = 0; i < have.length; i++) { var lf = liveFile_(have[i].id); if (lf) return { ok: true, existing: true, file: fileOut_(lf, have[i]), message: 'This document already exists – opening it.' }; }
     var f = t.fam, child = f.children[0] || 'Child', title = tpl.name + ' – ' + child + (session ? ' – ' + Utilities.formatDate(ymd_(session), tz_(), 'd MMM yyyy') : '');
-    var doc = DocumentApp.create(title), body = doc.getBody();
-    fillTemplate_(String(b.template), body, t, session, s);
-    doc.saveAndClose();
-    var file = DriveApp.getFileById(doc.getId()); file.moveTo(t.folder);
+    var doc = DocumentApp.create(title), file = DriveApp.getFileById(doc.getId());
+    try {
+      file.moveTo(t.folder);                                    // straight into the client's folder, never left in My Drive
+      fillTemplate_(String(b.template), doc.getBody(), t, session, s);
+      doc.saveAndClose();
+    } catch (e) { try { file.setTrashed(true); } catch (x) {} throw e; }
     indexFile_(file, { owner: t.owner, cat: tpl.cat, session: session, source: 'template', template: String(b.template), by: s.u });
     audit_(s.u, 'create-doc', t.owner + ': ' + title);
     return { ok: true, file: fileOut_(file, { cat: tpl.cat, session: session, by: s.u, source: 'template', template: String(b.template) }) };
@@ -1140,7 +1142,7 @@ function fillTemplate_(key, body, t, session, s) {
   var meta = child + (parent ? ' · ' + f.parents.join(', ') : '') + (c.school ? ' · ' + c.school : '');
   var intake = intakeRows_().filter(function (x) { return f.intakes.indexOf(x.row) >= 0; });
   if (key === 'hypotheses') {
-    body.getParagraphs()[0].setText('Hypotheses – ' + child).setHeading(H.TITLE);
+    docTitle_(body, 'Hypotheses – ' + child);
     p(meta + ' · prepared ' + Utilities.formatDate(new Date(), tz_(), 'd MMM yyyy'));
     h('Presenting concerns'); p('');
     h('Strengths and what is going well'); p('');
@@ -1154,7 +1156,7 @@ function fillTemplate_(key, body, t, session, s) {
     }
   } else if (key === 'session') {
     var d = ymd_(session), label = Utilities.formatDate(d, tz_(), 'EEEE d MMMM yyyy');
-    body.getParagraphs()[0].setText('Session notes – ' + child).setHeading(H.TITLE);
+    docTitle_(body, 'Session notes – ' + child);
     p(meta + ' · session on ' + label);
     h('Summary'); p('');
     h('Observations'); p('');
@@ -1174,7 +1176,7 @@ function fillTemplate_(key, body, t, session, s) {
       String(txt || '').slice(0, 20000).split(/\n+/).forEach(function (line) { if (line.trim()) p(line); });
     } else { h('Gemini meeting notes'); p('No transcript is linked to this session yet. Link it under Transcripts, or paste notes here.'); }
   } else if (key === 'parent') {
-    body.getParagraphs()[0].setText('Summary for ' + (parent ? first_(parent) : 'parents') + ' – ' + child).setHeading(H.TITLE);
+    docTitle_(body, 'Summary for ' + (parent ? first_(parent) : 'parents') + ' – ' + child);
     p(Utilities.formatDate(new Date(), tz_(), 'd MMMM yyyy'));
     p('Dear ' + (parent ? first_(parent) : 'parents') + ',');
     p('Thank you for the sessions so far. Here is a short summary of what we have seen and what you can try at home.');
@@ -1184,7 +1186,7 @@ function fillTemplate_(key, body, t, session, s) {
     h('Next steps'); p('');
     p('Warm regards,'); p('Nidhi Rao'); p('Samhithe – Child and Family Wellness');
   } else if (key === 'school') {
-    body.getParagraphs()[0].setText('Letter to ' + (c.school || 'the school') + ' – ' + child).setHeading(H.TITLE);
+    docTitle_(body, 'Letter to ' + (c.school || 'the school') + ' – ' + child);
     p(Utilities.formatDate(new Date(), tz_(), 'd MMMM yyyy'));
     p('To the class teacher' + (c.school ? ', ' + c.school : '') + ',');
     p('I am working with ' + child + ' and the family' + (parent ? ' (' + f.parents.join(', ') + ')' : '') + '. With the parents’ consent, I am sharing a few ideas that may help in class.');
@@ -1194,6 +1196,8 @@ function fillTemplate_(key, body, t, session, s) {
     p('Warm regards,'); p('Nidhi Rao'); p('Samhithe – Child and Family Wellness · nidhi@samhithe.in');
   }
 }
+/** First paragraph as the doc's title. (Paragraph.setText returns nothing in Apps Script, so no chaining.) */
+function docTitle_(body, text) { var p = body.getParagraphs()[0]; p.setText(text); p.setHeading(DocumentApp.ParagraphHeading.TITLE); }
 function first_(s) { return String(s || '').trim().split(/\s+/)[0]; }
 
 /* ── Clients: save, follow-ups, new client ── */
@@ -1333,10 +1337,12 @@ function crm_(b, s) {
   var bk = bookings_(), fam = families_(bk, intakeRows_()), today = ymdStr_(new Date()), nowIso = new Date().toISOString();
   var files = fileRows_().filter(function (x) { return !x.status; });
   var tr = s.role === 'admin' ? tIndex_(fam) : [];
+  var intakeAt = {}; intakeRows_().forEach(function (x) { intakeAt[x.row] = x.at; });
   var clients = fam.list.map(function (f) {
     var cr = clientFor_(f), v = clientView_(cr, f);
     return { key: f.key, child: f.children.join(', '), parent: f.parents.join(', '), stage: v.stage, followUp: v.followUp, followNote: v.followNote, school: v.school, tags: v.tags,
-      last: f.last, next: f.next, sessions: f.bookings.length, intake: f.intakes.length > 0, files: files.filter(function (x) { return x.owner === f.key; }).length, manual: !!f.manual };
+      last: f.last, next: f.next, sessions: f.bookings.length, intake: f.intakes.length > 0,
+      intakeAt: f.intakes.map(function (r) { return intakeAt[r] || ''; }).sort().pop() || '', files: files.filter(function (x) { return x.owner === f.key; }).length, manual: !!f.manual };
   });
   var nudges = [], add = function (o) { nudges.push(o); };
   clients.forEach(function (cl) {
@@ -1345,7 +1351,8 @@ function crm_(b, s) {
     if (cl.followUp && cl.followUp <= today) add({ kind: cl.followUp < today ? 'bad' : 'wait', icon: 'clock', key: cl.key, title: 'Follow up: ' + who, sub: (cl.followNote || 'Follow-up') + ' · ' + (cl.followUp < today ? 'overdue since ' : 'due ') + dl_(cl.followUp), act: 'Open', href: '#family/' + encodeURIComponent(cl.key), sort: 0 });
     if (s.role !== 'admin') return;
     var mine = files.filter(function (x) { return x.owner === cl.key; });
-    if (cl.intake && !mine.some(function (x) { return x.cat === 'intake' && x.template !== 'prep'; }) && ['Enquiry', 'Intake received', 'First session'].indexOf(cl.stage) >= 0)
+    var recentIntake = cl.intakeAt && (Date.now() - new Date(cl.intakeAt).getTime()) < 21 * 86400000;   // old, never-booked intakes stay quiet
+    if (cl.intake && (cl.next || recentIntake) && !mine.some(function (x) { return x.cat === 'intake' && x.template !== 'prep'; }) && ['Enquiry', 'Intake received', 'First session'].indexOf(cl.stage) >= 0)
       add({ kind: 'wait', icon: 'doc', key: cl.key, title: 'No hypotheses yet for ' + (cl.child || cl.parent), sub: 'Intake form received' + (cl.next ? ' · first session ' + dl_(cl.next) : ''), act: 'Start hypotheses', href: '#family/' + encodeURIComponent(cl.key) + '/new-hypotheses', sort: 2 });
     if (cl.stage === 'Ongoing' && !cl.next && cl.last && (Date.now() - new Date(cl.last).getTime()) > 30 * 86400000)
       add({ kind: 'blue', icon: 'alert', key: cl.key, title: (cl.child || cl.parent) + ' has had no session in ' + Math.round((Date.now() - new Date(cl.last).getTime()) / 86400000) + ' days', sub: 'Nothing booked yet. Check in, or mark Paused / Closed.', act: 'Check in', href: '#family/' + encodeURIComponent(cl.key), sort: 4 });
@@ -1594,11 +1601,13 @@ function prep_(b, s) {
     delete MEMO_.files;
     var row = fileRows_().filter(function (x) { return x.owner === t.owner && x.template === 'prep' && !x.status; })[0], doc, file = row && liveFile_(row.id);
     if (file) doc = DocumentApp.openById(file.getId());
-    else { doc = DocumentApp.create('Claude prep pack – ' + (f.children[0] || 'Child')); file = DriveApp.getFileById(doc.getId()); file.moveTo(t.folder); }
+    else { doc = DocumentApp.create('Claude prep pack – ' + (f.children[0] || 'Child')); file = DriveApp.getFileById(doc.getId()); file.moveTo(t.folder); var made = true; }
+    try {
     var body = doc.getBody(); body.clear();
-    body.getParagraphs()[0].setText('Claude prep pack – ' + (f.children[0] || 'Child') + ' – ' + Utilities.formatDate(new Date(), tz_(), 'd MMM yyyy')).setHeading(DocumentApp.ParagraphHeading.TITLE);
+    docTitle_(body, 'Claude prep pack – ' + (f.children[0] || 'Child') + ' – ' + Utilities.formatDate(new Date(), tz_(), 'd MMM yyyy'));
     text.split('\n').forEach(function (line) { body.appendParagraph(line); });
     doc.saveAndClose();
+    } catch (e) { if (made) { try { file.setTrashed(true); } catch (x) {} } throw e; }
     indexFile_(file, { owner: t.owner, cat: 'intake', source: 'template', template: 'prep', by: s.u });
     return { ok: true, text: text, file: fileOut_(file, { cat: 'intake', template: 'prep' }) };
   } finally { lock.releaseLock(); }
