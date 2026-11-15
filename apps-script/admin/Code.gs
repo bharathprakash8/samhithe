@@ -605,7 +605,7 @@ function transcripts_(b, s) {
       n++;
       var txt = ''; try { var d = DocumentApp.openById(t.id), tabs = d.getTabs(); txt = tabs.length ? tabs[0].asDocumentTab().getBody().getText() : d.getBody().getText(); } catch (x) {}
       var empty = /summary wasn't produced|wasn't enough conversation/i.test(txt);
-      var m = txt.match(/Summary\s*\n([\s\S]{0,400})/), peek = empty ? '' : (m ? m[1] : txt.slice(0, 300)).replace(/\s+/g, ' ').trim().slice(0, 220);
+      var peek = empty ? '' : geminiText_(txt).replace(/\s+/g, ' ').trim().slice(0, 220);
       hit = JSON.stringify({ empty: empty, peek: peek }); try { c.put(k, hit, 21600); } catch (x) {}
     }
     var o = JSON.parse(hit); t.empty = o.empty; t.peek = o.peek;
@@ -1226,6 +1226,12 @@ function fillTemplate_(key, body, t, session, s) {
 }
 /** First paragraph as the doc's title. (Paragraph.setText returns nothing in Apps Script, so no chaining.) */
 function docTitle_(body, text) { var p = body.getParagraphs()[0]; p.setText(text); p.setHeading(DocumentApp.ParagraphHeading.TITLE); }
+/** The useful part of a Gemini notes doc: Google's own boilerplate lines removed. */
+function geminiText_(txt) {
+  var junk = /rate the new|survey|guest list is hidden|^invited$|^attachments$|^meeting records|you should review gemini|how is the quality|help center|get tips and learn|^notes$|^transcript$/i;
+  var m = String(txt || '').match(/Summary\s*\n([\s\S]*?)(\n\s*(Details|Next steps|Suggested next steps)\b|$)/i);
+  return (m ? m[1] : String(txt || '')).split('\n').map(function (l) { return l.trim(); }).filter(function (l) { return l && !junk.test(l); }).join('\n');
+}
 function first_(s) { return String(s || '').trim().split(/\s+/)[0]; }
 
 /* ── Clients: save, follow-ups, new client ── */
@@ -1624,9 +1630,9 @@ function prep_(b, s) {
     L.push(''); L.push('WHAT HAPPENED IN RECENT SESSIONS (Gemini summaries)');
     tr.slice(0, 2).forEach(function (t) {
       var txt = ''; try { var d = DocumentApp.openById(t.id), tabs = d.getTabs(); txt = tabs.length ? tabs[0].asDocumentTab().getBody().getText() : d.getBody().getText(); } catch (x) {}
-      var m = txt.match(/Summary\s*\n([\s\S]*?)(\n\s*(Details|Next steps|Suggested next steps)\b|$)/i), body = (m ? m[1] : txt).replace(/\n{2,}/g, '\n').trim();
+      var body = geminiText_(txt);
       if (/summary wasn't produced/i.test(body) || !body) return;
-      L.push(''); L.push('— ' + Utilities.formatDate(new Date(t.when), tz_(), 'd MMM yyyy') + ' —'); L.push(body.slice(0, 2500));
+      L.push(''); L.push('— ' + Utilities.formatDate(new Date(t.when), tz_(), 'd MMM yyyy') + ' —'); L.push(body.slice(0, 1800));
     });
   }
   var notes = notesFor_(f.key, aliasesOf_(fam, f.key)).slice(0, 8);
