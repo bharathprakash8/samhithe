@@ -48,9 +48,21 @@ Samhithe CRM/
 - v3 – Phase 1 final: 30-min transcript cache, better name matching, test helpers removed
 - v4 – Phase 2+3: availability, reschedule/cancel with emails, school enquiries, templates, users, speed cache
 - v5 – Speed: dashboard data returned with sign-in, single-write user updates
+- v7.1–v7.3.1 (15 Nov, deployment versions 7–10) – fixes from live end-to-end and Nidhi-style UX testing
 - v7 – CRM: client profiles with Drive documents (upload, templates), pipeline & follow-ups, schools & workshops,
   reminders, Inbox auto-filing, smart search, Claude prep pack, Drive duplicate check
 - v6 – Remembered devices: "Keep me signed in" sessions with no expiry, ended by sign-out, password reset/change or deactivation (deployed automatically by the Samhithe Deployer)
 
-## Deploying changes
+## Deploying changes – IMPORTANT (Nov 2026)
+The Samhithe Deployer is currently **not working**: its Apps Script project uses Google's hidden default Cloud
+project, where the Apps Script API can't be switched on ("Apps Script API has not been used in project 790387317843").
+Until it is moved to a standard Google Cloud project, publish backend changes by hand:
+
+1. script.google.com (as nidhi@samhithe.in) → **Samhithe Admin** → Editor → replace `Code.gs` with the file from `main` → Save.
+2. **Deploy → Manage deployments → ✏️ → Version: New version →** description → **Deploy**. The URL stays the same.
+3. If Google shows "Authorization required", click Review permissions and allow everything (the CRM needs full Drive access).
+
+The page (`admin/index.html`) still updates automatically through GitHub Pages.
+
+## Deploying changes (when the Deployer works again)
 Push changes to `apps-script/admin/` on `main`. Within about 5 minutes the **Samhithe Deployer** (an Apps Script project in nidhi@samhithe.in's account, see `apps-script/deployer/`) creates a new version named after the latest commit title and moves the existing web-app deployment to it, so the URL never changes. No laptop or manual deploy is needed.
