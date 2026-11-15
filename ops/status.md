@@ -1,17 +1,17 @@
 # Samhithe health check
 
-**When:** Sun 15 Nov 2026, 11:45 PM IST  
-**Trigger:** deploy skipped (not set up), success - Admin v7.3.1 – strip Gemini boilerplate from session summaries and tra
+**When:** Sun 15 Nov 2026, 11:46 PM IST  
+**Trigger:** deploy skipped (not set up), success - Docs: manual deploy steps while the Deployer is down
 
 | Check | Result |
 |---|---|
-| Booking engine (slots) | OK · 1182 ms |
-| Admin backend | OK · 1134 ms |
+| Booking engine (slots) | OK · 991 ms |
+| Admin backend | OK · 1452 ms |
 | Admin rejects bad session | OK |
-| www.samhithe.in/ | OK 200 · 0.152283s |
-| www.samhithe.in/booking/ | OK 200 · 0.128722s |
-| www.samhithe.in/admin/ | OK 200 · 0.136637s |
-| www.samhithe.in/admin/sw.js | OK 200 · 0.114739s |
+| www.samhithe.in/ | OK 200 · 0.262070s |
+| www.samhithe.in/booking/ | OK 200 · 0.179717s |
+| www.samhithe.in/admin/ | OK 200 · 0.166939s |
+| www.samhithe.in/admin/sw.js | OK 200 · 0.103989s |
 
 ## Bookable days (next 31 days) – session 60 min, ₹1000
 
