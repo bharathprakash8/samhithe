@@ -1,34 +1,33 @@
 # Samhithe health check
 
-**When:** Sun 22 Nov 2026, 12:10 PM IST  
+**When:** Mon 23 Nov 2026, 01:02 AM IST  
 **Trigger:** fix: admin session check
 
 | Check | Result |
 |---|---|
-| Booking engine (slots) | OK · 1368 ms |
-| Admin backend | OK · 1326 ms |
+| Booking engine (slots) | OK · 1931 ms |
+| Admin backend | OK · 668 ms |
 | Admin rejects bad session | OK |
-| www.samhithe.in/ | OK 200 · 0.211949s |
-| www.samhithe.in/booking/ | OK 200 · 0.172772s |
-| www.samhithe.in/admin/ | OK 200 · 0.178631s |
-| www.samhithe.in/admin/sw.js | OK 200 · 0.124993s |
+| www.samhithe.in/ | OK 200 · 0.179949s |
+| www.samhithe.in/booking/ | OK 200 · 0.140625s |
+| www.samhithe.in/admin/ | OK 200 · 0.143696s |
+| www.samhithe.in/admin/sw.js | OK 200 · 0.176016s |
 
 ## Bookable days (next 31 days) – session 60 min, ₹1000
 
 | Date | Day | Free slots |
 |---|---|---|
-| 2026-11-22 | Sun | **Full / not available** |
 | 2026-11-23 | Mon | 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-11-24 | Tue | 11:00 AM, 12:15 PM, 4:30 PM, 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-11-25 | Wed | 6:00 PM, 7:15 PM, 8:30 PM |
-| 2026-11-26 | Thu | 11:00 AM, 12:15 PM, 6:00 PM, 7:15 PM, 8:30 PM |
-| 2026-11-27 | Fri | 6:00 PM, 7:15 PM, 8:30 PM |
-| 2026-11-28 | Sat | 11:00 AM, 12:15 PM |
+| 2026-11-26 | Thu | **Full / not available** |
+| 2026-11-27 | Fri | **Full / not available** |
+| 2026-11-28 | Sat | **Full / not available** |
 | 2026-11-29 | Sun | **Full / not available** |
-| 2026-11-30 | Mon | 6:00 PM, 7:15 PM, 8:30 PM |
-| 2026-12-01 | Tue | 11:00 AM, 12:15 PM, 4:30 PM, 6:00 PM, 7:15 PM, 8:30 PM |
-| 2026-12-02 | Wed | 6:00 PM, 7:15 PM, 8:30 PM |
-| 2026-12-03 | Thu | 11:00 AM, 12:15 PM, 6:00 PM, 7:15 PM, 8:30 PM |
+| 2026-11-30 | Mon | **Full / not available** |
+| 2026-12-01 | Tue | **Full / not available** |
+| 2026-12-02 | Wed | **Full / not available** |
+| 2026-12-03 | Thu | **Full / not available** |
 | 2026-12-04 | Fri | 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-12-05 | Sat | 11:00 AM, 12:15 PM |
 | 2026-12-06 | Sun | **Full / not available** |
@@ -48,3 +47,4 @@
 | 2026-12-20 | Sun | **Full / not available** |
 | 2026-12-21 | Mon | 6:00 PM, 7:15 PM, 8:30 PM |
 | 2026-12-22 | Tue | 11:00 AM, 12:15 PM, 4:30 PM, 6:00 PM, 7:15 PM, 8:30 PM |
+| 2026-12-23 | Wed | 6:00 PM, 7:15 PM, 8:30 PM |
